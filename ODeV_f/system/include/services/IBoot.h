@@ -1,0 +1,121 @@
+/**
+ ******************************************************************************
+ * @file    IBoot.h
+ * @author  STMicroelectronics - ST-Korea - MCD Team
+ * @version 1.0.0
+ * @date    Nov 21, 2017
+ *
+ * @brief The Boot interface integrates support for the bootloader into the
+ *        framework.
+ *
+ * This interface is implemented by applications that need to jump to another
+ * application during the startup sequence. The typical example is a
+ * bootloader. The IBoot interface is used by the system during the startup
+ * before the scheduler is running (this means that there is not INIT task
+ * yet). The algorithm is displayed in Fig. 16.
+ *
+ * \anchor fig16 \image html 16_boot_if_1.png "Fig.16 - Boot IF"
+ *
+ * The system reset all peripherals and it initializes the minimum set of
+ * resources (like the clock three). At this point if the SysInit() has been
+ * called with the parameter `TRUE` the system uses the SysGetBootIF() in
+ * order to obtain a pointer to an application object that implement the
+ * ::IBoot interface. Then the system initialize the Boot IF by calling the
+ * IBootInit() function. The the system check if the DFU trigger condition -
+ * IBootCheckDFUTrigger(). If it it is `FALSE` then the system prepare the
+ * jump to the application. First it retrieves the jump address by calling the
+ * IBootGetAppAdderss() function. Then it uses the IBootOnJampToApp() in order
+ * to perform some other tasks before the jump. Finally the system check if the
+ * application address is valid and make the jump.
+ *
+ * In order to optimize the memory footprint of the framework the ::IBoot
+ * interface can be disabled by the linker with the following definition:
+ *
+ *     #define INIT_TASK_CFG_ENABLE_BOOT_IF  0
+ *
+ * It can be added in the sysconfig.h file.
+ *
+ *
+ ******************************************************************************
+ * @attention
+ *
+ * <h2><center>&copy; COPYRIGHT 2017 STMicroelectronics</center></h2>
+ *
+ * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+ * You may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *        http://www.st.com/software_license_agreement_liberty_v2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ ******************************************************************************
+ */
+#ifndef INCLUDE_SERVICES_IBOOT_H_
+#define INCLUDE_SERVICES_IBOOT_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "systp.h"
+#include "systypes.h"
+#include "syserror.h"
+
+/**
+ * Create  type name for _IBoot.
+ */
+typedef struct _IBoot IBoot;
+
+
+// Public API declaration
+//***********************
+
+/**
+ * Initialize the interface IBoot. It should be called after the object allocation and before using the object.
+ *
+ * @param this [IN] specifies a pointer to the object.
+ * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
+ */
+inline sys_error_code_t IBootInit(IBoot *this);
+
+/**
+ * Check if the DFU condition occurs. If it is TRUE the bootloader enters the DFU mode,
+ *
+ * @param this [IN] specifies a pointer to the object.
+ * @return TRUE if the system must enter the DFU mode, FALSE otherwise.
+ */
+inline boolean_t IBootCheckDFUTrigger(IBoot *this);
+
+/**
+ * Used by the system to retrieve the address of the application to start.
+ *
+ * @param this [IN] specifies a pointer to the object.
+ * @return the address where is located the application to start.
+ */
+inline uint32_t IBootGetAppAdderss(IBoot *this);
+
+/**
+ * Called by the system before the jump to the other application. It can be used
+ * to perform some operations before the jump and also to stop the system from jump,.
+ *
+ * @param this [IN] specifies a pointer to the object.
+ * @param nAppDress [IN] specifies the address of the application to start.
+ * @return SYS_NO_ERROR_CODE if the system can continue with the jump, an application
+ * specific error code otherwise.
+ */
+inline sys_error_code_t IBootOnJampToApp(IBoot *this, uint32_t nAppDress);
+
+// Inline functions definition
+// ***************************
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* INCLUDE_SERVICES_IBOOT_H_ */

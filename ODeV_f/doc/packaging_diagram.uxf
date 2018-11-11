@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLHierarchy</id>
+    <coordinates>
+      <x>0</x>
+      <y>0</y>
+      <w>380</w>
+      <h>950</h>
+    </coordinates>
+    <panel_attributes>type=Package
+root
+	include
+	src
+	system
+		include
+			cmsis
+			drivers
+			events
+			freertos
+			services
+			stm32_usb_device_library
+				class
+					hid
+				core
+			stm32l4-hal
+		src
+			cmsis
+			drivers
+			freertos
+			services
+			stm32_usb_device_library
+				class
+					hid
+				core
+			stm32l4-hal
+	doc
+	ldscripts</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>440</x>
+      <y>30</y>
+      <w>220</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>root/include
+--
+it contains the application level include files
+bg=blue
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>710</x>
+      <y>30</y>
+      <w>220</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>root/src
+--
+it contains the application level source files
+bg=blue
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>440</x>
+      <y>150</y>
+      <w>220</w>
+      <h>300</h>
+    </coordinates>
+    <panel_attributes>root/system
+--
+it contains the fw components not developed but re-used for this project.
+For example the cmsis, the ST HAL and USB library.
+
+It contains also Low Level and Service Leves code developed for this project that can be reused for otehr projects.
+
+The include subfolder contains all the components include files.
+The src subfolder contains all the component source files.
+bg=light_gray
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>710</x>
+      <y>150</y>
+      <w>220</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>root/ldscripts
+--
+it contains the linker files
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLPackage</id>
+    <coordinates>
+      <x>710</x>
+      <y>280</y>
+      <w>220</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>root/doc
+--
+it contains project documentation files
+style=wordwrap</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
