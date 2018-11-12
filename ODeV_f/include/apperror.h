@@ -43,7 +43,7 @@ extern "C" {
 // Low Level API error code
 // ************************
 
-// I2C error
+// IP error
 //#define SYS_BASE_XX_ERROR_CODE                               APP_BASE_ERROR_CODE
 
 

@@ -43,7 +43,7 @@ bg=red</panel_attributes>
     <coordinates>
       <x>322</x>
       <y>840</y>
-      <w>182</w>
+      <w>154</w>
       <h>84</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
@@ -100,14 +100,14 @@ wait 50ms</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>140</x>
+      <x>147</x>
       <y>826</y>
-      <w>189</w>
+      <w>182</w>
       <h>245</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 m2=[task delay power mode bit is 0]</panel_attributes>
-    <additional_attributes>170.0;330.0;20.0;330.0;20.0;10.0;250.0;10.0</additional_attributes>
+    <additional_attributes>160.0;330.0;10.0;330.0;10.0;10.0;240.0;10.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
@@ -229,7 +229,7 @@ State change triggered by:
     </coordinates>
     <panel_attributes>*RUN*
 --
-MC:               Active
+MCU:  Active
 group=1</panel_attributes>
     <additional_attributes/>
   </element>
@@ -243,7 +243,7 @@ group=1</panel_attributes>
     </coordinates>
     <panel_attributes>*SLEEP 1*
 --
-MCU:               Stop
+MCU:  Stop
 group=1</panel_attributes>
     <additional_attributes/>
   </element>
@@ -313,7 +313,7 @@ m2=[task power mode switch done bit is 1]</panel_attributes>
     <coordinates>
       <x>322</x>
       <y>756</y>
-      <w>210</w>
+      <w>189</w>
       <h>77</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
@@ -386,7 +386,7 @@ bg=red</panel_attributes>
     <coordinates>
       <x>1022</x>
       <y>609</y>
-      <w>189</w>
+      <w>168</w>
       <h>70</h>
     </coordinates>
     <panel_attributes>lt=&lt;-

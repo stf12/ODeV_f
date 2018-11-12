@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<diagram program="umlet" version="14.2.0">
+<diagram program="umlet" version="14.3.0">
   <zoom_level>7</zoom_level>
   <element>
     <id>UMLClass</id>
     <coordinates>
       <x>728</x>
-      <y>21</y>
+      <y>133</y>
       <w>350</w>
       <h>56</h>
     </coordinates>
@@ -20,7 +20,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>189</x>
-      <y>0</y>
+      <y>112</y>
       <w>427</w>
       <h>119</h>
     </coordinates>
@@ -40,7 +40,7 @@
     <id>Relation</id>
     <coordinates>
       <x>392</x>
-      <y>112</y>
+      <y>224</y>
       <w>21</w>
       <h>63</h>
     </coordinates>
@@ -51,7 +51,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>315</x>
-      <y>161</y>
+      <y>273</y>
       <w>168</w>
       <h>35</h>
     </coordinates>
@@ -64,7 +64,7 @@
     <id>Relation</id>
     <coordinates>
       <x>609</x>
-      <y>42</y>
+      <y>154</y>
       <w>133</w>
       <h>35</h>
     </coordinates>
@@ -77,18 +77,18 @@ notify to &gt;</panel_attributes>
     <id>UMLClass</id>
     <coordinates>
       <x>742</x>
-      <y>154</y>
+      <y>266</y>
       <w>70</w>
       <h>21</h>
     </coordinates>
-    <panel_attributes>KeyboardTask</panel_attributes>
+    <panel_attributes>TaskN</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>805</x>
-      <y>147</y>
+      <y>259</y>
       <w>140</w>
       <h>35</h>
     </coordinates>
@@ -101,7 +101,7 @@ m2=IErrFirstResponder
     <id>UMLClass</id>
     <coordinates>
       <x>308</x>
-      <y>413</y>
+      <y>525</y>
       <w>70</w>
       <h>28</h>
     </coordinates>
@@ -113,7 +113,7 @@ INIT:Task</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>63</x>
-      <y>42</y>
+      <y>154</y>
       <w>140</w>
       <h>28</h>
     </coordinates>
@@ -125,7 +125,7 @@ delegate errors to &gt;</panel_attributes>
     <id>UMLClass</id>
     <coordinates>
       <x>0</x>
-      <y>42</y>
+      <y>154</y>
       <w>70</w>
       <h>28</h>
     </coordinates>
@@ -137,7 +137,7 @@ INIT:Task</panel_attributes>
     <id>UMLActor</id>
     <coordinates>
       <x>84</x>
-      <y>399</y>
+      <y>511</y>
       <w>42</w>
       <h>77</h>
     </coordinates>
@@ -148,7 +148,7 @@ INIT:Task</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>119</x>
-      <y>413</y>
+      <y>525</y>
       <w>203</w>
       <h>35</h>
     </coordinates>
@@ -162,7 +162,7 @@ fg=red</panel_attributes>
     <id>UMLClass</id>
     <coordinates>
       <x>560</x>
-      <y>413</y>
+      <y>525</y>
       <w>126</w>
       <h>28</h>
     </coordinates>
@@ -174,7 +174,7 @@ IApplicationErrorDelegate</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>371</x>
-      <y>413</y>
+      <y>525</y>
       <w>203</w>
       <h>28</h>
     </coordinates>
@@ -187,7 +187,7 @@ fg=red</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>343</x>
-      <y>427</y>
+      <y>539</y>
       <w>140</w>
       <h>49</h>
     </coordinates>
@@ -200,7 +200,7 @@ fg=red</panel_attributes>
     <id>UMLClass</id>
     <coordinates>
       <x>560</x>
-      <y>315</y>
+      <y>427</y>
       <w>126</w>
       <h>28</h>
     </coordinates>
@@ -212,8 +212,8 @@ IErrFirstResponder</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>616</x>
-      <y>336</y>
-      <w>105</w>
+      <y>448</y>
+      <w>112</w>
       <h>91</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
@@ -226,7 +226,7 @@ fg=red</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>336</x>
-      <y>364</y>
+      <y>476</y>
       <w>259</w>
       <h>63</h>
     </coordinates>
@@ -239,7 +239,7 @@ fg=blue</panel_attributes>
     <id>UMLClass</id>
     <coordinates>
       <x>560</x>
-      <y>511</y>
+      <y>623</y>
       <w>126</w>
       <h>28</h>
     </coordinates>
@@ -251,7 +251,7 @@ IManagedTask</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>616</x>
-      <y>434</y>
+      <y>546</y>
       <w>119</w>
       <h>91</h>
     </coordinates>

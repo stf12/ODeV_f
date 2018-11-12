@@ -34,10 +34,10 @@
  *
  * - The ::ApplicationContext is a set of ::AManagedTask. The INIT task uses the ::ApplicationContext in order to initialize the system.
  * - The ::IApplicationErrorDelegate (IAED) defines an interface for the error management. The application can implement this interface, and in this case the INIT task
- * delegates the error management to this application defined object (the Application Error Managed or AEM). This means the it forwards all error events to the AEM.
+ * delegates the error management to this application defined object (the Application Error Managed or **AEM**). This means that it forwards all error events to the AEM.
  * For more information see the section \ref error_simple "Error Management".
  * - The ::IAppPowerModeHelper defines an interface for the Power Mode transaction. If the application does not implement this interface, then the framework instantiates a default
- * implementation (::SysDefPowerModeHelper). In this way there is always a power mode helper object.
+ * implementation (::SysDefPowerModeHelper). In this way there is always a power mode helper object (**APMH**).
  *
  * This three objects are grouped together in a private structure of type ::System and there is only one instance - ::s_xTheSystem.
  *
@@ -66,6 +66,9 @@
  * Each application task must implements the the ::AManagedTask interface, and so it defines a common API between the application tasks and the system. It is through this
  * interface that the INIT task manages the application tasks.
  *
+ * Before allocating the ::ApplicationContext, the INIT task allocate and initialize the other two objects (see \ref fig21 "Fig.21"), the Application Power Mode Helper and
+ * the Application Error Delegate. in this way the Managed Tasks can use all the services provided by by the framework.
+ *
  * The INIT task allocates the ::ApplicationContext and then it calls the SysLoadApplicationContext() function to allows the application to
  * add the its Managed Tasks to the ::ApplicationContext. This function is defined as `weak` in the framework and the application
  * must define its own implementation.
@@ -91,8 +94,8 @@
  *
  * \subsection app_init Other application specific initialization
  * At this point the system is almost initialized and ready to run: all the drivers are initialized, all the application task objects are ready.
- * Before giving the control to the application tasks, the INIT task call the `weak` function SysOnStartApplication(). This optional function
- * can be defined by the application in order to make other initialization stuff after all the application task objects have been initialized,
+ * Before giving the control to the application tasks, the INIT task calls the `weak` function SysOnStartApplication(). This optional function
+ * can be defined by the application in order to make other initialization stuff after all application task objects have been initialized,
  * and before the system runs. This process is displayed in the sequence diagram of \ref fig02 "Fig.2".
  *
  * \anchor fig02 \image html 2_system_init_diagram.png "Fig.2 - System Initialization sequence diagram" width=1000px
@@ -104,15 +107,24 @@
  * the INIT task is suspended waiting for a system command invoked by other tasks or Interrupt Service Routine (ISR). An example of system
  * command is the power management command that can be used by the application with the SysPostPowerModeEvent() function. This function
  * send a power mode event to the INIT task. The INIT task manages the event, and in case it switch the system to a different power mode.
+ * Another type of command are the error command. The application uses the function SysPostErrorEvent() to notify the system when an error occurs.
+ * We will see later that the error management is done in two steps, the error notification first, and then the error recovery.
  *
  * \section power_management Power Management
  *
  * A low power application should take advantage of many way to reduce the power consumption thanks to the STM32 low power mode. The main idea is to put the MCU core
  * in low power mode and to stop the peripherals clock as soon as possible.
  *
+ * But every application has its own characteristics and different requirements, and this can be modeled using a state machine where:
+ * - Each state (Power Mode State) describes a particular configuration of the system (the MCU state, which features are enabled, etc.)
+ * - Each transaction represents the event (::SysEvent) that triggers the transaction.
  *
- * Starting from these considerations, to model the system behavior we designed a state machine
- * with 2 states (we call them power modes) RUN and SLEEP_1. It is displayed in \ref fig05 "Fig.5" with
+ * To implement the power mode state machine, the INIT task interacts with the application provided Power Mode Helper object, that implements the ::IAppPowerModeHelper
+ * interface.
+ *
+ * The framework provides a default implementation of the Power Mode Helper interface that is the ::SysDefPowerModeHelper. The application can provides its own
+ * object by defining the `weak` function SysGetPowerModeHelper().
+ * The default implementation defines a state machine with 2 states RUN and SLEEP_1. It is displayed in \ref fig05 "Fig.5" with
  * the possible transactions, the events that trigger each transaction, and the power policy of each state.
  *
  * \anchor fig05 \image html 5_pwr_management_1.png "Fig.5 - Power Mode state machine"
@@ -121,18 +133,20 @@
  * - The MCU is in STOP2.
  *
  * \subsection power_mode_implementation Power Mode switch implementation
- * Before entering a power mode all application tasks must be in a safe state: for example all driver operations should be completed,a task should complete one steo of
+ * Before entering a power mode all application tasks must be in a safe state: for example all driver operations should be completed,a task should complete one step of
  * its control loop, etc.
  * This is a three steps process as displayed in \ref fig12 "Fig.12":
  * -# Step 1: a T0 time a task signals an asynchronous event to the system through the SysPostPowerModeEvent() function.
- * -# Step 2: a T1 time the INIT task pre-process the event and, if a power mode change is needed then it notifies the application tasks to be ready for the new power mode (AMTDoEnterPowerMode())
+ * -# Step 2: a T1 time the INIT task works with the APMH to process the event and, if a power mode change is needed then it notifies the application tasks to be ready
+ *    for the new power mode (AMTDoEnterPowerMode()). In this step the INIT task and the abstract class ::AManagedTask hide the complexity of the protocol implementation,
+ *    so the developer can focus to just reconfigure a managed task and its resources for the new power mode.
  * -# Step 3: a T2 time the system resumes the execution in the new power mode.
  *
  * \anchor fig12 \image html 12_pwr_management_4.jpg "Fig.12 - Three steps process" width=800px
  *
  * As discussed in the section \ref init_command_loop the INIT task is responsible to put the system in a specified power mode. When it receives a power mode related ::SysEvent
  * it signals the application tasks the beginning of the power mode transaction by setting the `nPowerModeSwitchPending` bit of the task AManagedTask::m_xStatus flag, then it
- * forwards the request to all application tasks using the AMTDoEnterPowerMode() function, after checking the `nDelayPowerModeSwitch` of the AManagedTask::m_xStatus flag.
+ * forwards the request to the application tasks using the AMTDoEnterPowerMode() function, after checking the `nDelayPowerModeSwitch` of the AManagedTask::m_xStatus flag.
  * This flag is set by an application task to delay the power mode switch. It is responsibility of the application task
  * to check the `nPowerModeSwitchPending` bit of the AManagedTask::m_xStatus flag and reset the `nDelayPowerModeSwitch` bit when it has finished the current operation. The behavior of
  * the INIT task is summarized in the following flow chart.
@@ -150,16 +164,10 @@
  * according to the active power mode, and, at the end of the step, it reset the power mode delay switch bit (AManagedTask::m_xStatus `nDelayPowerModeSwitch = 0`).
  *
  * \subsection power_mode_other Other considerations on the low power mode
- * Some others things are used in order to reduce the current consumption. During the system initialization the 16MHz HSI is selected to generate the 8MHz system clock;
- * the main internal regulator output voltage is configured at 1.5V (range 2);  SysPowerConfig() configures all not used pin of the MCU in analog input mode;
- * When the system enter in low power mode (SLEEP_2) the MCU is put in STOP1 mode (without the RTC).
- * For more information look at the STM32L4xx reference manual.
+ * Some others things are used in order to reduce the current consumption. During the system initialization the clock three must be configured according to the
+ * application requirement. We can use CubeMX for this purpose and copy&paste the generated SystemClock_Config() function in the system/src/services/sysinit_mx.c file.
+ * SysPowerConfig() is defined in the same file and it configures all not used pin of the MCU in analog input mode. It must be modified by the developer.
  *
- * \subsection current_consumption Current consumption
- * Thanks to the efficiency of the STM32L MCU and the power management implementation discussed in this section these are the current consumption
- * value observed in the four power modes: (VALUE TO BE UPDATED)
- * - __RUN__............................................: MAX x.xma.... _AV x.xma_
- * - __SLEEP_1__....................................: MAX x.xma.... _AV x.xma_
  *
  * \section error_simple Error Management
  *
@@ -170,7 +178,7 @@
  * sys_error_handler() that, at the moment, blocks the calling task, but it can be redefined by the application.
  *
  * \subsection error_advanced Advanced support
- * In order to integrate the simple error support, the system provides a more structured, powerful and flexible framework to manage the errors.
+ * In order to integrate the simple error support, the system provides a more structured, powerful and flexible design pattern to manage the errors.
  * It is based on some interface as displayed in \ref fig10 "Fig.10"
  *
  * \anchor fig10 \image html 10_error_class_diagram.png "Fig.10" width=1000px
@@ -194,14 +202,14 @@
  * application managed tasks (6). An application managed task receive an error event by implementing the AMTHandleError() function.
  *
  * \subsection error_wwdg AppErrorManager and the WWDG
- * The AED for this specific system is implemented by the AppErrorManager class (AEM). This class, other then implementing the ::IApplicationErrorDelegate
- * interface, uses the STM32 System Window Watchdog peripheral (WWDG) to automatically reset the system when an unexpected error occurs. The WWGD ISR generate
- * a system error event every ::AEM_CFG_CHECK_TIMEOUT_PERIOD_MS ms in order to check if all managed tasks are still running. A managed task must call
+ * The AED is usually implemented by an AppErrorManager class (AEM). This class, other then implementing the ::IApplicationErrorDelegate
+ * interface, uses the STM32 System Watchdog peripheral (WDG) to automatically reset the system when an unexpected error occurs. The WWGD ISR generate
+ * a system error event with an application specific period in order to check if all managed tasks are still running. A managed task must call
  * the AMTNotifyIsStillRunning() periodically to inform the system that it is working fine and prevent a system reset. This is usually done in the task
  * control loop at the end of each step if no error is reported from the step execution. If a managed task has to do a long-lasting operation, then it should
  * call the AMTResetAEDCounter() in order to delay the WWDG reset.
  *
- * \section app_tasks Application Tasks
+ * \section app_tasks Application Tasks (a simple demo)
  *
  * This section gives a look to the features exported by the application tasks. There is one application task plus one system task and two FreeRTOS daemon task.
  *
