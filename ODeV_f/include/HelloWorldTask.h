@@ -5,9 +5,10 @@
  * @version 1.0.0
  * @date    Nov 2, 2018
  *
- * @brief
+ * @brief Blink the user LED of the NUCLEO board.
  *
- * <DESCRIPTIOM>
+ * This managed task is responsible to blink the user LED with a fixed period
+ * of 1 second and a duty cycle of 50%.
  *
  ******************************************************************************
  * @attention

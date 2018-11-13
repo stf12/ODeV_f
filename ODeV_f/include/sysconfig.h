@@ -38,6 +38,9 @@
 // Drivers configuration
 // *********************
 
+// file NucleoDriver.c
+// uncomment the following line to change the drive common parameters
+//#define NUCLEO_DRV_CFG_IRQ_PRIORITY              13
 
 // Other hardware configuration
 // ****************************
@@ -48,7 +51,7 @@
 
 // files syslowpower.h, SysDefPowerModeHelper.c
 #define SYS_CFG_USE_DEFAULT_PM_HELPER              1
-#define SYS_CFG_DEF_PM_HELPER_STANDBY              0
+#define SYS_CFG_DEF_PM_HELPER_STANDBY              0  ///< if defined to 1 then the MCU goes in STANDBY mode when the system enters in SLEEP_1.
 
 
 // Tasks configuration
@@ -59,6 +62,16 @@
 
 // file sysinit.c
 #define INIT_TASK_CFG_ENABLE_BOOT_IF               0
+
+// file HelloWorldTask.c
+// uncomment the following lines to change the task common parameters
+//#define HW_TASK_CFG_STACK_DEPTH                    120
+//#define HW_TASK_CFG_PRIORITY                       (tskIDLE_PRIORITY+1)
+
+// file PushButtonTask.c
+// uncomment the following lines to change the task common parameters
+//#define PB_TASK_CFG_STACK_DEPTH                    120
+//#define PB_TASK_CFG_PRIORITY                       (tskIDLE_PRIORITY+2)
 
 
 #endif /* SYSCONFIG_H_ */

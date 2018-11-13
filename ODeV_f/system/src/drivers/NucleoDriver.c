@@ -34,6 +34,10 @@
 #include "FreeRTOS.h"
 #include "sysdebug.h"
 
+#ifndef NUCLEO_DRV_CFG_IRQ_PRIORITY
+#define NUCLEO_DRV_CFG_IRQ_PRIORITY    13
+#endif
+
 
 #define SYS_DEBUGF(level, message)      SYS_DEBUGF3(SYS_DBG_DRIVERS, level, message)
 
@@ -106,7 +110,7 @@ sys_error_code_t NucleoDriver_vtblInit(IDriver *this, void *pParams) {
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 14, 0);
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, NUCLEO_DRV_CFG_IRQ_PRIORITY, 0);
 
   // Configure the software resource
   pObj->m_bPB1Pressed = HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) != GPIO_PIN_SET;

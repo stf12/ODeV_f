@@ -5,9 +5,10 @@
  * @version 1.0.0
  * @date    Nov 5, 2018
  *
- * @brief
+ * @brief Handle the Push Button of the NUCLEO board.
  *
- * <DESCRIPTIOM>
+ * This managed task is responsible to handle the user button and to generate
+ * the ::SysEvent in order to trigger the power mode transactions.
  *
  ******************************************************************************
  * @attention
