@@ -5,9 +5,10 @@
  * @version 1.0.0
  * @date    Nov 2, 2018
  *
- * @brief
+ * @brief   Define the Application main entry points
  *
- * <DESCRIPTIOM>
+ * The framework `weak` function are redefined in this file and they link
+ * the application specific code with the framework.
  *
  ******************************************************************************
  * @attention
@@ -34,8 +35,14 @@
 #include "HelloWorldTask.h"
 #include "PushButtonTask.h"
 
-
+/**
+ * Application managed task.
+ */
 static AManagedTask *s_pxHelloWorldObj = NULL;
+
+/**
+ * Application managed task.
+ */
 static AManagedTaskEx *s_pxPushButtonObj = NULL;
 
 
