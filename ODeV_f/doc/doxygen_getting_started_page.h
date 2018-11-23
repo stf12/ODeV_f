@@ -83,12 +83,53 @@
  *
  * In the same way, it is possible to redefine the SysGetPowerModeHelper() function and provide an application specific APMH object.
  *
+ * \section first_task How to implement the first Managed Task
+ * The simple demo implements two Managed tasks in order to blink the LED and detect the push button events. At the beginning of the App.c file we can see how the task are declared
+ * and added to the ::ApplicationContext:
+ *
+ *      // Application managed task.
+ *      static AManagedTask *s_pxHelloWorldObj = NULL;
+ *
+ *      // Application managed task.
+ *      static AManagedTaskEx *s_pxPushButtonObj = NULL;
+ *
+ *
+ *      sys_error_code_t SysLoadApplicationContext(ApplicationContext *pAppContext) {
+ *        assert_param(pAppContext);
+ *        sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+ *
+ *
+ *        // Allocate the task objects
+ *        s_pxHelloWorldObj = HelloWorldTaskAlloc();
+ *        s_pxPushButtonObj = PushButtonTaskAlloc();
+ *
+ *        // Add the task object to the context.
+ *        xRes = ACAddTask(pAppContext, s_pxHelloWorldObj);
+ *        xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxPushButtonObj);
+ *
+ *        return xRes;
+ *      }
+ *
+ * Let's give a look to the ::HelloWorldTask to see how it is implemented. The framework takes some concept from the OO programming <a href="#footnote-4">[4]</a>.
+ * In particular it is widely used the [_inheritance_](https://en.wikipedia.org/wiki/Inheritance_(object-oriented_programming)) implemented with the composition
+ * of the data structure and the [_polymorphism_](https://stackoverflow.com/questions/1031273/what-is-polymorphism-what-is-it-for-and-how-is-it-used#1031385) implemented
+ * with the virtual table.
+ *
+ * To implement a Managed task we need three files:
+ * - HelloWorldTask.h: the normal header file
+ * - HelloWorldTask_vtbl.h: this header declares the redefined functions of the virtual table of the object class.
+ * - HelloWorldTask.c: the source code.
+ *
+ * It is possible to use the ODeV template to generate the skeleton for these files.
+ *
+ * \anchor fig25 \image html 25_template_1.png "Fig.25 - ODeV template"
+ *
  * TO BE CONTINUED ...
  *
  * ----
  * <p id="footnote-1">[1] xxx stands for `src` or `include`.</p>
  * <p id="footnote-2">[2] AED is the Application Error Delegate. For more information see the section \ref error_advanced.</p>
  * <p id="footnote-3">[3] APMH is the Application Power Mode Helper. For more information see the section \ref power_management.</p>
- *
+ * <p id="footnote-4">[4] OO stands for [Object-oriented programming](https://en.wikipedia.org/wiki/Object-oriented_programming).</p>
  *
  */
