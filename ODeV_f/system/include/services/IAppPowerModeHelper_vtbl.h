@@ -50,13 +50,13 @@ typedef struct _IAppPowerModeHelper_vtbl IAppPowerModeHelper_vtbl;
  * Specifies the virtual table for the  class.
  */
 struct _IAppPowerModeHelper_vtbl {
-  sys_error_code_t (*Init)(IAppPowerModeHelper *this);
-  EPowerMode (*ComputeNewPowerMode)(IAppPowerModeHelper *this, const SysEvent xEvent);
-  boolean_t (*CheckPowerModeTransaction)(IAppPowerModeHelper *this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
-  sys_error_code_t (*DidEnterPowerMode)(IAppPowerModeHelper *this, EPowerMode ePowerMode);
-  EPowerMode (*GetActivePowerMode)(IAppPowerModeHelper *this);
-  SysPowerStatus (*GetPowerStatus)(IAppPowerModeHelper *this);
-  boolean_t (*IsLowPowerMode)(IAppPowerModeHelper *this, const EPowerMode ePowerMode);
+  sys_error_code_t (*Init)(IAppPowerModeHelper *_this);
+  EPowerMode (*ComputeNewPowerMode)(IAppPowerModeHelper *_this, const SysEvent xEvent);
+  boolean_t (*CheckPowerModeTransaction)(IAppPowerModeHelper *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
+  sys_error_code_t (*DidEnterPowerMode)(IAppPowerModeHelper *_this, EPowerMode ePowerMode);
+  EPowerMode (*GetActivePowerMode)(IAppPowerModeHelper *_this);
+  SysPowerStatus (*GetPowerStatus)(IAppPowerModeHelper *_this);
+  boolean_t (*IsLowPowerMode)(IAppPowerModeHelper *_this, const EPowerMode ePowerMode);
 };
 
 /**
@@ -75,38 +75,38 @@ struct _IAppPowerModeHelper {
 // ***************************
 
 SYS_DEFINE_INLINE
-sys_error_code_t IapmhInit(IAppPowerModeHelper *this) {
-  return this->vptr->Init(this);
+sys_error_code_t IapmhInit(IAppPowerModeHelper *_this) {
+  return _this->vptr->Init(_this);
 }
 
 SYS_DEFINE_INLINE
-EPowerMode IapmhComputeNewPowerMode(IAppPowerModeHelper *this, const SysEvent xEvent) {
-  return this->vptr->ComputeNewPowerMode(this, xEvent);
+EPowerMode IapmhComputeNewPowerMode(IAppPowerModeHelper *_this, const SysEvent xEvent) {
+  return _this->vptr->ComputeNewPowerMode(_this, xEvent);
 }
 
 SYS_DEFINE_INLINE
-boolean_t IapmhCheckPowerModeTransaction(IAppPowerModeHelper *this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
-  return this->vptr->CheckPowerModeTransaction(this, eActivePowerMode, eNewPowerMode);
+boolean_t IapmhCheckPowerModeTransaction(IAppPowerModeHelper *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
+  return _this->vptr->CheckPowerModeTransaction(_this, eActivePowerMode, eNewPowerMode);
 }
 
 SYS_DEFINE_INLINE
-sys_error_code_t IapmhDidEnterPowerMode(IAppPowerModeHelper *this, EPowerMode ePowerMode) {
-  return this->vptr->DidEnterPowerMode(this, ePowerMode);
+sys_error_code_t IapmhDidEnterPowerMode(IAppPowerModeHelper *_this, EPowerMode ePowerMode) {
+  return _this->vptr->DidEnterPowerMode(_this, ePowerMode);
 }
 
 SYS_DEFINE_INLINE
-EPowerMode IapmhGetActivePowerMode(IAppPowerModeHelper *this) {
-  return this->vptr->GetActivePowerMode(this);
+EPowerMode IapmhGetActivePowerMode(IAppPowerModeHelper *_this) {
+  return _this->vptr->GetActivePowerMode(_this);
 }
 
 SYS_DEFINE_INLINE
-SysPowerStatus IapmhGetPowerStatus(IAppPowerModeHelper *this) {
-  return this->vptr->GetPowerStatus(this);
+SysPowerStatus IapmhGetPowerStatus(IAppPowerModeHelper *_this) {
+  return _this->vptr->GetPowerStatus(_this);
 }
 
 SYS_DEFINE_INLINE
-boolean_t IapmhIsLowPowerMode(IAppPowerModeHelper *this, const EPowerMode ePowerMode) {
-  return this->vptr->IsLowPowerMode(this, ePowerMode);
+boolean_t IapmhIsLowPowerMode(IAppPowerModeHelper *_this, const EPowerMode ePowerMode) {
+  return _this->vptr->IsLowPowerMode(_this, ePowerMode);
 }
 
 #ifdef __cplusplus

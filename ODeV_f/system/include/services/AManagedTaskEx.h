@@ -52,10 +52,10 @@ typedef struct _AManagedTaskEx AManagedTaskEx;
  * Initialize a managed task structure. The application is responsible to allocate
  * a managed task in memory. This method must be called after the allocation.
  *
- * @param this [IN] specifies a task object pointer.
+ * @param _this [IN] specifies a task object pointer.
  * @return \a SYS_NO_ERROR_CODE
  */
-inline sys_error_code_t AMTInitEx(AManagedTaskEx *this);
+inline sys_error_code_t AMTInitEx(AManagedTaskEx *_this);
 
 /**
  * Called by the framework to force the step execution.
@@ -63,11 +63,11 @@ inline sys_error_code_t AMTInitEx(AManagedTaskEx *this);
  * The In this situation the INIT task cannot complete the power mode switch, so it calls this method
  * in order to force the task to be ready for the power mode switch.
  *
- * @param this [IN] specifies a pointer to the object.
+ * @param _this [IN] specifies a pointer to the object.
  * @param eActivePowerMode [IN] specifies the actual power mode
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
-inline sys_error_code_t AMTExForceExecuteStep(AManagedTaskEx *this, EPowerMode eActivePowerMode);
+inline sys_error_code_t AMTExForceExecuteStep(AManagedTaskEx *_this, EPowerMode eActivePowerMode);
 
 /**
  * A task must use this method to notify the framework when it is entering the suspend state or
@@ -75,12 +75,12 @@ inline sys_error_code_t AMTExForceExecuteStep(AManagedTaskEx *this, EPowerMode e
  * This information is used to the AED to resetting the system because it thinks that the task
  * is not responding.
  *
- * @param this [IN] specifies a pointer to the object.
+ * @param _this [IN] specifies a pointer to the object.
  * @param bBlockedSuspended [IN] `TRUE` if a the task is entering the inactive state,
  *                                `FALSE` if a task is leaving the inactive state.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
-inline sys_error_code_t AMTExSetInactiveState(AManagedTaskEx *this, boolean_t bBlockedSuspended);
+inline sys_error_code_t AMTExSetInactiveState(AManagedTaskEx *_this, boolean_t bBlockedSuspended);
 
 /**
  * Check if the a managed task is inactive. A managed task is inactive when:
@@ -89,10 +89,10 @@ inline sys_error_code_t AMTExSetInactiveState(AManagedTaskEx *this, boolean_t bB
  *
  * For more information about the task state see https://freertos.org/RTOS-task-states.html
  *
- * @param this [IN] specifies a pointer to the object.
+ * @param _this [IN] specifies a pointer to the object.
  * @return `TRUE` if the task is in inactive state, `FALSE` otherwise.
  */
-inline boolean_t AMTExIsTaskInactive(AManagedTaskEx *this);
+inline boolean_t AMTExIsTaskInactive(AManagedTaskEx *_this);
 
 // Inline functions definition
 // ***************************

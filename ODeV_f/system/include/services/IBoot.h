@@ -78,37 +78,37 @@ typedef struct _IBoot IBoot;
 /**
  * Initialize the interface IBoot. It should be called after the object allocation and before using the object.
  *
- * @param this [IN] specifies a pointer to the object.
+ * @param _this [IN] specifies a pointer to the object.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
-inline sys_error_code_t IBootInit(IBoot *this);
+inline sys_error_code_t IBootInit(IBoot *_this);
 
 /**
  * Check if the DFU condition occurs. If it is TRUE the bootloader enters the DFU mode,
  *
- * @param this [IN] specifies a pointer to the object.
+ * @param _this [IN] specifies a pointer to the object.
  * @return TRUE if the system must enter the DFU mode, FALSE otherwise.
  */
-inline boolean_t IBootCheckDFUTrigger(IBoot *this);
+inline boolean_t IBootCheckDFUTrigger(IBoot *_this);
 
 /**
  * Used by the system to retrieve the address of the application to start.
  *
- * @param this [IN] specifies a pointer to the object.
+ * @param _this [IN] specifies a pointer to the object.
  * @return the address where is located the application to start.
  */
-inline uint32_t IBootGetAppAdderss(IBoot *this);
+inline uint32_t IBootGetAppAdderss(IBoot *_this);
 
 /**
  * Called by the system before the jump to the other application. It can be used
  * to perform some operations before the jump and also to stop the system from jump,.
  *
- * @param this [IN] specifies a pointer to the object.
+ * @param _this [IN] specifies a pointer to the object.
  * @param nAppDress [IN] specifies the address of the application to start.
  * @return SYS_NO_ERROR_CODE if the system can continue with the jump, an application
  * specific error code otherwise.
  */
-inline sys_error_code_t IBootOnJampToApp(IBoot *this, uint32_t nAppDress);
+inline sys_error_code_t IBootOnJampToApp(IBoot *_this, uint32_t nAppDress);
 
 // Inline functions definition
 // ***************************

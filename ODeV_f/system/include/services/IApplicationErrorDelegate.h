@@ -54,78 +54,78 @@ typedef struct _IApplicationErrorDelegate IApplicationErrorDelegate;
  * Initialize the driver. This method should be used by a task object during
  * the hardware initialization process.
  *
- * @param this [IN] specifies a pointer to an IApplicationErrorDelegate object.
+ * @param _this [IN] specifies a pointer to an IApplicationErrorDelegate object.
  * @param pParams specifies a pointer to a subclass defined initialization parameters.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
-inline sys_error_code_t IAEDInit(IApplicationErrorDelegate *this, void *pParams);
+inline sys_error_code_t IAEDInit(IApplicationErrorDelegate *_this, void *pParams);
 
 /**
  * Called by the system just before the control is released to the application tasks.
  *
- * @param this [IN] specifies a pointer to an IApplicationErrorDelegate object.
+ * @param _this [IN] specifies a pointer to an IApplicationErrorDelegate object.
  * @param pxContext [IN] specifies a pointer to the application context.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
-inline sys_error_code_t IAEDOnStartApplication(IApplicationErrorDelegate *this, ApplicationContext *pxContext);
+inline sys_error_code_t IAEDOnStartApplication(IApplicationErrorDelegate *_this, ApplicationContext *pxContext);
 
 /**
  * The INIT task uses this function to deliver an error event to the application error manager delegate object.
  *
- * @param this [IN] specifies a pointer to an IApplicationErrorDelegate object.
+ * @param _this [IN] specifies a pointer to an IApplicationErrorDelegate object.
  * @param pxContext [IN] specifies a pointer to the application context.
  * @param xEvent [IN] specifies an error event
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
-inline sys_error_code_t IAEDProcessEvent(IApplicationErrorDelegate *this, ApplicationContext *pxContext, SysEvent xEvent);
+inline sys_error_code_t IAEDProcessEvent(IApplicationErrorDelegate *_this, ApplicationContext *pxContext, SysEvent xEvent);
 
 /**
  * The INIT task call this method as soon as a new error event is posted by the application. This
  * allows the application error delegate to provide a first respond to critical errors. The application
  * error delegate should notify the first responder objects starting from the highest priority one.
  *
- * @param this [IN] specifies a pointer to an IApplicationErrorDelegate object.
+ * @param _this [IN] specifies a pointer to an IApplicationErrorDelegate object.
  * @param xEvent xEvent [IN] specifies an error event
  * @return SYS_NO_EROR_CODE if success, an error code otherwise.
  */
-inline sys_error_code_t IAEDOnNewErrEvent(IApplicationErrorDelegate *this, SysEvent xEvent);
+inline sys_error_code_t IAEDOnNewErrEvent(IApplicationErrorDelegate *_this, SysEvent xEvent);
 
 /**
  * Used by the AED to notify the system if the last error has been recovered or not.
  *
- * @param this [IN] specifies a pointer to an IApplicationErrorDelegate object.
+ * @param _this [IN] specifies a pointer to an IApplicationErrorDelegate object.
  * @return \a TRUE if the last error has been recovered, \a FALSE otherwise
  */
-inline boolean_t IAEDIsLastErrorPending(IApplicationErrorDelegate *this);
+inline boolean_t IAEDIsLastErrorPending(IApplicationErrorDelegate *_this);
 
 /**
  * Add a first responder object. The first responders are grouped in a priority set. Zero is the highest priority.
  * If an IErrFirstResponder object with the same priority was already added, then it is replaced with the new one.
  *
- * @param this [IN] specifies a pointer to an IApplicationErrorDelegate object.
+ * @param _this [IN] specifies a pointer to an IApplicationErrorDelegate object.
  * @param pFirstResponder [IN] specifies a pointer to the a first responder object. If it is \a NULL then
  *        the IErrFirstResponder with nPriority priority is removed from the application error delegate.
  * @param nPriority [IN] specifies the priority of the error first responder. Zero is the highest priority.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
-inline sys_error_code_t IAEDAddFirstResponder(IApplicationErrorDelegate *this, IErrFirstResponder *pFirstResponder, uint8_t nPriority);
+inline sys_error_code_t IAEDAddFirstResponder(IApplicationErrorDelegate *_this, IErrFirstResponder *pFirstResponder, uint8_t nPriority);
 
 /**
  * Remove a first responder object rom the application error delegate.
  *
- * @param this [IN] specifies a pointer to an IApplicationErrorDelegate object.
+ * @param _this [IN] specifies a pointer to an IApplicationErrorDelegate object.
  * @param pFirstResponder [IN] specifies a pointer to the a first responder object to be removed.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
-inline sys_error_code_t IAEDRemoveFirstResponder(IApplicationErrorDelegate *this, IErrFirstResponder *pFirstResponder);
+inline sys_error_code_t IAEDRemoveFirstResponder(IApplicationErrorDelegate *_this, IErrFirstResponder *pFirstResponder);
 
 /**
  * Get the highest priority allowed for a first responder object.
  *
- * @param this [IN] specifies a pointer to an IApplicationErrorDelegate object.
+ * @param _this [IN] specifies a pointer to an IApplicationErrorDelegate object.
  * @return he highest priority allowed for a first responder object.
  */
-inline uint8_t IAEDGetMaxFirstResponderPriority(const IApplicationErrorDelegate *this);
+inline uint8_t IAEDGetMaxFirstResponderPriority(const IApplicationErrorDelegate *_this);
 
 /**
  * Reset the counter of the AED. Usually an AED use some kind of timeout to check that all managed tasks are working fine.
@@ -134,9 +134,9 @@ inline uint8_t IAEDGetMaxFirstResponderPriority(const IApplicationErrorDelegate 
  * For convenience the managed task interface has a function IMTResetAEDCounter() that can be used by a task instead of
  * call directly this function.
  *
- * @param this [IN] specifies a pointer to an IApplicationErrorDelegate object.
+ * @param _this [IN] specifies a pointer to an IApplicationErrorDelegate object.
  */
-inline void IAEDResetCounter(IApplicationErrorDelegate *this);
+inline void IAEDResetCounter(IApplicationErrorDelegate *_this);
 
 // Inline functions definition
 // ***************************

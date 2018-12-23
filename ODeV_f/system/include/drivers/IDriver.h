@@ -48,55 +48,55 @@ typedef struct _IDriver IDriver;
  * Initialize the driver. This method should be used by a task object during
  * the hardware initialization process.
  *
- * @param this [IN] specifies a pointer to a IDriver object.
+ * @param _this [IN] specifies a pointer to a IDriver object.
  * @param pParams specifies a pointer to a subclass defined initialization parameters.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
-inline sys_error_code_t IDrvInit(IDriver *this, void *pParams);
+inline sys_error_code_t IDrvInit(IDriver *_this, void *pParams);
 
 /**
  *
- * @param this s[IN] specifies a pointer to a IDriver object.
+ * @param _this s[IN] specifies a pointer to a IDriver object.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
-inline sys_error_code_t IDrvStart(IDriver *this);
+inline sys_error_code_t IDrvStart(IDriver *_this);
 
 /**
  *
- * @param this [IN] specifies a pointer to a IDriver object.
+ * @param _this [IN] specifies a pointer to a IDriver object.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
-inline sys_error_code_t IDrvStop(IDriver *this);
+inline sys_error_code_t IDrvStop(IDriver *_this);
 
 /**
  * This function is called by the framework when the system changing the power mode.
  *
- * @param this [IN] specifies a pointer to a IDriver object.
+ * @param _this [IN] specifies a pointer to a IDriver object.
  * @param eActivePowerMode [IN] specifies the actual power mode.
  * @param eNewPowerMode [IN] specifies the new power mode.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
-inline sys_error_code_t IDrvDoEnterPowerMode(IDriver *this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
+inline sys_error_code_t IDrvDoEnterPowerMode(IDriver *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
 
 /**
  *
- * @param this [IN] specifies a pointer to a IDriver object.
+ * @param _this [IN] specifies a pointer to a IDriver object.
  * @param pDataBuffer [IN] specifies the buffer used to store the received data.
  * @param nDataSize [IN] specified the size in byte of the buffer.
  * @param nChannel [IN] not used by
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
-inline sys_error_code_t IDrvWrite(IDriver *this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel);
+inline sys_error_code_t IDrvWrite(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel);
 
 /**
  *
- * @param this [IN] specifies a pointer to a IDriver object.
+ * @param _this [IN] specifies a pointer to a IDriver object.
  * @param pDataBuffer
  * @param nDataSize
  * @param nChannel
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
-inline sys_error_code_t IDrvRead(IDriver *this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel);
+inline sys_error_code_t IDrvRead(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel);
 
 
 #ifdef __cplusplus

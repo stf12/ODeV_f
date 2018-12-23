@@ -88,22 +88,22 @@ AManagedTaskEx *PushButtonTaskAlloc();
 /**
  * Set the driver used by task to use the push button.
  *
- * @param this [IN] specifies a pointer to a task object.
+ * @param _this [IN] specifies a pointer to a task object.
  * @param pDxriver [IN] specifies a pointer to a driver of type ::NuceloDriver.
  * @return SYS_NO_ERROR_CODE.
  */
-inline sys_error_code_t PushButtonTaskSetDriver(PushButtonTask *this, IDriver *pDxriver);
+inline sys_error_code_t PushButtonTaskSetDriver(PushButtonTask *_this, IDriver *pDxriver);
 
 
 // Inline functions definition
 // ***************************
 
 SYS_DEFINE_INLINE
-sys_error_code_t PushButtonTaskSetDriver(PushButtonTask *this, IDriver *pxDriver) {
-  assert_param(this);
+sys_error_code_t PushButtonTaskSetDriver(PushButtonTask *_this, IDriver *pxDriver) {
+  assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
-  this->m_pxDriver = pxDriver;
+  _this->m_pxDriver = pxDriver;
 
   return xRes;
 }

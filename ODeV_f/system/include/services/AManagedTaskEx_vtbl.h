@@ -49,11 +49,11 @@ extern "C" {
 typedef struct _AManagedTaskEx_vtbl AManagedTaskEx_vtbl;
 
 struct _AManagedTaskEx_vtbl {
-  sys_error_code_t (*HardwareInit)(AManagedTask *this, void *pParams);
-  sys_error_code_t (*OnCreateTask)(AManagedTask *this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority);
-  sys_error_code_t (*DoEnterPowerMode)(AManagedTask *this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
-  sys_error_code_t (*HandleError)(AManagedTask *this, SysEvent xError);
-  sys_error_code_t (*ForceExecuteStep)(AManagedTaskEx *this, EPowerMode eActivePowerMode);
+  sys_error_code_t (*HardwareInit)(AManagedTask *_this, void *pParams);
+  sys_error_code_t (*OnCreateTask)(AManagedTask *_this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority);
+  sys_error_code_t (*DoEnterPowerMode)(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
+  sys_error_code_t (*HandleError)(AManagedTask *_this, SysEvent xError);
+  sys_error_code_t (*ForceExecuteStep)(AManagedTaskEx *_this, EPowerMode eActivePowerMode);
 };
 
 /**
@@ -104,22 +104,22 @@ extern EPowerMode SysGetPowerMode();
 // ***************************
 
 SYS_DEFINE_INLINE
-sys_error_code_t AMTExForceExecuteStep(AManagedTaskEx *this, EPowerMode eActivePowerMode) {
-  return this->vptr->ForceExecuteStep(this, eActivePowerMode);
+sys_error_code_t AMTExForceExecuteStep(AManagedTaskEx *_this, EPowerMode eActivePowerMode) {
+  return _this->vptr->ForceExecuteStep(_this, eActivePowerMode);
 }
 
 SYS_DEFINE_INLINE
-sys_error_code_t AMTInitEx(AManagedTaskEx *this) {
-  AManagedTaskEx *pObj = (AManagedTaskEx*)this;
+sys_error_code_t AMTInitEx(AManagedTaskEx *_this) {
+  AManagedTaskEx *pObj = (AManagedTaskEx*)_this;
 
-  this->m_pNext = NULL;
-  this->m_xThaskHandle = NULL;
-  this->m_xStatus.nDelayPowerModeSwitch = 1;
-  this->m_xStatus.nPowerModeSwitchPending = 0;
-  this->m_xStatus.nPowerModeSwitchDone = 0;
-  this->m_xStatus.nIsTaskStillRunning = 0;
-  this->m_xStatus.nErrorCount = 0;
-  this->m_xStatus.nReserved = 1; // this identifies the task as an AManagedTaskEx.
+  _this->m_pNext = NULL;
+  _this->m_xThaskHandle = NULL;
+  _this->m_xStatus.nDelayPowerModeSwitch = 1;
+  _this->m_xStatus.nPowerModeSwitchPending = 0;
+  _this->m_xStatus.nPowerModeSwitchDone = 0;
+  _this->m_xStatus.nIsTaskStillRunning = 0;
+  _this->m_xStatus.nErrorCount = 0;
+  _this->m_xStatus.nReserved = 1; // this identifies the task as an AManagedTaskEx.
   pObj->m_xStatusEx.nIsWaitingNoTimeout = 0;
   pObj->m_xStatusEx.nUnused = 0;
   pObj->m_xStatusEx.nReserved = 0;
@@ -128,19 +128,19 @@ sys_error_code_t AMTInitEx(AManagedTaskEx *this) {
 }
 
 SYS_DEFINE_INLINE
-sys_error_code_t AMTExSetInactiveState(AManagedTaskEx *this, boolean_t bBlockedSuspended) {
-  assert_param(this);
+sys_error_code_t AMTExSetInactiveState(AManagedTaskEx *_this, boolean_t bBlockedSuspended) {
+  assert_param(_this);
 
-  this->m_xStatusEx.nIsWaitingNoTimeout = bBlockedSuspended;
+  _this->m_xStatusEx.nIsWaitingNoTimeout = bBlockedSuspended;
 
   return SYS_NO_ERROR_CODE;
 }
 
 SYS_DEFINE_INLINE
-boolean_t AMTExIsTaskInactive(AManagedTaskEx *this){
-  assert_param(this);
+boolean_t AMTExIsTaskInactive(AManagedTaskEx *_this){
+  assert_param(_this);
 
-  return this->m_xStatusEx.nIsWaitingNoTimeout;
+  return (boolean_t)_this->m_xStatusEx.nIsWaitingNoTimeout;
 }
 
 

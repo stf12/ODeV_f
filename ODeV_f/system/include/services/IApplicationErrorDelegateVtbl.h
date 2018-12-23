@@ -48,15 +48,15 @@ typedef struct _IApplicationErrorDelegate_vtbl IApplicationErrorDelegate_vtbl;
  * Virtual table for the _IApplicationErrorDelegate.
  */
 struct _IApplicationErrorDelegate_vtbl {
-	sys_error_code_t (*Init)(IApplicationErrorDelegate *this, void *pParams);  ///< @sa IAEDInit
-	sys_error_code_t (*OnStartApplication)(IApplicationErrorDelegate *this, ApplicationContext *pxContext);  ///< @sa IAEDOnStartApplication
-	sys_error_code_t (*ProcessEvent)(IApplicationErrorDelegate *this, ApplicationContext *pxContext, SysEvent xEvent);  ///< @sa IAEDProcessEvent
-	sys_error_code_t (*OnNewErrEvent)(IApplicationErrorDelegate *this, SysEvent xEvent);  ///< @sa IAEDOnNewErrEvent
-	boolean_t (*IsLastErrorPending)(IApplicationErrorDelegate *this); ///< @sa IAEDIsLastErrorPending
-	sys_error_code_t (*AddFirstResponder)(IApplicationErrorDelegate *this, IErrFirstResponder *pFirstResponder, uint8_t nPriority);  ///< @sa IAEDAddFirstResponder
-	sys_error_code_t (*RemoveFirstResponder)(IApplicationErrorDelegate *this, IErrFirstResponder *pFirstResponder);  ///< @sa IAEDRemoveFirstResponder
-	uint8_t (*GetMaxFirstResponderPriority)(const IApplicationErrorDelegate *this);  ///< @sa IAEDGetMaxFirstResponderPriority
-	void (*ResetCounter)(IApplicationErrorDelegate *this); ///< @sa IAEDResetAEDCounter
+	sys_error_code_t (*Init)(IApplicationErrorDelegate *_this, void *pParams);  ///< @sa IAEDInit
+	sys_error_code_t (*OnStartApplication)(IApplicationErrorDelegate *_this, ApplicationContext *pxContext);  ///< @sa IAEDOnStartApplication
+	sys_error_code_t (*ProcessEvent)(IApplicationErrorDelegate *_this, ApplicationContext *pxContext, SysEvent xEvent);  ///< @sa IAEDProcessEvent
+	sys_error_code_t (*OnNewErrEvent)(IApplicationErrorDelegate *_this, SysEvent xEvent);  ///< @sa IAEDOnNewErrEvent
+	boolean_t (*IsLastErrorPending)(IApplicationErrorDelegate *_this); ///< @sa IAEDIsLastErrorPending
+	sys_error_code_t (*AddFirstResponder)(IApplicationErrorDelegate *_this, IErrFirstResponder *pFirstResponder, uint8_t nPriority);  ///< @sa IAEDAddFirstResponder
+	sys_error_code_t (*RemoveFirstResponder)(IApplicationErrorDelegate *_this, IErrFirstResponder *pFirstResponder);  ///< @sa IAEDRemoveFirstResponder
+	uint8_t (*GetMaxFirstResponderPriority)(const IApplicationErrorDelegate *_this);  ///< @sa IAEDGetMaxFirstResponderPriority
+	void (*ResetCounter)(IApplicationErrorDelegate *_this); ///< @sa IAEDResetAEDCounter
 };
 
 /**
@@ -80,48 +80,48 @@ struct _IApplicationErrorDelegate {
 // ***************************
 
 SYS_DEFINE_INLINE
-sys_error_code_t IAEDInit(IApplicationErrorDelegate *this, void *pParams) {
-	return this->vptr->Init(this, pParams);
+sys_error_code_t IAEDInit(IApplicationErrorDelegate *_this, void *pParams) {
+	return _this->vptr->Init(_this, pParams);
 }
 
 SYS_DEFINE_INLINE
-sys_error_code_t IAEDOnStartApplication(IApplicationErrorDelegate *this, ApplicationContext *pxContext) {
-	return this->vptr->OnStartApplication(this, pxContext);
+sys_error_code_t IAEDOnStartApplication(IApplicationErrorDelegate *_this, ApplicationContext *pxContext) {
+	return _this->vptr->OnStartApplication(_this, pxContext);
 }
 
 SYS_DEFINE_INLINE
-sys_error_code_t IAEDProcessEvent(IApplicationErrorDelegate *this, ApplicationContext *pxContext, SysEvent xEvent) {
-	return this->vptr->ProcessEvent(this, pxContext, xEvent);
+sys_error_code_t IAEDProcessEvent(IApplicationErrorDelegate *_this, ApplicationContext *pxContext, SysEvent xEvent) {
+	return _this->vptr->ProcessEvent(_this, pxContext, xEvent);
 }
 
 SYS_DEFINE_INLINE
-sys_error_code_t IAEDOnNewErrEvent(IApplicationErrorDelegate *this, SysEvent xEvent) {
-	return this->vptr->OnNewErrEvent(this, xEvent);
+sys_error_code_t IAEDOnNewErrEvent(IApplicationErrorDelegate *_this, SysEvent xEvent) {
+	return _this->vptr->OnNewErrEvent(_this, xEvent);
 }
 
 SYS_DEFINE_INLINE
-inline boolean_t IAEDIsLastErrorPending(IApplicationErrorDelegate *this) {
-	return this->vptr->IsLastErrorPending(this);
+boolean_t IAEDIsLastErrorPending(IApplicationErrorDelegate *_this) {
+	return _this->vptr->IsLastErrorPending(_this);
 }
 
 SYS_DEFINE_INLINE
-sys_error_code_t IAEDAddFirstResponder(IApplicationErrorDelegate *this, IErrFirstResponder *pFirstResponder, uint8_t nPriority) {
-	return this->vptr->AddFirstResponder(this, pFirstResponder, nPriority);
+sys_error_code_t IAEDAddFirstResponder(IApplicationErrorDelegate *_this, IErrFirstResponder *pFirstResponder, uint8_t nPriority) {
+	return _this->vptr->AddFirstResponder(_this, pFirstResponder, nPriority);
 }
 
 SYS_DEFINE_INLINE
-sys_error_code_t IAEDRemoveFirstResponder(IApplicationErrorDelegate *this, IErrFirstResponder *pFirstResponder) {
-	return this->vptr->RemoveFirstResponder(this, pFirstResponder);
+sys_error_code_t IAEDRemoveFirstResponder(IApplicationErrorDelegate *_this, IErrFirstResponder *pFirstResponder) {
+	return _this->vptr->RemoveFirstResponder(_this, pFirstResponder);
 }
 
 SYS_DEFINE_INLINE
-uint8_t IAEDGetMaxFirstResponderPriority(const IApplicationErrorDelegate *this) {
-	return this->vptr->GetMaxFirstResponderPriority(this);
+uint8_t IAEDGetMaxFirstResponderPriority(const IApplicationErrorDelegate *_this) {
+	return _this->vptr->GetMaxFirstResponderPriority(_this);
 }
 
 SYS_DEFINE_INLINE
-void IAEDResetCounter(IApplicationErrorDelegate *this) {
-	this->vptr->ResetCounter(this);
+void IAEDResetCounter(IApplicationErrorDelegate *_this) {
+	_this->vptr->ResetCounter(_this);
 }
 
 #ifdef __cplusplus

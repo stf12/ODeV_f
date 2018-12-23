@@ -81,20 +81,20 @@ AManagedTask *HelloWorldTaskAlloc();
 /**
  * Get a pointer to the driver used by the task.
  *
- * @param this [IN] specifies a pointer to a task object.
+ * @param _this [IN] specifies a pointer to a task object.
  * @return a pointer to the driver used by the task.
  */
-inline IDriver *HelloWorldTaskGetDriver(HelloWorldTask *this);
+inline IDriver *HelloWorldTaskGetDriver(HelloWorldTask *_this);
 
 
 // Inline functions definition
 // ***************************
 
 SYS_DEFINE_INLINE
-IDriver *HelloWorldTaskGetDriver(HelloWorldTask *this) {
-  assert_param(this);
+IDriver *HelloWorldTaskGetDriver(HelloWorldTask *_this) {
+  assert_param(_this);
 
-  return this->m_pxDriver;
+  return _this->m_pxDriver;
 }
 
 #ifdef __cplusplus

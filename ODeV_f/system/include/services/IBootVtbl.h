@@ -48,10 +48,10 @@ typedef struct _IBoot_vtbl IBoot_vtbl;
  * Specifies the virtual table for the ::IBoot class.
  */
 struct _IBoot_vtbl {
-  sys_error_code_t (*Init)(IBoot *this);
-  boolean_t (*CheckDFUTrigger)(IBoot *this);
-  uint32_t (*GetAppAdderss)(IBoot *this);
-  sys_error_code_t (*OnJampToApp)(IBoot *this, uint32_t nAppDress);
+  sys_error_code_t (*Init)(IBoot *_this);
+  boolean_t (*CheckDFUTrigger)(IBoot *_this);
+  uint32_t (*GetAppAdderss)(IBoot *_this);
+  sys_error_code_t (*OnJampToApp)(IBoot *_this, uint32_t nAppDress);
 };
 
 /**
@@ -70,23 +70,23 @@ struct _IBoot {
 // ***************************
 
 SYS_DEFINE_INLINE
-sys_error_code_t IBootInit(IBoot *this) {
-  return this->vptr->Init(this);
+sys_error_code_t IBootInit(IBoot *_this) {
+  return _this->vptr->Init(_this);
 }
 
 SYS_DEFINE_INLINE
-boolean_t IBootCheckDFUTrigger(IBoot *this) {
-  return this->vptr->CheckDFUTrigger(this);
+boolean_t IBootCheckDFUTrigger(IBoot *_this) {
+  return _this->vptr->CheckDFUTrigger(_this);
 }
 
 SYS_DEFINE_INLINE
-uint32_t IBootGetAppAdderss(IBoot *this) {
-  return this->vptr->GetAppAdderss(this);
+uint32_t IBootGetAppAdderss(IBoot *_this) {
+  return _this->vptr->GetAppAdderss(_this);
 }
 
 SYS_DEFINE_INLINE
-sys_error_code_t IBootOnJampToApp(IBoot *this, uint32_t nAppDress) {
-  return this->vptr->OnJampToApp(this, nAppDress);
+sys_error_code_t IBootOnJampToApp(IBoot *_this, uint32_t nAppDress) {
+  return _this->vptr->OnJampToApp(_this, nAppDress);
 }
 
 

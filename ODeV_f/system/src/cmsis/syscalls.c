@@ -55,6 +55,14 @@ int SysDebugLowLevelPutchar(int x) {
 }
 #endif
 
+void __cxa_atexit(void(*Arg)(void*), void* Arg2, void* Arg3) {}
+void  __cxa_guard_acquire(void) {}
+void  __cxa_guard_release(void) {}
+
+void __cxa_pure_virtual()
+{
+    while (1);
+}
 
 /* Functions */
 void initialise_monitor_handles()

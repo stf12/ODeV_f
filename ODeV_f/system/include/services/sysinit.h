@@ -46,6 +46,10 @@
 #include "IBoot.h"
 #include "IBootVtbl.h"
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 /**
  * It initialize the minimum set of resources, hardware and software, in order to start the scheduler,
  * and create the INIT task.
@@ -137,6 +141,10 @@ IBoot *SysGetBootIF();
  * @return a pointer to an IAppPowerModeHelper object.
  */
 IAppPowerModeHelper *SysGetPowerModeHelper();
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif /* SYSINIT_H_ */

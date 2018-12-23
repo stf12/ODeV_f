@@ -47,10 +47,10 @@ extern "C" {
 typedef struct _AManagedTask_vtbl AManagedTask_vtbl;
 
 struct _AManagedTask_vtbl {
-  sys_error_code_t (*HardwareInit)(AManagedTask *this, void *pParams);
-  sys_error_code_t (*OnCreateTask)(AManagedTask *this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority);
-  sys_error_code_t (*DoEnterPowerMode)(AManagedTask *this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
-  sys_error_code_t (*HandleError)(AManagedTask *this, SysEvent xError);
+  sys_error_code_t (*HardwareInit)(AManagedTask *_this, void *pParams);
+  sys_error_code_t (*OnCreateTask)(AManagedTask *_this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority);
+  sys_error_code_t (*DoEnterPowerMode)(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
+  sys_error_code_t (*HandleError)(AManagedTask *_this, SysEvent xError);
 };
 
 /**
@@ -121,35 +121,35 @@ extern EPowerMode SysGetPowerMode();
 // ***************************
 
 SYS_DEFINE_INLINE
-sys_error_code_t AMTHardwareInit(AManagedTask *this, void *pParams) {
-  return this->vptr->HardwareInit(this, pParams);
+sys_error_code_t AMTHardwareInit(AManagedTask *_this, void *pParams) {
+  return _this->vptr->HardwareInit(_this, pParams);
 }
 
 SYS_DEFINE_INLINE
-sys_error_code_t AMTOnCreateTask(AManagedTask *this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority) {
-  return this->vptr->OnCreateTask(this, pvTaskCode, pcName, pnStackDepth, pParams, pxPriority);
+sys_error_code_t AMTOnCreateTask(AManagedTask *_this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority) {
+  return _this->vptr->OnCreateTask(_this, pvTaskCode, pcName, pnStackDepth, pParams, pxPriority);
 }
 
 SYS_DEFINE_INLINE
-sys_error_code_t AMTDoEnterPowerMode(AManagedTask *this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
-  return this->vptr->DoEnterPowerMode(this, eActivePowerMode, eNewPowerMode);
+sys_error_code_t AMTDoEnterPowerMode(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
+  return _this->vptr->DoEnterPowerMode(_this, eActivePowerMode, eNewPowerMode);
 }
 
 SYS_DEFINE_INLINE
-sys_error_code_t AMTHandleError(AManagedTask *this, SysEvent xError) {
-  return this->vptr->HandleError(this, xError);
+sys_error_code_t AMTHandleError(AManagedTask *_this, SysEvent xError) {
+  return _this->vptr->HandleError(_this, xError);
 }
 
 SYS_DEFINE_INLINE
-sys_error_code_t AMTInit(AManagedTask *this) {
-  this->m_pNext = NULL;
-  this->m_xThaskHandle = NULL;
-  this->m_xStatus.nDelayPowerModeSwitch = 1;
-  this->m_xStatus.nPowerModeSwitchPending = 0;
-  this->m_xStatus.nPowerModeSwitchDone = 0;
-  this->m_xStatus.nIsTaskStillRunning = 0;
-  this->m_xStatus.nErrorCount = 0;
-  this->m_xStatus.nReserved = 0;
+sys_error_code_t AMTInit(AManagedTask *_this) {
+  _this->m_pNext = NULL;
+  _this->m_xThaskHandle = NULL;
+  _this->m_xStatus.nDelayPowerModeSwitch = 1;
+  _this->m_xStatus.nPowerModeSwitchPending = 0;
+  _this->m_xStatus.nPowerModeSwitchDone = 0;
+  _this->m_xStatus.nIsTaskStillRunning = 0;
+  _this->m_xStatus.nErrorCount = 0;
+  _this->m_xStatus.nReserved = 0;
 
   return SYS_NO_ERROR_CODE;
 }
@@ -160,33 +160,33 @@ EPowerMode AMTGetSystemPowerMode() {
 }
 
 SYS_DEFINE_INLINE
-sys_error_code_t AMTNotifyIsStillRunning(AManagedTask *this, sys_error_code_t nStepError) {
+sys_error_code_t AMTNotifyIsStillRunning(AManagedTask *_this, sys_error_code_t nStepError) {
 
-  if (SYS_IS_ERROR_CODE(nStepError) && (this->m_xStatus.nErrorCount < MT_MAX_ERROR_COUNT)) {
-    this->m_xStatus.nErrorCount++;
+  if (SYS_IS_ERROR_CODE(nStepError) && (_this->m_xStatus.nErrorCount < MT_MAX_ERROR_COUNT)) {
+    _this->m_xStatus.nErrorCount++;
   }
-  if (this->m_xStatus.nErrorCount < MT_ALLOWED_ERROR_COUNT) {
-    this->m_xStatus.nIsTaskStillRunning = 1;
+  if (_this->m_xStatus.nErrorCount < MT_ALLOWED_ERROR_COUNT) {
+    _this->m_xStatus.nIsTaskStillRunning = 1;
   }
 
   return SYS_NO_ERROR_CODE;
 }
 
 SYS_DEFINE_INLINE
-void AMTResetAEDCounter(AManagedTask *this) {
+void AMTResetAEDCounter(AManagedTask *_this) {
   SysResetAEDCounter();
 }
 
 SYS_DEFINE_INLINE
-boolean_t AMTIsPowerModeSwitchPending(AManagedTask *this) {
-  return this->m_xStatus.nPowerModeSwitchPending;
+boolean_t AMTIsPowerModeSwitchPending(AManagedTask *_this) {
+  return (boolean_t)_this->m_xStatus.nPowerModeSwitchPending;
 }
 
 SYS_DEFINE_INLINE
-void AMTReportErrOnStepExecution(AManagedTask *this, sys_error_code_t nStepError) {
+void AMTReportErrOnStepExecution(AManagedTask *_this, sys_error_code_t nStepError) {
   UNUSED(nStepError);
 
-  this->m_xStatus.nErrorCount++;
+  _this->m_xStatus.nErrorCount++;
 }
 
 

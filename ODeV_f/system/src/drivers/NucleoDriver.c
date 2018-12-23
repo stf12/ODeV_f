@@ -88,11 +88,11 @@ IDriver *NucleoDriverAlloc() {
   return pNewObj;
 }
 
-sys_error_code_t NucleoDriver_vtblInit(IDriver *this, void *pParams) {
-  assert_param(this);
+sys_error_code_t NucleoDriver_vtblInit(IDriver *_this, void *pParams) {
+  assert_param(_this);
   UNUSED(pParams);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  NucleoDriver *pObj = (NucleoDriver*)this;
+  NucleoDriver *pObj = (NucleoDriver*)_this;
   GPIO_InitTypeDef GPIO_InitStruct;
 
   __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -123,10 +123,10 @@ sys_error_code_t NucleoDriver_vtblInit(IDriver *this, void *pParams) {
   return xRes;
 }
 
-sys_error_code_t NucleoDriver_vtblStart(IDriver *this) {
-  assert_param(this);
+sys_error_code_t NucleoDriver_vtblStart(IDriver *_this) {
+  assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  NucleoDriver *pObj = (NucleoDriver*)this;
+  NucleoDriver *pObj = (NucleoDriver*)_this;
 
   // set the hardware resources
   __disable_irq();
@@ -140,11 +140,11 @@ sys_error_code_t NucleoDriver_vtblStart(IDriver *this) {
   return xRes;
 }
 
-sys_error_code_t NucleoDriver_vtblStop(IDriver *this) {
-  assert_param(this);
+sys_error_code_t NucleoDriver_vtblStop(IDriver *_this) {
+  assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  UNUSED(this);
-//  NucleoDriver *pObj = (NucleoDriver*)this;
+  UNUSED(_this);
+//  NucleoDriver *pObj = (NucleoDriver*)_this;
 
   // release the hardware resources
   __disable_irq();
@@ -157,41 +157,50 @@ sys_error_code_t NucleoDriver_vtblStop(IDriver *this) {
   return xRes;
 }
 
-sys_error_code_t NucleoDriver_vtblDoEnterPowerMode(IDriver *this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
-  assert_param(this);
+sys_error_code_t NucleoDriver_vtblDoEnterPowerMode(IDriver *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
+  assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  NucleoDriver *pObj = (NucleoDriver*)this;
+//  NucleoDriver *pObj = (NucleoDriver*)_this;
 
   return xRes;
 }
 
-sys_error_code_t NucleoDriver_vtblWrite(IDriver *this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel) {
-  assert_param(this);
+sys_error_code_t NucleoDriver_vtblWrite(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel) {
+  assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  NucleoDriver *pObj = (NucleoDriver*)this;
+//  NucleoDriver *pObj = (NucleoDriver*)_this;
 
-  SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("NucleoDRV: Write method not used by this driver.\r\n"));
+  SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("NucleoDRV: Write method not used by _this driver.\r\n"));
 
   return xRes;
 }
 
-sys_error_code_t NucleoDriver_vtblRead(IDriver *this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel) {
-  assert_param(this);
+sys_error_code_t NucleoDriver_vtblRead(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel) {
+  assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  NucleoDriver *pObj = (NucleoDriver*)this;
+//  NucleoDriver *pObj = (NucleoDriver*)_this;
 
-  SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("NucleoDRV: Read method not used by this driver.\r\n"));
+  SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("NucleoDRV: Read method not used by _this driver.\r\n"));
 
   return xRes;
 }
 
 
-sys_error_code_t NucleoDriverWaitForButtonEvent(NucleoDriver *this, boolean_t *pbButtonPressed) {
-  assert_param(this);
+sys_error_code_t NucleoDriverWaitForButtonEvent(NucleoDriver *_this, boolean_t *pbButtonPressed) {
+  assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
-  xSemaphoreTake(this->m_xSyncObj, portMAX_DELAY);
-  *pbButtonPressed = this->m_bPB1Pressed;
+  xSemaphoreTake(_this->m_xSyncObj, portMAX_DELAY);
+  *pbButtonPressed = _this->m_bPB1Pressed;
+
+  return xRes;
+}
+
+sys_error_code_t NucleoDriverStopWaitingForButtonEvent(NucleoDriver *_this) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+
+  xSemaphoreGive(s_xHardwareResources.xSyncObj);
 
   return xRes;
 }

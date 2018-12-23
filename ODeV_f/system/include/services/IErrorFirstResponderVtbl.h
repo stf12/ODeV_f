@@ -48,9 +48,9 @@ typedef struct _IErrFirstResponder_vtbl IErrFirstResponder_vtbl;
  * that a subclass must overload.
  */
 struct _IErrFirstResponder_vtbl {
-	void (*SetOwner)(IErrFirstResponder *this, void *pxOwner);  ///< @sa IErrFirstResponderSetOwner
-	void *(*GetOwner)(IErrFirstResponder *this);  ///< @sa IErrFirstResponderGetOwner
-	sys_error_code_t (*NewError)(IErrFirstResponder *this, SysEvent xError, boolean_t bIsCalledFromISR);  ///< @sa IErrFirstResponderNewError
+	void (*SetOwner)(IErrFirstResponder *_this, void *pxOwner);  ///< @sa IErrFirstResponderSetOwner
+	void *(*GetOwner)(IErrFirstResponder *_this);  ///< @sa IErrFirstResponderGetOwner
+	sys_error_code_t (*NewError)(IErrFirstResponder *_this, SysEvent xError, boolean_t bIsCalledFromISR);  ///< @sa IErrFirstResponderNewError
 };
 
 /**
@@ -72,18 +72,18 @@ struct _IErrFirstResponder {
 // ***************************
 
 SYS_DEFINE_INLINE
-void IErrFirstResponderSetOwner(IErrFirstResponder *this, void *pxOwner) {
-	this->vptr->SetOwner(this, pxOwner);
+void IErrFirstResponderSetOwner(IErrFirstResponder *_this, void *pxOwner) {
+	_this->vptr->SetOwner(_this, pxOwner);
 }
 
 SYS_DEFINE_INLINE
-void *IErrFirstResponderGetOwner(IErrFirstResponder *this) {
-	return this->vptr->GetOwner(this);
+void *IErrFirstResponderGetOwner(IErrFirstResponder *_this) {
+	return _this->vptr->GetOwner(_this);
 }
 
 SYS_DEFINE_INLINE
-sys_error_code_t IErrorFirstResponderNewError(IErrFirstResponder *this, SysEvent xError, boolean_t bIsCalledFromISR) {
-	return this->vptr->NewError(this, xError, bIsCalledFromISR);
+sys_error_code_t IErrorFirstResponderNewError(IErrFirstResponder *_this, SysEvent xError, boolean_t bIsCalledFromISR) {
+	return _this->vptr->NewError(_this, xError, bIsCalledFromISR);
 }
 
 
