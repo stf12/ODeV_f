@@ -553,6 +553,8 @@ void GRAPHICS_Init()
     /* Initialize the LCD Display */
     LCD_Init();
 
+    //TODO: STF.Debug - exclude some code when compiled for ODeV.
+#ifndef ODEV_F
     /* Initialize the Touch Screen Controller */
     if (BSP_TS_Init(GUI_DISPLAY_WIDTH, GUI_DISPLAY_HEIGHT) == TS_OK)
     {
@@ -567,6 +569,7 @@ void GRAPHICS_Init()
     {
         Error_Handler();
     }
+#endif
 }
 
 void GRAPHICS_DeInit()
@@ -574,9 +577,12 @@ void GRAPHICS_DeInit()
     /* DeInitialize the LCD Display */
     LCD_DeInit();
 
+    //TODO: STF.Debug - exclude some code when compiled for ODeV.
+#ifndef ODEV_F
     /* Stop and then deInitialize the Touch Screen Controller */
     //BSP_TS_ITClear();
     BSP_TS_DeInit();
+#endif
 
     /* DeInitialize the NOR flash */
     BSP_OSPI_NOR_DeInit();
@@ -628,6 +634,9 @@ void LCD_SetUpdateRegionRight()
 }
 #endif
 
+//TODO: STF.Debug - exclude some code when compiled for ODeV.
+// It is managed by ODeV framework
+#ifndef ODEV_F
 /* Update Graphics upon SysTick event reception */
 void GRAPHICS_ProcessSysTickEvent()
 {
@@ -651,6 +660,7 @@ void SysTick_Handler(void)
 #endif // (GUI_OS_USE_SAME_HAL_TIMEBASE == 1)
     GRAPHICS_ProcessSysTickEvent();
 }
+#endif
 
 /**
   * @brief  This function handles DMA2D interrupt request.

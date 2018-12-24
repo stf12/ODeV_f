@@ -124,6 +124,9 @@ static portBASE_TYPE IdleTaskHook(void* p)
 // FreeRTOS specific handlers
 extern "C"
 {
+//TODO: STF.Debug - exclude some code when compiled for ODeV.
+// It is managed by ODeV framework
+#ifndef ODEV_F
     void vApplicationStackOverflowHook(xTaskHandle xTask,
                                        signed portCHAR* pcTaskName)
     {
@@ -143,4 +146,5 @@ extern "C"
         // readout is not needed.
         vTaskSetApplicationTaskTag(NULL, IdleTaskHook);
     }
+#endif
 }

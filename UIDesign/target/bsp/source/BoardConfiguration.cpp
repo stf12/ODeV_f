@@ -209,6 +209,45 @@ uint8_t dynBitmapsBuffer[DYN_SIZE] LOCATION_DYNP_ATTRIBUTE;
 
 namespace touchgfx
 {
+void hw_init_odev() {
+  __HAL_RCC_PWR_CLK_ENABLE();
+
+  /* Enable RTC back-up registers access */
+  HAL_PWR_EnableBkUpAccess();
+
+  /* STM32L4xx HAL library initialization:
+  - Configure the Flash prefetch, Instruction cache, Data cache
+  - Systick timer is configured by default as source of time base, but user
+    can eventually implement his proper time base source (a general purpose
+    timer for example or other time source), keeping in mind that Time base
+    duration should be kept 1ms since PPP_TIMEOUT_VALUEs are defined and
+    handled in milliseconds basis.
+  - Set NVIC Group Priority to 4
+  - Low Level Initialization */
+//  HAL_Init();
+
+  /* Configure the system clock */
+//  SystemClock_Config();
+
+  //Enable CRC engine for STM32 Lock check
+  __HAL_RCC_CRC_CLK_ENABLE();
+
+  BSP_IO_Init();
+
+  /* Configure LED1, LED2, LED3 and LED4 */
+  BSP_LED_Init(LED1);
+  BSP_LED_Init(LED2);
+  BSP_LED_Init(LED3);
+  BSP_LED_Init(LED4);
+
+  /* Configure the GPIOs for MFX */
+  MFX_IO_Init();
+
+  /* Initialize Graphics hardware resources */
+  GRAPHICS_Init();
+  GPIO::init();
+}
+
 void hw_init()
 {
     __HAL_RCC_PWR_CLK_ENABLE();
@@ -269,11 +308,14 @@ void touchgfx_init()
     // This platform can handle simultaneous DMA and TFT accesses to SDRAM, so disable lock to increase performance.
     hal.lockDMAToFrontPorch(false);
 
+    //TODO: STF.Debug - exclude some code when compiled for ODeV.
+#ifndef ODEV_F
     mcuInstr.init();
 
     //Set MCU instrumentation and Load calculation
     hal.setMCUInstrumentation(&mcuInstr);
     hal.enableMCULoadCalculation(true);
+#endif
 }
 }
 
