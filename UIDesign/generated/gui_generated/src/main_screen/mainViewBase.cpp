@@ -34,8 +34,8 @@ void mainViewBase::buttonCallbackHandler(const touchgfx::AbstractButton& src)
     if (&src == &buttonBack)
     {
         //InteractionGoToSplashScreen
-        //When buttonBack clicked change screen to spalshScreen
-        //Go to spalshScreen with screen transition towards West
-        application().gotospalshScreenScreenSlideTransitionWest();
+        //When buttonBack clicked change screen to splashScreen
+        //Go to splashScreen with screen transition towards West
+        application().gotosplashScreenScreenSlideTransitionWest();
     }
 }

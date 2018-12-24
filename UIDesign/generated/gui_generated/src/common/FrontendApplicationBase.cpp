@@ -7,8 +7,8 @@
 #include <touchgfx/transitions/NoTransition.hpp>
 #include <texts/TextKeysAndLanguages.hpp>
 #include <touchgfx/Texts.hpp>
-#include <gui/spalshscreen_screen/spalshScreenView.hpp>
-#include <gui/spalshscreen_screen/spalshScreenPresenter.hpp>
+#include <gui/splashscreen_screen/splashScreenView.hpp>
+#include <gui/splashscreen_screen/splashScreenPresenter.hpp>
 #include <gui/main_screen/mainView.hpp>
 #include <gui/main_screen/mainPresenter.hpp>
 
@@ -27,29 +27,29 @@ FrontendApplicationBase::FrontendApplicationBase(Model& m, FrontendHeap& heap)
 /*
  * Screen Transition Declarations
  */
-// spalshScreen
+// splashScreen
 
-void FrontendApplicationBase::gotospalshScreenScreenNoTransition()
+void FrontendApplicationBase::gotosplashScreenScreenNoTransition()
 {
-    transitionCallback = touchgfx::Callback<FrontendApplicationBase>(this, &FrontendApplication::gotospalshScreenScreenNoTransitionImpl);
+    transitionCallback = touchgfx::Callback<FrontendApplicationBase>(this, &FrontendApplication::gotosplashScreenScreenNoTransitionImpl);
     pendingScreenTransitionCallback = &transitionCallback;
 }
 
-void FrontendApplicationBase::gotospalshScreenScreenNoTransitionImpl()
+void FrontendApplicationBase::gotosplashScreenScreenNoTransitionImpl()
 {
-    makeTransition<spalshScreenView, spalshScreenPresenter, touchgfx::NoTransition, Model >(&currentScreen, &currentPresenter, frontendHeap, &currentTransition, &model);
+    makeTransition<splashScreenView, splashScreenPresenter, touchgfx::NoTransition, Model >(&currentScreen, &currentPresenter, frontendHeap, &currentTransition, &model);
 }
 
 
-void FrontendApplicationBase::gotospalshScreenScreenSlideTransitionWest()
+void FrontendApplicationBase::gotosplashScreenScreenSlideTransitionWest()
 {
-    transitionCallback = touchgfx::Callback<FrontendApplicationBase>(this, &FrontendApplication::gotospalshScreenScreenSlideTransitionWestImpl);
+    transitionCallback = touchgfx::Callback<FrontendApplicationBase>(this, &FrontendApplication::gotosplashScreenScreenSlideTransitionWestImpl);
     pendingScreenTransitionCallback = &transitionCallback;
 }
 
-void FrontendApplicationBase::gotospalshScreenScreenSlideTransitionWestImpl()
+void FrontendApplicationBase::gotosplashScreenScreenSlideTransitionWestImpl()
 {
-    makeTransition<spalshScreenView, spalshScreenPresenter, touchgfx::SlideTransition<WEST>, Model >(&currentScreen, &currentPresenter, frontendHeap, &currentTransition, &model);
+    makeTransition<splashScreenView, splashScreenPresenter, touchgfx::SlideTransition<WEST>, Model >(&currentScreen, &currentPresenter, frontendHeap, &currentTransition, &model);
 }
 
 // main

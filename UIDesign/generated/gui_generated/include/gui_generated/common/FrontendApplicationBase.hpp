@@ -15,10 +15,10 @@ public:
     FrontendApplicationBase(Model& m, FrontendHeap& heap);
     virtual ~FrontendApplicationBase() { }
 
-    // spalshScreen
-    void gotospalshScreenScreenNoTransition();
+    // splashScreen
+    void gotosplashScreenScreenNoTransition();
 
-    void gotospalshScreenScreenSlideTransitionWest();
+    void gotosplashScreenScreenSlideTransitionWest();
 
 
     // main
@@ -29,10 +29,10 @@ protected:
     FrontendHeap& frontendHeap;
     Model& model;
 
-    // spalshScreen
-    void gotospalshScreenScreenNoTransitionImpl();
+    // splashScreen
+    void gotosplashScreenScreenNoTransitionImpl();
 
-    void gotospalshScreenScreenSlideTransitionWestImpl();
+    void gotosplashScreenScreenSlideTransitionWestImpl();
 
 
     // main

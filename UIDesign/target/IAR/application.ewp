@@ -1050,9 +1050,9 @@
           </file>
         </group>
         <group>
-          <name>spalshscreen_screen</name>
+          <name>splashscreen_screen</name>
           <file>
-            <name>$PROJ_DIR$\..\..\generated\gui_generated\src\spalshscreen_screen\spalshScreenViewBase.cpp</name>
+            <name>$PROJ_DIR$\..\..\generated\gui_generated\src\splashscreen_screen\splashScreenViewBase.cpp</name>
           </file>
         </group>
       </group>
@@ -1117,12 +1117,12 @@
         </file>
       </group>
       <group>
-        <name>spalshscreen_screen</name>
+        <name>splashscreen_screen</name>
         <file>
-          <name>$PROJ_DIR$\..\..\gui\src\spalshscreen_screen\spalshScreenPresenter.cpp</name>
+          <name>$PROJ_DIR$\..\..\gui\src\splashscreen_screen\splashScreenPresenter.cpp</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\gui\src\spalshscreen_screen\spalshScreenView.cpp</name>
+          <name>$PROJ_DIR$\..\..\gui\src\splashscreen_screen\splashScreenView.cpp</name>
         </file>
       </group>
     </group>

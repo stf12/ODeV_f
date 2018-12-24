@@ -19,12 +19,12 @@
     <ClCompile Include="..\..\gui\src\common\FrontendApplication.cpp"/>
     <ClCompile Include="..\..\generated\gui_generated\src\common\FrontendApplicationBase.cpp"/>
     <ClCompile Include="..\..\gui\src\model\Model.cpp"/>
-    <ClCompile Include="..\..\gui\src\spalshscreen_screen\spalshScreenPresenter.cpp"/>
-    <ClCompile Include="..\..\gui\src\spalshscreen_screen\spalshScreenView.cpp"/>
-    <ClCompile Include="..\..\generated\gui_generated\src\spalshscreen_screen\spalshScreenViewBase.cpp"/>
     <ClCompile Include="..\..\gui\src\main_screen\mainPresenter.cpp"/>
     <ClCompile Include="..\..\gui\src\main_screen\mainView.cpp"/>
     <ClCompile Include="..\..\generated\gui_generated\src\main_screen\mainViewBase.cpp"/>
+    <ClCompile Include="..\..\gui\src\splashscreen_screen\splashScreenPresenter.cpp"/>
+    <ClCompile Include="..\..\gui\src\splashscreen_screen\splashScreenView.cpp"/>
+    <ClCompile Include="..\..\generated\gui_generated\src\splashscreen_screen\splashScreenViewBase.cpp"/>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\assets\texts\texts.xlsx"/>
@@ -171,12 +171,12 @@
     <ClInclude Include="..\..\gui\include\gui\model\Model.hpp"/>
     <ClInclude Include="..\..\gui\include\gui\model\ModelListener.hpp"/>
     <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\common\SimConstants.hpp"/>
-    <ClInclude Include="..\..\gui\include\gui\spalshscreen_screen\spalshScreenPresenter.hpp"/>
-    <ClInclude Include="..\..\gui\include\gui\spalshscreen_screen\spalshScreenView.hpp"/>
-    <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\spalshscreen_screen\spalshScreenViewBase.hpp"/>
     <ClInclude Include="..\..\gui\include\gui\main_screen\mainPresenter.hpp"/>
     <ClInclude Include="..\..\gui\include\gui\main_screen\mainView.hpp"/>
     <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\main_screen\mainViewBase.hpp"/>
+    <ClInclude Include="..\..\gui\include\gui\splashscreen_screen\splashScreenPresenter.hpp"/>
+    <ClInclude Include="..\..\gui\include\gui\splashscreen_screen\splashScreenView.hpp"/>
+    <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\splashscreen_screen\splashScreenViewBase.hpp"/>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\touchgfx.rc"/>

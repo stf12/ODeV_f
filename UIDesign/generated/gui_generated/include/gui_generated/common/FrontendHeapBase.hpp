@@ -14,8 +14,8 @@
 #include <gui/common/FrontendApplication.hpp>
 #include <gui/model/Model.hpp>
 
-#include <gui/spalshscreen_screen/spalshScreenView.hpp>
-#include <gui/spalshscreen_screen/spalshScreenPresenter.hpp>
+#include <gui/splashscreen_screen/splashScreenView.hpp>
+#include <gui/splashscreen_screen/splashScreenPresenter.hpp>
 #include <gui/main_screen/mainView.hpp>
 #include <gui/main_screen/mainPresenter.hpp>
 
@@ -40,7 +40,7 @@ public:
      * A list of all view types. Must end with meta::Nil.
      * @note All view types used in the application MUST be added to this list!
      */
-    typedef meta::TypeList< spalshScreenView,
+    typedef meta::TypeList< splashScreenView,
             meta::TypeList< mainView,
             meta::Nil >
             > GeneratedViewTypes;
@@ -54,7 +54,7 @@ public:
      * A list of all presenter types. Must end with meta::Nil.
      * @note All presenter types used in the application MUST be added to this list!
      */
-    typedef meta::TypeList< spalshScreenPresenter,
+    typedef meta::TypeList< splashScreenPresenter,
             meta::TypeList< mainPresenter,
             meta::Nil >
             > GeneratedPresenterTypes;
@@ -81,7 +81,7 @@ public:
 
     virtual void gotoStartScreen(FrontendApplication& app)
     {
-        app.gotospalshScreenScreenNoTransition();
+        app.gotosplashScreenScreenNoTransition();
     }
 protected:
     FrontendHeapBase(AbstractPartition& presenters, AbstractPartition& views, AbstractPartition& transitions, FrontendApplication& app)

@@ -151,18 +151,6 @@
     <Filter Include="Header Files\generated\gui_generated\common">
       <UniqueIdentifier>55E7DCFE-80E4-4FF3-89C6-313EDAD68483</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\gui\spalshscreen_screen">
-      <UniqueIdentifier>B1C7D360-145F-420D-89CE-20E350D37F61</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\gui\spalshscreen_screen">
-      <UniqueIdentifier>8D8F1345-6E35-4AC4-964F-25CEAAE0521F</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\generated\gui_generated\spalshscreen_screen">
-      <UniqueIdentifier>FA7F1954-1688-4852-8E94-61F6118EABEC</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\generated\gui_generated\spalshscreen_screen">
-      <UniqueIdentifier>6325123A-0501-451F-8C32-86081A39B76E</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\gui\main_screen">
       <UniqueIdentifier>8E07560D-0147-4490-B594-10ECB84E97CC</UniqueIdentifier>
     </Filter>
@@ -174,6 +162,18 @@
     </Filter>
     <Filter Include="Source Files\generated\gui_generated\main_screen">
       <UniqueIdentifier>4976E9F9-7B17-4325-B969-00BBA739FDE9</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui\splashscreen_screen">
+      <UniqueIdentifier>E658FC73-4E0C-4A3D-ADCD-61CC45EFAE8C</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gui\splashscreen_screen">
+      <UniqueIdentifier>D1A9B97C-01DB-42A1-8203-6585B6E9E9C2</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\generated\gui_generated\splashscreen_screen">
+      <UniqueIdentifier>49942945-604B-428C-BE6F-5F1FFFC55C47</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\generated\gui_generated\splashscreen_screen">
+      <UniqueIdentifier>BB95473C-4CB7-43F2-812D-23CE1C494248</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -201,15 +201,6 @@
     <ClCompile Include="..\..\gui\src\model\Model.cpp">
       <Filter>Source Files\gui\model</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\gui\src\spalshscreen_screen\spalshScreenPresenter.cpp">
-      <Filter>Source Files\gui\spalshscreen_screen</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\gui\src\spalshscreen_screen\spalshScreenView.cpp">
-      <Filter>Source Files\gui\spalshscreen_screen</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\generated\gui_generated\src\spalshscreen_screen\spalshScreenViewBase.cpp">
-      <Filter>Source Files\generated\gui_generated\spalshscreen_screen</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\gui\src\main_screen\mainPresenter.cpp">
       <Filter>Source Files\gui\main_screen</Filter>
     </ClCompile>
@@ -218,6 +209,15 @@
     </ClCompile>
     <ClCompile Include="..\..\generated\gui_generated\src\main_screen\mainViewBase.cpp">
       <Filter>Source Files\generated\gui_generated\main_screen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\src\splashscreen_screen\splashScreenPresenter.cpp">
+      <Filter>Source Files\gui\splashscreen_screen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\src\splashscreen_screen\splashScreenView.cpp">
+      <Filter>Source Files\gui\splashscreen_screen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\generated\gui_generated\src\splashscreen_screen\splashScreenViewBase.cpp">
+      <Filter>Source Files\generated\gui_generated\splashscreen_screen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -649,15 +649,6 @@
     <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\common\SimConstants.hpp">
       <Filter>Header Files\generated\gui_generated\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\gui\include\gui\spalshscreen_screen\spalshScreenPresenter.hpp">
-      <Filter>Header Files\gui\spalshscreen_screen</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\gui\include\gui\spalshscreen_screen\spalshScreenView.hpp">
-      <Filter>Header Files\gui\spalshscreen_screen</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\spalshscreen_screen\spalshScreenViewBase.hpp">
-      <Filter>Header Files\generated\gui_generated\spalshscreen_screen</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\gui\include\gui\main_screen\mainPresenter.hpp">
       <Filter>Header Files\gui\main_screen</Filter>
     </ClInclude>
@@ -666,6 +657,15 @@
     </ClInclude>
     <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\main_screen\mainViewBase.hpp">
       <Filter>Header Files\generated\gui_generated\main_screen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\include\gui\splashscreen_screen\splashScreenPresenter.hpp">
+      <Filter>Header Files\gui\splashscreen_screen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\include\gui\splashscreen_screen\splashScreenView.hpp">
+      <Filter>Header Files\gui\splashscreen_screen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\splashscreen_screen\splashScreenViewBase.hpp">
+      <Filter>Header Files\generated\gui_generated\splashscreen_screen</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
