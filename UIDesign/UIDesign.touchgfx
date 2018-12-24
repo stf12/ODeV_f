@@ -1,0 +1,54 @@
+{
+  "Application": {
+    "Screens": [
+      {
+        "Components": [],
+        "Interactions": [],
+        "Name": "Screen1",
+        "OverrideDefaultBufferSize": false,
+        "CanvasBufferSize": 0
+      }
+    ],
+    "CustomContainerDefinitions": [],
+    "Name": "UIDesign",
+    "Resolution": {
+      "Width": 390,
+      "Height": 390
+    },
+    "SelectedColorDepth": 24,
+    "StartupScreenName": "Screen1",
+    "SelectedStartupLanguage": "GB",
+    "Skin": "Blue",
+    "TouchGfxPath": "touchgfx",
+    "UIPath": ".",
+    "ApplicationTemplate": {
+      "Name": "STM32L4R9I_EVAL",
+      "Version": "1.1.0",
+      "Description": "STM32L4R9I Evaluation board",
+      "AvailableColorDepths": [
+        24
+      ],
+      "AvailableImageFormats": {
+        "24": {
+          "Opaque": "RGB888",
+          "NonOpaque": "ARGB8888"
+        }
+      },
+      "AvailableResolutions": [
+        {
+          "Width": 390,
+          "Height": 390
+        }
+      ],
+      "PhysicalButtons": [],
+      "GenerateAssetsCommand": "make -f simulator/gcc/Makefile assets -j10",
+      "PostGenerateCommand": "touchgfx update_project --project-file=target/IAR/application.ewp && touchgfx update_project --project-file=target/IAR8.x/application.ewp && touchgfx update_project --project-file=simulator/msvs/Application.vcxproj",
+      "CompileSimulatorCommand": "make -f simulator/gcc/Makefile -j10",
+      "RunSimulatorCommand": "build\\bin\\simulator.exe",
+      "CompileTargetCommand": "make -f target/gcc/Makefile -j8",
+      "FlashTargetCommand": "make -f target/gcc/Makefile -j8 flash"
+    }
+  },
+  "Version": "4.10.0",
+  "CreatedBy": "4.10.0"
+}
