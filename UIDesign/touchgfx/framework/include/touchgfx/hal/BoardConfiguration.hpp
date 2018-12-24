@@ -29,6 +29,11 @@ namespace touchgfx
 void hw_init();
 
 /**
+ * Function to perform generic hardware initialization of the board when used with the ODeV framework.
+ */
+void hw_init_odev();
+
+/**
  * @fn void touchgfx_init();
  *
  * @brief Function to perform touchgfx initialization.

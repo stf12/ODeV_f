@@ -47,6 +47,8 @@ extern "C" {
 #define SYS_DBG_APMH                       SYS_DBG_ON                 ///< Application Power Mode Helper debug control byte
 #define SYS_DBG_HW                         SYS_DBG_OFF                ///< Hello World task debug control byte
 #define SYS_DBG_PB                         SYS_DBG_ON                 ///< Push button task debug control byte
+#define SYS_DBG_GUI                        SYS_DBG_ON                 ///< GUI task (TouchGFX) debug control byte
+#define SYS_DBG_TSC                        SYS_DBG_ON                 ///< Touch Screen Controller (TouchGFX) debug control byte
 
 
 #ifdef __cplusplus

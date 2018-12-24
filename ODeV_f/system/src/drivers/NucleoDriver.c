@@ -220,14 +220,14 @@ void EXTI15_10_IRQHandler(void) {
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
 }
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-  if (GPIO_Pin == B1_Pin) {
-    if (s_xHardwareResources.pbPB1Pressed != NULL) {
-      *s_xHardwareResources.pbPB1Pressed = HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) != GPIO_PIN_SET;
-      EPowerMode eActivePowerMode = SysGetPowerMode();
-      if (eActivePowerMode == E_POWER_MODE_RUN) {
-        xSemaphoreGiveFromISR(s_xHardwareResources.xSyncObj, NULL);
-      }
-    }
-  }
-}
+//void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+//  if (GPIO_Pin == B1_Pin) {
+//    if (s_xHardwareResources.pbPB1Pressed != NULL) {
+//      *s_xHardwareResources.pbPB1Pressed = HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) != GPIO_PIN_SET;
+//      EPowerMode eActivePowerMode = SysGetPowerMode();
+//      if (eActivePowerMode == E_POWER_MODE_RUN) {
+//        xSemaphoreGiveFromISR(s_xHardwareResources.xSyncObj, NULL);
+//      }
+//    }
+//  }
+//}

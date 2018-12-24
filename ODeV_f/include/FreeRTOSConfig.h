@@ -103,16 +103,16 @@
 #endif
 #define configUSE_RECURSIVE_MUTEXES              0
 #define configUSE_COUNTING_SEMAPHORES            0
-#define configQUEUE_REGISTRY_SIZE                7
+#define configQUEUE_REGISTRY_SIZE                10
 #define configUSE_QUEUE_SETS                     0
-#define configENABLE_BACKWARD_COMPATIBILITY      0
+#define configENABLE_BACKWARD_COMPATIBILITY      1
 #define configNUM_THREAD_LOCAL_STORAGE_POINTERS  0
 
 /* Memory allocation related definitions. */
 #define configSUPPORT_STATIC_ALLOCATION          0
 #define configSUPPORT_DYNAMIC_ALLOCATION         1
 #if defined(DEBUG) || (SYS_DBG_ENABLE_TA4>=1)
-#define configTOTAL_HEAP_SIZE                    ((size_t)4000)
+#define configTOTAL_HEAP_SIZE                    ((size_t)4000 + 34000)
 #else
 #define configTOTAL_HEAP_SIZE                    ((size_t)3000)
 #endif
