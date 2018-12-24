@@ -11,7 +11,13 @@ public:
     virtual ~mainView() {}
     virtual void setupScreen();
     virtual void tearDownScreen();
+
+    // Declaring callback handler for image
+    void ImageClickHandler(const Image& i, const ClickEvent& e);
+
 protected:
+    // Declaring callback type of box and clickEvent
+    Callback<mainView, const Image&, const ClickEvent&> ImageClickedCallback;
 };
 
 #endif // MAIN_VIEW_HPP
