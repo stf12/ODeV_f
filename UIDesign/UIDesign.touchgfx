@@ -2,23 +2,204 @@
   "Application": {
     "Screens": [
       {
-        "Components": [],
-        "Interactions": [],
-        "Name": "Screen1",
+        "Components": [
+          {
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "Alpha": 255,
+            "Name": "background",
+            "X": 0,
+            "Y": 0,
+            "Width": 390,
+            "Height": 390,
+            "Type": "Box",
+            "Visible": true,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "RelativeFilename": "odev_f_logo.png",
+            "Alpha": 0,
+            "Name": "imageLogo",
+            "X": 62,
+            "Y": 122,
+            "Width": 266,
+            "Height": 147,
+            "Type": "Image",
+            "Visible": true,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Pressed": "__designer\\dark_buttons_round_edge_small_pressed.png",
+            "Released": "__designer\\dark_buttons_round_edge_small.png",
+            "Alpha": 255,
+            "TextId": "SingleUseId1",
+            "ReleasedColor": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "PressedColor": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "TextRotation": "0",
+            "Style": "Style4",
+            "Name": "buttonStart",
+            "X": 110,
+            "Y": 297,
+            "Width": 170,
+            "Height": 60,
+            "Type": "ButtonWithLabel",
+            "Visible": true,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          }
+        ],
+        "Interactions": [
+          {
+            "InteractionName": "InteractionFadeInLogo",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "Type": "TriggerScreenEntered"
+            },
+            "Action": {
+              "Alpha": 255,
+              "Easing": "Linear",
+              "EasingOption": "In",
+              "Duration": 2500,
+              "ActionComponent": "imageLogo",
+              "Type": "ActionFade"
+            }
+          },
+          {
+            "InteractionName": "InteractionGoToMain",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "TriggerComponent": "buttonStart",
+              "Type": "TriggerClicked"
+            },
+            "Action": {
+              "ScreenTransitionType": "ScreenTransitionSlide",
+              "ScreenTransitionDirection": "East",
+              "ActionComponent": "main",
+              "Type": "ActionGotoScreen"
+            }
+          }
+        ],
+        "Name": "spalshScreen",
+        "OverrideDefaultBufferSize": false,
+        "CanvasBufferSize": 0
+      },
+      {
+        "Components": [
+          {
+            "Color": {
+              "Red": 0,
+              "Green": 0,
+              "Blue": 0
+            },
+            "Alpha": 255,
+            "Name": "background",
+            "X": 0,
+            "Y": 0,
+            "Width": 390,
+            "Height": 390,
+            "Type": "Box",
+            "Visible": true,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "RelativeFilename": "left_arrow_small.png",
+            "Alpha": 255,
+            "Name": "imageBack",
+            "X": 169,
+            "Y": 174,
+            "Width": 53,
+            "Height": 42,
+            "Type": "Image",
+            "Visible": true,
+            "Draggable": false,
+            "Clickable": true,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Pressed": "__designer\\dark_buttons_round_edge_small_pressed.png",
+            "Released": "__designer\\dark_buttons_round_edge_small.png",
+            "Alpha": 255,
+            "IconPressed": "__designer\\dark_icons_back_arrow_32.png",
+            "IconReleased": "__designer\\dark_icons_back_arrow_32.png",
+            "IconX": 76,
+            "IconY": 14,
+            "IconHeight": 32,
+            "IconWidth": 19,
+            "ButtonStyle": "Style4",
+            "IconStyle": "Icon5",
+            "Name": "buttonBack",
+            "X": 110,
+            "Y": 280,
+            "Width": 170,
+            "Height": 60,
+            "Type": "ButtonWithIcon",
+            "Visible": true,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          }
+        ],
+        "Interactions": [
+          {
+            "InteractionName": "InteractionGoToSplashScreen",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "TriggerComponent": "buttonBack",
+              "Type": "TriggerClicked"
+            },
+            "Action": {
+              "ScreenTransitionType": "ScreenTransitionSlide",
+              "ScreenTransitionDirection": "West",
+              "ActionComponent": "spalshScreen",
+              "Type": "ActionGotoScreen"
+            }
+          }
+        ],
+        "Name": "main",
         "OverrideDefaultBufferSize": false,
         "CanvasBufferSize": 0
       }
     ],
     "CustomContainerDefinitions": [],
+    "TextEntries": [
+      {
+        "TextEntryId": "SingleUseId1",
+        "IsResource": false
+      }
+    ],
     "Name": "UIDesign",
     "Resolution": {
       "Width": 390,
       "Height": 390
     },
     "SelectedColorDepth": 24,
-    "StartupScreenName": "Screen1",
+    "StartupScreenName": "spalshScreen",
     "SelectedStartupLanguage": "GB",
-    "Skin": "Blue",
+    "Skin": "Dark",
     "TouchGfxPath": "touchgfx",
     "UIPath": ".",
     "ApplicationTemplate": {

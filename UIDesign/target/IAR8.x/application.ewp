@@ -1092,20 +1092,47 @@
           </file>
         </group>
         <group>
-          <name>screen1_screen</name>
+          <name>main_screen</name>
           <file>
-            <name>$PROJ_DIR$\..\..\generated\gui_generated\src\screen1_screen\Screen1ViewBase.cpp</name>
+            <name>$PROJ_DIR$\..\..\generated\gui_generated\src\main_screen\mainViewBase.cpp</name>
+          </file>
+        </group>
+        <group>
+          <name>spalshscreen_screen</name>
+          <file>
+            <name>$PROJ_DIR$\..\..\generated\gui_generated\src\spalshscreen_screen\spalshScreenViewBase.cpp</name>
           </file>
         </group>
       </group>
       <group>
         <name>images</name>
+        <group>
+          <name>__designer</name>
+          <file>
+            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_buttons_round_edge_small.cpp</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_buttons_round_edge_small_pressed.cpp</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_back_arrow_32.cpp</name>
+          </file>
+        </group>
         <file>
           <name>$PROJ_DIR$\..\..\generated\images\src\BitmapDatabase.cpp</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\generated\images\src\left_arrow_small.cpp</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\generated\images\src\odev_f_logo.cpp</name>
         </file>
       </group>
       <group>
         <name>texts</name>
+        <file>
+          <name>$PROJ_DIR$\..\..\generated\texts\src\LanguageGb.cpp</name>
+        </file>
         <file>
           <name>$PROJ_DIR$\..\..\generated\texts\src\Texts.cpp</name>
         </file>
@@ -1123,18 +1150,27 @@
         </file>
       </group>
       <group>
+        <name>main_screen</name>
+        <file>
+          <name>$PROJ_DIR$\..\..\gui\src\main_screen\mainPresenter.cpp</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\gui\src\main_screen\mainView.cpp</name>
+        </file>
+      </group>
+      <group>
         <name>model</name>
         <file>
           <name>$PROJ_DIR$\..\..\gui\src\model\Model.cpp</name>
         </file>
       </group>
       <group>
-        <name>screen1_screen</name>
+        <name>spalshscreen_screen</name>
         <file>
-          <name>$PROJ_DIR$\..\..\gui\src\screen1_screen\Screen1Presenter.cpp</name>
+          <name>$PROJ_DIR$\..\..\gui\src\spalshscreen_screen\spalshScreenPresenter.cpp</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\gui\src\screen1_screen\Screen1View.cpp</name>
+          <name>$PROJ_DIR$\..\..\gui\src\spalshscreen_screen\spalshScreenView.cpp</name>
         </file>
       </group>
     </group>

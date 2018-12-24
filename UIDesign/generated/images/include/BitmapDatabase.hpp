@@ -6,6 +6,11 @@
 #include <touchgfx/hal/Types.hpp>
 #include <touchgfx/Bitmap.hpp>
 
+const uint16_t BITMAP_DARK_BUTTONS_ROUND_EDGE_SMALL_ID = 0; // Size: 170x60 pixels
+const uint16_t BITMAP_DARK_BUTTONS_ROUND_EDGE_SMALL_PRESSED_ID = 1; // Size: 170x60 pixels
+const uint16_t BITMAP_DARK_ICONS_BACK_ARROW_32_ID = 2; // Size: 19x32 pixels
+const uint16_t BITMAP_LEFT_ARROW_SMALL_ID = 3; // Size: 53x42 pixels
+const uint16_t BITMAP_ODEV_F_LOGO_ID = 4; // Size: 266x147 pixels
 
 namespace BitmapDatabase
 {
