@@ -98,46 +98,47 @@ IDriver *NucleoDriverAlloc();
 /**
  * Turn the LED ON or OFF
  *
- * @param this [IN] specifies a pointer to a driver object.
+ * @param _this [IN] specifies a pointer to a driver object.
  * @param bON [IN] specifies the status of the LED. `TRUE` to turn the LED ON, `FALSE` otherwise.
  * @return SYS_NO_ERROR_CODE
  */
-inline sys_error_code_t NucleoDriverSetLed(NucleoDriver *this, boolean_t bON);
+inline sys_error_code_t NucleoDriverSetLed(NucleoDriver *_this, boolean_t bON);
 
 /**
  * Toggle the LED.
  *
- * @param this [IN] specifies a pointer to a driver object.
+ * @param _this [IN] specifies a pointer to a driver object.
  * @return SYS_NO_ERROR_CODE
  */
-inline sys_error_code_t NucleoDriverToggleLed(NucleoDriver *this);
+inline sys_error_code_t NucleoDriverToggleLed(NucleoDriver *_this);
 
 /**
  * Get the status of the push button.
  *
- * @param this [IN] specifies a pointer to a driver object.
+ * @param _this [IN] specifies a pointer to a driver object.
  * @return `TRUE` if the push button is pressed, `FALSE` otherwise
  */
-inline boolean_t NucleoDriverIsButtonPressed(NucleoDriver *this);
+inline boolean_t NucleoDriverIsButtonPressed(NucleoDriver *_this);
 
 /**
  * Block the calling task until the push button is pressed or released.
  *
- * @param this [IN] specifies a pointer to a driver object.
+ * @param _this [IN] specifies a pointer to a driver object.
  * @param pbButtonPressed [OUT] specify the status of the push button.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
-sys_error_code_t NucleoDriverWaitForButtonEvent(NucleoDriver *this, boolean_t *pbButtonPressed);
+sys_error_code_t NucleoDriverWaitForButtonEvent(NucleoDriver *_this, boolean_t *pbButtonPressed);
 
+sys_error_code_t NucleoDriverStopWaitingForButtonEvent(NucleoDriver *_this);
 
 // Inline functions definition
 // ***************************
 
 SYS_DEFINE_INLINE
-sys_error_code_t NucleoDriverSetLed(NucleoDriver *this, boolean_t bON) {
-  assert_param(this);
+sys_error_code_t NucleoDriverSetLed(NucleoDriver *_this, boolean_t bON) {
+  assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  UNUSED(this);
+  UNUSED(_this);
 
   HAL_GPIO_WritePin(LD4_GPIO_Port, LD4_Pin, (GPIO_PinState)bON);
 
@@ -145,10 +146,10 @@ sys_error_code_t NucleoDriverSetLed(NucleoDriver *this, boolean_t bON) {
 }
 
 SYS_DEFINE_INLINE
-sys_error_code_t NucleoDriverToggleLed(NucleoDriver *this) {
-  assert_param(this);
+sys_error_code_t NucleoDriverToggleLed(NucleoDriver *_this) {
+  assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  UNUSED(this);
+  UNUSED(_this);
 
   HAL_GPIO_TogglePin(LD4_GPIO_Port, LD4_Pin);
 
@@ -156,10 +157,10 @@ sys_error_code_t NucleoDriverToggleLed(NucleoDriver *this) {
 }
 
 SYS_DEFINE_INLINE
-boolean_t NucleoDriverIsButtonPressed(NucleoDriver *this) {
-  assert_param(this);
+boolean_t NucleoDriverIsButtonPressed(NucleoDriver *_this) {
+  assert_param(_this);
 
-  return this->m_bPB1Pressed;
+  return _this->m_bPB1Pressed;
 }
 
 
