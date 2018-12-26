@@ -104,7 +104,7 @@
 //#define USE_LPTIM1
 //#define USE_LPTIM2
 //#define USE_I2C1
-//#define USE_I2C2
+#define USE_I2C2
 //#define USE_I2C3
 //#define USE_RCC_OSCILLATORTYPE_MSI
 //#define USE_RCC_OSCILLATORTYPE_HSE

@@ -35,6 +35,7 @@
 #include "stm32l4xx.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "stm32l4r9i_eval.h"
 
 
 
@@ -47,6 +48,8 @@ extern void xPortSysTickHandler(void);
 // External variables
 // ******************
 
+extern SD_HandleTypeDef  hsd_eval;
+extern I2C_HandleTypeDef hi2c_eval;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */
@@ -75,8 +78,71 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
- * @brief This function handles EXTI line4 interrupt.
- */
+* @brief This function handles EXTI line0 interrupt.
+*/
+void EXTI0_IRQHandler (void)
+{
+  HAL_GPIO_EXTI_IRQHandler(MFX_INT_PIN); // GUI
+}
 
+/**
+* @brief This function handles EXTI line2 interrupt.
+*/
+void EXTI2_IRQHandler (void)
+{
+  // GUI
+#if defined(USE_GVO_390x390)
+  HAL_GPIO_EXTI_IRQHandler(TS_DSI_INT_PIN);
+#else
+  HAL_GPIO_EXTI_IRQHandler(TS_RGB_INT_PIN);
+#endif
+}
+
+
+// GUI specific ISR
+// ****************
+
+void EXTI15_10_IRQHandler(void)
+{
+  if(__HAL_GPIO_EXTI_GET_FLAG(WAKEUP_BUTTON_PIN) != RESET)
+  {
+    HAL_GPIO_EXTI_IRQHandler(WAKEUP_BUTTON_PIN);
+  }
+
+  if(__HAL_GPIO_EXTI_GET_FLAG(TS_RGB_INT_PIN) != RESET)
+  {
+    HAL_GPIO_EXTI_IRQHandler(TS_RGB_INT_PIN);
+  }
+}
+
+/**
+ * @brief  This function handles SDMMC interrupt request.
+ * @param  None
+ * @retval None
+ */
+void SDMMC1_IRQHandler(void)
+{
+  HAL_SD_IRQHandler(&hsd_eval);
+}
+
+/**
+  * @brief  This function handles I2C transfer global interrupt request.
+  * @param  None
+  * @retval None
+  */
+void I2C2_EV_IRQHandler(void)
+{
+  HAL_I2C_EV_IRQHandler(&hi2c_eval);
+}
+
+/**
+  * @brief  This function handles I2C error global interrupt request.
+  * @param  None
+  * @retval None
+  */
+void I2C2_ER_IRQHandler(void)
+{
+  HAL_I2C_ER_IRQHandler(&hi2c_eval);
+}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
