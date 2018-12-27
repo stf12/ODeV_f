@@ -210,7 +210,7 @@
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="gui"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="include"/>
-						<entry excluding="free_rtos_hooks.c|main.c|App.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="main.c|App.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 						<entry excluding="src/cmsis/startup_stm32l452xx.s|src/cmsis/startup_stm32l431xx.s|src/freertos/stream_buffer.c|src/trace_recorder|src/freertos/portable/MemMang/heap_5.c|src/freertos/portable/MemMang/heap_4.c|src/freertos/portable/MemMang/heap_3.c|src/freertos/portable/MemMang/heap_2.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="system"/>
 					</sourceEntries>
 				</configuration>
