@@ -99,7 +99,7 @@
 #if defined(DEBUG) || defined(SYS_DEBUG)
 #define configUSE_MUTEXES                        1
 #else
-#define configUSE_MUTEXES                        0
+#define configUSE_MUTEXES                        1
 #endif
 #define configUSE_RECURSIVE_MUTEXES              1
 #define configUSE_COUNTING_SEMAPHORES            0
@@ -114,7 +114,7 @@
 #if defined(DEBUG) || (SYS_DBG_ENABLE_TA4>=1)
 #define configTOTAL_HEAP_SIZE                    ((size_t)4000 + 34000)
 #else
-#define configTOTAL_HEAP_SIZE                    ((size_t)3000)
+#define configTOTAL_HEAP_SIZE                    ((size_t)3000 + 34000)
 #endif
 #define configAPPLICATION_ALLOCATED_HEAP         1
 
