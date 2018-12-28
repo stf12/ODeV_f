@@ -37,11 +37,17 @@ public:
      * the ModelListener interface.
      */
     void tick();
+
+    uint8_t getCounter() const { return m_nCounter; }
+    void setCounter(uint8_t nNewCounter);
 protected:
     /**
      * Pointer to the currently active presenter.
      */
     ModelListener* modelListener;
+
+private:
+    uint8_t m_nCounter;
 };
 
 #endif /* MODEL_HPP */

@@ -8,10 +8,16 @@ mainPresenter::mainPresenter(mainView& v)
 
 void mainPresenter::activate()
 {
-
+  uint8_t nCounter = model->getCounter();
+  view.SetCounter(nCounter);
 }
 
 void mainPresenter::deactivate()
 {
+  uint8_t nCounter = view.GetCounter();
+  model->setCounter(nCounter);
+}
 
+void mainPresenter::onCounterChanged(uint8_t nNewCounter) {
+  view.SetCounter(nNewCounter);
 }

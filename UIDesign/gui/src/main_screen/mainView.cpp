@@ -32,3 +32,9 @@ void mainView::OnButtonCountClicked() {
   Unicode::snprintf(textArea1Buffer, 3, "%d" , m_nCounter);
   textArea1.invalidate();
 }
+
+void mainView::SetCounter(uint8_t nNewCounter) {
+  m_nCounter = nNewCounter % 100;
+  Unicode::snprintf(textArea1Buffer, 3, "%d" , m_nCounter);
+  textArea1.invalidate();
+}

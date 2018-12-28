@@ -27,6 +27,8 @@ public:
     {
         model = m;
     }
+
+    virtual void onCounterChanged(uint8_t nNewCounter) {}
 protected:
     Model* model;
 };

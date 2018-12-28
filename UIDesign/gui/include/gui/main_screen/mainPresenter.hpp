@@ -25,6 +25,8 @@ public:
      */
     virtual void deactivate();
 
+    void onCounterChanged(uint8_t nNewCounter);
+
     virtual ~mainPresenter() {};
 
 private:

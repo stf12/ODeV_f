@@ -17,6 +17,9 @@ public:
 
     void OnButtonCountClicked();
 
+    void SetCounter(uint8_t nNewCounter);
+    uint8_t GetCounter() const { return m_nCounter; }
+
 protected:
     // Declaring callback type of box and clickEvent
     Callback<mainView, const Image&, const ClickEvent&> ImageClickedCallback;
