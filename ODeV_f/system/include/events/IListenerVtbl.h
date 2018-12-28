@@ -44,7 +44,7 @@ typedef struct _IListener_vtbl IListener_vtbl;
 
 
 struct _IListener_vtbl {
-	sys_error_code_t (*OnStatusChange)(IListener *this);
+	sys_error_code_t (*OnStatusChange)(IListener *_this);
 };
 
 struct _IListener {
@@ -60,8 +60,8 @@ struct _IListener {
 // ***************************
 
 SYS_DEFINE_INLINE
-sys_error_code_t IListenerOnStatusChange(IListener *this) {
-	return this->vptr->OnStatusChange(this);
+sys_error_code_t IListenerOnStatusChange(IListener *_this) {
+	return _this->vptr->OnStatusChange(_this);
 }
 
 #ifdef __cplusplus

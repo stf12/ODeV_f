@@ -35,6 +35,6 @@
 
 #if defined (__GNUC__)
 
-extern sys_error_code_t IListenerOnStatusChange(IListener *this);
+extern sys_error_code_t IListenerOnStatusChange(IListener *_this);
 
 #endif

@@ -48,7 +48,7 @@ typedef struct _IListener IListener;
 //***********************
 
 
-inline sys_error_code_t IListenerOnStatusChange(IListener *this);
+inline sys_error_code_t IListenerOnStatusChange(IListener *_this);
 
 
 // Inline functions definition
