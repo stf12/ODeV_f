@@ -127,7 +127,7 @@
             "RelativeFilename": "left_arrow_small.png",
             "Alpha": 255,
             "Name": "imageBack",
-            "X": 169,
+            "X": 254,
             "Y": 174,
             "Width": 53,
             "Height": 42,
@@ -152,10 +152,67 @@
             "IconStyle": "Icon5",
             "Name": "buttonBack",
             "X": 110,
-            "Y": 280,
+            "Y": 297,
             "Width": 170,
             "Height": 60,
             "Type": "ButtonWithIcon",
+            "Visible": true,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "Pressed": "__designer\\dark_buttons_round_edge_small_pressed.png",
+            "Released": "__designer\\dark_buttons_round_edge_small.png",
+            "Alpha": 255,
+            "TextId": "SingleUseId3",
+            "ReleasedColor": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "PressedColor": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "TextRotation": "0",
+            "Style": "Style4",
+            "Name": "buttonCount",
+            "X": 110,
+            "Y": 60,
+            "Width": 170,
+            "Height": 60,
+            "Type": "ButtonWithLabel",
+            "Visible": true,
+            "Draggable": false,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
+            "TextId": "SingleUseId2",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "Alpha": 255,
+            "AutoSize": true,
+            "LineSpacing": 0,
+            "Wildcard1": {
+              "TextId": "SingleUseId4",
+              "UseBuffer": true,
+              "BufferSize": 3
+            },
+            "Name": "textArea1",
+            "X": 74,
+            "Y": 183,
+            "Width": 121,
+            "Height": 25,
+            "Type": "TextArea",
             "Visible": true,
             "Draggable": false,
             "Clickable": false,
@@ -177,6 +234,18 @@
               "ActionComponent": "splashScreen",
               "Type": "ActionGotoScreen"
             }
+          },
+          {
+            "InteractionName": "Interaction1",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "TriggerComponent": "buttonCount",
+              "Type": "TriggerClicked"
+            },
+            "Action": {
+              "FunctionName": "OnButtonCountClicked",
+              "Type": "ActionCustom"
+            }
           }
         ],
         "Name": "main",
@@ -188,6 +257,18 @@
     "TextEntries": [
       {
         "TextEntryId": "SingleUseId1",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId2",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId3",
+        "IsResource": false
+      },
+      {
+        "TextEntryId": "SingleUseId4",
         "IsResource": false
       }
     ],

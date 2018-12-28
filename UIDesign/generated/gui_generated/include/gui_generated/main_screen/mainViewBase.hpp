@@ -10,6 +10,8 @@
 #include <touchgfx/widgets/Box.hpp>
 #include <touchgfx/widgets/Image.hpp>
 #include <touchgfx/widgets/ButtonWithIcon.hpp>
+#include <touchgfx/widgets/ButtonWithLabel.hpp>
+#include <touchgfx/widgets/TextAreaWithWildcard.hpp>
 #include <touchgfx/mixins/ClickListener.hpp>
 
 class mainViewBase : public touchgfx::View<mainPresenter>
@@ -19,6 +21,14 @@ public:
     virtual ~mainViewBase() {}
 
     virtual void setupScreen();
+
+    /*
+     * Custom Action Handlers
+     */
+    virtual void OnButtonCountClicked()
+    {
+        // Override and implement this function in mainView
+    }
 
 protected:
     FrontendApplication& application() {
@@ -31,6 +41,14 @@ protected:
     touchgfx::Box background;
     touchgfx::ClickListener< touchgfx::Image > imageBack;
     touchgfx::ButtonWithIcon buttonBack;
+    touchgfx::ButtonWithLabel buttonCount;
+    touchgfx::TextAreaWithOneWildcard textArea1;
+
+    /*
+     * Wildcard Buffers
+     */
+    static const uint16_t TEXTAREA1_SIZE = 3;
+    touchgfx::Unicode::UnicodeChar textArea1Buffer[TEXTAREA1_SIZE];
 
 private:
 

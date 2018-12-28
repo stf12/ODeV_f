@@ -15,9 +15,14 @@ public:
     // Declaring callback handler for image
     void ImageClickHandler(const Image& i, const ClickEvent& e);
 
+    void OnButtonCountClicked();
+
 protected:
     // Declaring callback type of box and clickEvent
     Callback<mainView, const Image&, const ClickEvent&> ImageClickedCallback;
+
+private:
+    uint8_t m_nCounter;
 };
 
 #endif // MAIN_VIEW_HPP
