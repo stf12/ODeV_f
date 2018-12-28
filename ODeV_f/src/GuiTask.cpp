@@ -73,7 +73,7 @@ static GuiTask s_xTaskObj;
  * @param _this [IN] specifies a pointer to a task object.
  * @return SYS_NO_EROR_CODE if success, a task specific error code otherwise.
  */
-static sys_error_code_t GuiTaskExecuteStepRun(GuiTask *_this);
+//static sys_error_code_t GuiTaskExecuteStepRun(GuiTask *_this);
 
 /**
  * Task control function.
@@ -111,7 +111,7 @@ AManagedTaskEx *GuiTaskAlloc() {
 sys_error_code_t GuiTask_vtblHardwareInit(AManagedTask *_this, void *pParams) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  GuiTask *pObj = (GuiTask*)_this;
+//  GuiTask *pObj = (GuiTask*)_this;
 
   touchgfx::hw_init_odev();
   touchgfx::touchgfx_init();
@@ -122,7 +122,7 @@ sys_error_code_t GuiTask_vtblHardwareInit(AManagedTask *_this, void *pParams) {
 sys_error_code_t GuiTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  GuiTask *pObj = (GuiTask*)_this;
+//  GuiTask *pObj = (GuiTask*)_this;
 
   *pvTaskCode = GuiTaskRun;
   *pcName = "GUI";
@@ -136,7 +136,7 @@ sys_error_code_t GuiTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t *p
 sys_error_code_t GuiTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  GuiTask *pObj = (GuiTask*)_this;
+//  GuiTask *pObj = (GuiTask*)_this;
 
   return xRes;
 }
@@ -144,7 +144,7 @@ sys_error_code_t GuiTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerM
 sys_error_code_t GuiTask_vtblHandleError(AManagedTask *_this, SysEvent xError) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  GuiTask *pObj = (GuiTask*)_this;
+//  GuiTask *pObj = (GuiTask*)_this;
 
   return xRes;
 }
@@ -152,7 +152,7 @@ sys_error_code_t GuiTask_vtblHandleError(AManagedTask *_this, SysEvent xError) {
 sys_error_code_t GuiTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMode eActivePowerMode) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  GuiTask *pObj = (GuiTask*)_this;
+//  GuiTask *pObj = (GuiTask*)_this;
 
   return xRes;
 }
@@ -161,16 +161,17 @@ sys_error_code_t GuiTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMode 
 // Private function definition
 // ***************************
 
-static sys_error_code_t GuiTaskExecuteStepRun(GuiTask *_this) {
-  assert_param(_this);
-  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-
-  return xRes;
-}
+//static sys_error_code_t GuiTaskExecuteStepRun(GuiTask *_this) {
+//  assert_param(_this);
+//  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+//
+//  return xRes;
+//}
 
 static void GuiTaskRun(void *pParams) {
-  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  GuiTask *_this = (GuiTask*)pParams;
+//  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+//  GuiTask *_this = (GuiTask*)pParams;
+  UNUSED(pParams);
 
   vTaskDelay(pdMS_TO_TICKS(2000));
 

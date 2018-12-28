@@ -69,7 +69,7 @@ sys_error_code_t SysLoadApplicationContext(ApplicationContext *pAppContext) {
 extern "C"
 sys_error_code_t SysOnStartApplication(ApplicationContext *pAppContext) {
   UNUSED(pAppContext);
-  QueueHandle_t xQueue = NULL;
+//  QueueHandle_t xQueue = NULL;
 
 //  IDriver *pxNucleoDriver = HelloWorldTaskGetDriver((HelloWorldTask*)s_pxHelloWorldObj);
 //  PushButtonTaskSetDriver((PushButtonTask*)s_pxPushButtonObj, pxNucleoDriver);

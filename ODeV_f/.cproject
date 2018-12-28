@@ -54,7 +54,6 @@
 									<listOptionValue builtIn="false" value="USE_FULL_ASSERT"/>
 									<listOptionValue builtIn="false" value="SYS_TRACE=0"/>
 									<listOptionValue builtIn="false" value="SYS_DBG_ENABLE_TA4=0"/>
-									<listOptionValue builtIn="false" value="SYS_CFG_USE_DEFAULT_PM_HELPER=1"/>
 									<listOptionValue builtIn="false" value="ODEV_F"/>
 									<listOptionValue builtIn="false" value="ST"/>
 									<listOptionValue builtIn="false" value="USE_OS_SYSTICK"/>

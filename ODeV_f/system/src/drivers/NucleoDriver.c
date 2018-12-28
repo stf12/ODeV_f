@@ -92,7 +92,7 @@ sys_error_code_t NucleoDriver_vtblInit(IDriver *_this, void *pParams) {
   assert_param(_this);
   UNUSED(pParams);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  NucleoDriver *pObj = (NucleoDriver*)_this;
+//  NucleoDriver *pObj = (NucleoDriver*)_this;
   GPIO_InitTypeDef GPIO_InitStruct;
 
 //  __HAL_RCC_GPIOA_CLK_ENABLE();

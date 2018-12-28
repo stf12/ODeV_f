@@ -126,7 +126,7 @@ AManagedTaskEx *TscTaskAlloc() {
 sys_error_code_t TscTask_vtblHardwareInit(AManagedTask *_this, void *pParams) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  TscTask *pObj = (TscTask*)_this;
+//  TscTask *pObj = (TscTask*)_this;
 
   if (BSP_TS_Init(GUI_DISPLAY_WIDTH, GUI_DISPLAY_HEIGHT) == TS_OK) {
     /* Enable TS interrupt */
@@ -168,7 +168,7 @@ sys_error_code_t TscTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t *p
 sys_error_code_t TscTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  TscTask *pObj = (TscTask*)_this;
+//  TscTask *pObj = (TscTask*)_this;
 
   return xRes;
 }
@@ -176,7 +176,7 @@ sys_error_code_t TscTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerM
 sys_error_code_t TscTask_vtblHandleError(AManagedTask *_this, SysEvent xError) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  TscTask *pObj = (TscTask*)_this;
+//  TscTask *pObj = (TscTask*)_this;
 
   return xRes;
 }
@@ -184,7 +184,7 @@ sys_error_code_t TscTask_vtblHandleError(AManagedTask *_this, SysEvent xError) {
 sys_error_code_t TscTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMode eActivePowerMode) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  TscTask *pObj = (TscTask*)_this;
+//  TscTask *pObj = (TscTask*)_this;
 
   return xRes;
 }
