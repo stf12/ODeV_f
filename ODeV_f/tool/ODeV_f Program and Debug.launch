@@ -8,4 +8,7 @@
 <stringAttribute key="org.eclipse.cdt.launch.launchGroup.1.enabled" value="true"/>
 <stringAttribute key="org.eclipse.cdt.launch.launchGroup.1.mode" value="debug"/>
 <stringAttribute key="org.eclipse.cdt.launch.launchGroup.1.name" value="ODeV_f"/>
+<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+<listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
+</listAttribute>
 </launchConfiguration>
