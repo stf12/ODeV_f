@@ -927,6 +927,7 @@ void HAL_DSI_MspDeInit(DSI_HandleTypeDef* hdsi)
     __HAL_RCC_DSI_CLK_DISABLE();
 }
 
+#ifndef ODEV_F
 /**
 * @brief  EXTI line detection callback.
 * @param  uint16_t GPIO_Pin Specifies the pins connected EXTI line
@@ -951,7 +952,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 
     return;
 }
-
+#endif
 /**
   * @}
   */

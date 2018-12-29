@@ -46,8 +46,8 @@ extern "C" {
 #define LD1_GPIO_Port                   GPIOB
 #define LD4_Pin                         GPIO_PIN_15
 #define LD4_GPIO_Port                   GPIOH
-#define B1_Pin                          GPIO_PIN_0
-#define B1_GPIO_Port                    GPIOB
+#define B1_Pin                          GPIO_PIN_13
+#define B1_GPIO_Port                    GPIOC
 
 
 /**

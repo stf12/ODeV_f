@@ -37,11 +37,11 @@ extern "C" {
 
 
 // IManagedTask virtual functions
-sys_error_code_t PushButtonTask_vtblHardwareInit(AManagedTask *this, void *pParams); ///< @sa AMTHardwareInit
-sys_error_code_t PushButtonTask_vtblOnCreateTask(AManagedTask *this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority); ///< @sa AMTOnCreateTask
-sys_error_code_t PushButtonTask_vtblDoEnterPowerMode(AManagedTask *this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode); ///< @sa AMTDoEnterPowerMode
-sys_error_code_t PushButtonTask_vtblHandleError(AManagedTask *this, SysEvent xError); ///< @sa AMTHandleError
-sys_error_code_t PushButtonTask_vtblForceExecuteStep(AManagedTaskEx *this, EPowerMode eActivePowerMode); ///< @sa AMTExForceExecuteStep
+sys_error_code_t PushButtonTask_vtblHardwareInit(AManagedTask *_this, void *pParams); ///< @sa AMTHardwareInit
+sys_error_code_t PushButtonTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority); ///< @sa AMTOnCreateTask
+sys_error_code_t PushButtonTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode); ///< @sa AMTDoEnterPowerMode
+sys_error_code_t PushButtonTask_vtblHandleError(AManagedTask *_this, SysEvent xError); ///< @sa AMTHandleError
+sys_error_code_t PushButtonTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMode eActivePowerMode); ///< @sa AMTExForceExecuteStep
 
 
 #ifdef __cplusplus

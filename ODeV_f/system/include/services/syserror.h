@@ -35,6 +35,10 @@
 #ifndef SYSERROR_H_
 #define SYSERROR_H_
 
+#ifdef __cplusplus
+ extern "C" {
+#endif
+
 #include <assert.h>
 #include <stdint.h>
 #include "sysevent.h"
@@ -206,5 +210,8 @@ void sys_error_handler(void);
 
 #include "apperror.h"
 
+#ifdef __cplusplus
+ }
+#endif
 
 #endif /* SYSERROR_H_ */

@@ -261,8 +261,10 @@ static void TscTaskRun(void *pParams) {
   * @param  None
   * @retval None
   */
-void TouchDetectInt(void)
+void TouchDetectInt(uint16_t nPin)
 {
+  UNUSED(nPin);
+
   static uint8_t nDummy = 0x5a;
   if (s_xHardwareResources.xVsyncQueue != NULL) {
     /* Release the semaphore if the thread was created prior to this call */

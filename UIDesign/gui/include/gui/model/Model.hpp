@@ -2,6 +2,8 @@
 #define MODEL_HPP
 
 #include <touchgfx/Utils.hpp>
+#include "FreeRTOS.h"
+#include "queue.h"
 
 class ModelListener;
 
@@ -40,14 +42,25 @@ public:
 
     uint8_t getCounter() const { return m_nCounter; }
     void setCounter(uint8_t nNewCounter);
+
+    /**
+     * Asynchronous increment of the counter. This function is task safe.
+     *
+     * @param nIncrement [IN] specifies the value to add to the counter.
+     */
+    void incrementCounter(uint8_t nIncrement);
+
 protected:
     /**
      * Pointer to the currently active presenter.
      */
     ModelListener* modelListener;
 
+
+
 private:
     uint8_t m_nCounter;
+    QueueHandle_t m_xInputQueue;
 };
 
 #endif /* MODEL_HPP */

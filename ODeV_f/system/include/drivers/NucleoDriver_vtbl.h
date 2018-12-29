@@ -39,33 +39,33 @@ extern "C" {
 /**
  * @sa IDrvInit
  */
-sys_error_code_t NucleoDriver_vtblInit(IDriver *this, void *pParams);
+sys_error_code_t NucleoDriver_vtblInit(IDriver *_this, void *pParams);
 
 /**
  * @sa IDrvStart
  */
-sys_error_code_t NucleoDriver_vtblStart(IDriver *this);
+sys_error_code_t NucleoDriver_vtblStart(IDriver *_this);
 
 /**
  * @sa IDrvStop
  */
-sys_error_code_t NucleoDriver_vtblStop(IDriver *this);
+sys_error_code_t NucleoDriver_vtblStop(IDriver *_this);
 
 /**
  *
  * @sa IDrvDoEnterPowerMode
  */
-sys_error_code_t NucleoDriver_vtblDoEnterPowerMode(IDriver *this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
+sys_error_code_t NucleoDriver_vtblDoEnterPowerMode(IDriver *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
 
 /**
  * @sa IDrvWrite
  */
-sys_error_code_t NucleoDriver_vtblWrite(IDriver *this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel);
+sys_error_code_t NucleoDriver_vtblWrite(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel);
 
 /**
  * @sa IDrvRead
  */
-sys_error_code_t NucleoDriver_vtblRead(IDriver *this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel);
+sys_error_code_t NucleoDriver_vtblRead(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel);
 
 #ifdef __cplusplus
 }

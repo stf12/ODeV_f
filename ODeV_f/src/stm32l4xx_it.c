@@ -35,6 +35,7 @@
 #include "stm32l4xx.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "EXTIPinMap.h"
 #include "stm32l4r9i_eval.h"
 
 
@@ -44,12 +45,32 @@
 
 extern void xPortSysTickHandler(void);
 
+/**
+ * Map one EXTI to n callback based on the GPIO PIN.
+ */
+static inline void ExtiDefISR();
+
 
 // External variables
 // ******************
 
 extern SD_HandleTypeDef  hsd_eval;
 extern I2C_HandleTypeDef hi2c_eval;
+
+EXTI_DECLARE_PIN2F_MAP()
+
+
+// Private function definition
+void ExtiDefISR() {
+  EXTIPin2CallbckMap xMap = EXTI_GET_P2F_MAP();
+  for (int i=0; xMap[i].pfCallback != NULL; i++) {
+    if (__HAL_GPIO_EXTI_GET_IT(xMap[i].nPin)) {
+      /* EXTI line interrupt detected */
+      __HAL_GPIO_EXTI_CLEAR_IT(xMap[i].nPin);
+      xMap[i].pfCallback(xMap[i].nPin);
+    }
+  }
+}
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */
@@ -90,12 +111,14 @@ void EXTI0_IRQHandler (void)
 */
 void EXTI2_IRQHandler (void)
 {
-  // GUI
-#if defined(USE_GVO_390x390)
-  HAL_GPIO_EXTI_IRQHandler(TS_DSI_INT_PIN);
-#else
-  HAL_GPIO_EXTI_IRQHandler(TS_RGB_INT_PIN);
-#endif
+//  // GUI
+//#if defined(USE_GVO_390x390)
+//  HAL_GPIO_EXTI_IRQHandler(TS_DSI_INT_PIN);
+//#else
+//  HAL_GPIO_EXTI_IRQHandler(TS_RGB_INT_PIN);
+//#endif
+
+  ExtiDefISR();
 }
 
 
@@ -104,15 +127,12 @@ void EXTI2_IRQHandler (void)
 
 void EXTI15_10_IRQHandler(void)
 {
-  if(__HAL_GPIO_EXTI_GET_FLAG(WAKEUP_BUTTON_PIN) != RESET)
-  {
-    HAL_GPIO_EXTI_IRQHandler(WAKEUP_BUTTON_PIN);
-  }
+//  if(__HAL_GPIO_EXTI_GET_FLAG(WAKEUP_BUTTON_PIN) != RESET)
+//  {
+//    HAL_GPIO_EXTI_IRQHandler(WAKEUP_BUTTON_PIN);
+//  }
 
-  if(__HAL_GPIO_EXTI_GET_FLAG(TS_RGB_INT_PIN) != RESET)
-  {
-    HAL_GPIO_EXTI_IRQHandler(TS_RGB_INT_PIN);
-  }
+  ExtiDefISR();
 }
 
 /**

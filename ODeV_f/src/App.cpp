@@ -57,7 +57,7 @@ sys_error_code_t SysLoadApplicationContext(ApplicationContext *pAppContext) {
 
   // Add the task object to the context.
   xRes = ACAddTask(pAppContext, s_pxHelloWorldObj);
-//  xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxPushButtonObj);
+  xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxPushButtonObj);
   xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxTscTaskObj);
   xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxGuiTaskObj);
 
@@ -69,10 +69,9 @@ sys_error_code_t SysLoadApplicationContext(ApplicationContext *pAppContext) {
 extern "C"
 sys_error_code_t SysOnStartApplication(ApplicationContext *pAppContext) {
   UNUSED(pAppContext);
-//  QueueHandle_t xQueue = NULL;
 
-//  IDriver *pxNucleoDriver = HelloWorldTaskGetDriver((HelloWorldTask*)s_pxHelloWorldObj);
-//  PushButtonTaskSetDriver((PushButtonTask*)s_pxPushButtonObj, pxNucleoDriver);
+  IDriver *pxNucleoDriver = HelloWorldTaskGetDriver((HelloWorldTask*)s_pxHelloWorldObj);
+  PushButtonTaskSetDriver((PushButtonTask*)s_pxPushButtonObj, pxNucleoDriver);
 
   return SYS_NO_ERROR_CODE;
 }

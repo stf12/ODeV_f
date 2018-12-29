@@ -92,10 +92,10 @@ sys_error_code_t NucleoDriver_vtblInit(IDriver *_this, void *pParams) {
   assert_param(_this);
   UNUSED(pParams);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  NucleoDriver *pObj = (NucleoDriver*)_this;
+  NucleoDriver *pObj = (NucleoDriver*)_this;
   GPIO_InitTypeDef GPIO_InitStruct;
 
-//  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
 
   // Configure GPIO pin : LD4
@@ -106,19 +106,24 @@ sys_error_code_t NucleoDriver_vtblInit(IDriver *_this, void *pParams) {
   HAL_GPIO_Init(LD4_GPIO_Port, &GPIO_InitStruct);
 
   // Configure GPIO pin : PtPin */
-//  GPIO_InitStruct.Pin = B1_Pin;
-//  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-//  GPIO_InitStruct.Pull = GPIO_NOPULL;
-//  HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
-//  HAL_NVIC_SetPriority(EXTI15_10_IRQn, NUCLEO_DRV_CFG_IRQ_PRIORITY, 0);
+  GPIO_InitStruct.Pin = B1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, NUCLEO_DRV_CFG_IRQ_PRIORITY, 0);
 
   // Configure the software resource
-//  pObj->m_bPB1Pressed = HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) != GPIO_PIN_SET;
-//  pObj->m_xSyncObj = xSemaphoreCreateBinary();
-//  if (pObj == NULL) {
-//    xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
-//    SYS_SET_LOW_LEVEL_ERROR_CODE(xRes);
-//  }
+  pObj->m_bPB1Pressed = HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) != GPIO_PIN_SET;
+  pObj->m_xSyncObj = xSemaphoreCreateBinary();
+  if (pObj == NULL) {
+    xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
+    SYS_SET_LOW_LEVEL_ERROR_CODE(xRes);
+  }
+#ifdef DEBUG
+  else {
+    vQueueAddToRegistry(pObj->m_xSyncObj, "ND_S");
+  }
+#endif
 
   return xRes;
 }
@@ -213,21 +218,14 @@ sys_error_code_t NucleoDriverStopWaitingForButtonEvent(NucleoDriver *_this) {
 // CubeMx Integration
 // ******************
 
-/**
- * EXTI ISR [PIN10 - PIN15]
- */
-//void EXTI15_10_IRQHandler(void) {
-//  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
-//}
-//
-//void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-//  if (GPIO_Pin == B1_Pin) {
-//    if (s_xHardwareResources.pbPB1Pressed != NULL) {
-//      *s_xHardwareResources.pbPB1Pressed = HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) != GPIO_PIN_SET;
-//      EPowerMode eActivePowerMode = SysGetPowerMode();
-//      if (eActivePowerMode == E_POWER_MODE_RUN) {
-//        xSemaphoreGiveFromISR(s_xHardwareResources.xSyncObj, NULL);
-//      }
-//    }
-//  }
-//}
+void NucleoDriver_EXTI_Callback(uint16_t GPIO_Pin) {
+  if (GPIO_Pin == B1_Pin) {
+    if (s_xHardwareResources.pbPB1Pressed != NULL) {
+      *s_xHardwareResources.pbPB1Pressed = HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) != GPIO_PIN_SET;
+      EPowerMode eActivePowerMode = SysGetPowerMode();
+      if (eActivePowerMode == E_POWER_MODE_RUN) {
+        xSemaphoreGiveFromISR(s_xHardwareResources.xSyncObj, NULL);
+      }
+    }
+  }
+}
