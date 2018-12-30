@@ -2,8 +2,10 @@
 #define MODEL_HPP
 
 #include <touchgfx/Utils.hpp>
+#ifdef ODEV_F
 #include "FreeRTOS.h"
 #include "queue.h"
+#endif
 
 class ModelListener;
 
@@ -60,7 +62,9 @@ protected:
 
 private:
     uint8_t m_nCounter;
+#ifdef ODEV_F
     QueueHandle_t m_xInputQueue;
+#endif
 };
 
 #endif /* MODEL_HPP */
