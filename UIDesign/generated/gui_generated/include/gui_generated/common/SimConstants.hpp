@@ -4,8 +4,8 @@
 #ifndef SIMCONSTANTS_HPP
 #define SIMCONSTANTS_HPP
 
-static unsigned short SIM_WIDTH = 390;
-static unsigned short SIM_HEIGHT = 390;
+static unsigned short SIM_WIDTH = 480;
+static unsigned short SIM_HEIGHT = 272;
 static const char* SIM_TITLE = "UIDesign";
 
 #endif // SIMCONSTANTS_HPP

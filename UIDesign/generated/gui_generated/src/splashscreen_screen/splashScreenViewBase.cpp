@@ -9,14 +9,14 @@
 splashScreenViewBase::splashScreenViewBase() :
     buttonCallback(this, &splashScreenViewBase::buttonCallbackHandler)
 {
-    background.setPosition(0, 0, 390, 390);
+    background.setPosition(0, 0, 480, 272);
     background.setColor(touchgfx::Color::getColorFrom24BitRGB(255, 255, 255));
 
-    imageLogo.setXY(62, 122);
+    imageLogo.setXY(107, 99);
     imageLogo.setBitmap(Bitmap(BITMAP_ODEV_F_LOGO_ID));
     imageLogo.setAlpha(0);
 
-    buttonStart.setXY(110, 297);
+    buttonStart.setXY(155, 24);
     buttonStart.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_SMALL_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_SMALL_PRESSED_ID));
     buttonStart.setLabelText(TypedText(T_SINGLEUSEID1));
     buttonStart.setLabelColor(touchgfx::Color::getColorFrom24BitRGB(255, 255, 255));

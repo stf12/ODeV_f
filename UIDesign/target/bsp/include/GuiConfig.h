@@ -48,7 +48,7 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32l4r9i_eval_gfxmmu_lut.h"
+//#include "stm32l4r9i_eval_gfxmmu_lut.h"  //TODO: STF
 
 #define DISPLAY_PARALLEL_INTERFACE      (0)
 #define DISPLAY_SERIAL_INTERFACE        (1)
@@ -103,13 +103,13 @@
 *       Framebuffer dimension configuration
 */
 #ifndef   GUI_NUM_FRAME_BUFFERS
-#define GUI_NUM_FRAME_BUFFERS      1
+#define GUI_NUM_FRAME_BUFFERS      2
 #endif /* !GUI_NUM_FRAME_BUFFERS */
 #ifndef   GUI_FRAME_BUFFER_WIDTH
-#define GUI_FRAME_BUFFER_WIDTH   BSP_LCD_IMAGE_WIDTH
+#define GUI_FRAME_BUFFER_WIDTH   480
 #endif /* !GUI_FRAME_BUFFER_WIDTH */
 #ifndef   GUI_FRAME_BUFFER_HEIGHT
-#define GUI_FRAME_BUFFER_HEIGHT  GFXMMU_LCD_SIZE
+#define GUI_FRAME_BUFFER_HEIGHT  272
 #endif /* !GUI_FRAME_BUFFER_HEIGHT */
 
 /*********************************************************************
@@ -117,7 +117,7 @@
 *       Framebuffer size configuration
 */
 #ifndef   GUI_FRAME_BUFFER_SIZE
-#define GUI_FRAME_BUFFER_SIZE      (BSP_LCD_PHYS_FB_SIZE * GUI_NUM_FRAME_BUFFERS)
+#define GUI_FRAME_BUFFER_SIZE      ((GUI_NUM_FRAME_BUFFERS * GUI_FRAME_BUFFER_WIDTH * GUI_FRAME_BUFFER_HEIGHT * GUI_DISPLAY_BPP)/8)
 #endif /* !GUI_FRAME_BUFFER_SIZE */
 
 /*********************************************************************
@@ -152,7 +152,7 @@ extern uint8_t *frameBuf0;
 *       Framebuffer Double Buffering support
 */
 #ifndef   GUI_SUPPORT_DOUBLE_BUFFERING
-  #define GUI_SUPPORT_DOUBLE_BUFFERING      (0)  // Support doube buffering
+  #define GUI_SUPPORT_DOUBLE_BUFFERING      (1)  // Support doube buffering
 #endif
 
 /*********************************************************************

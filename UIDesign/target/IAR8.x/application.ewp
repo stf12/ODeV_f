@@ -226,7 +226,7 @@
           <state>USE_IOEXPANDER</state>
           <state>USE_LEDS</state>
           <state>USE_OSPI_NOR</state>
-          <state>USE_BPP=24</state>
+          <state>USE_BPP=16</state>
         </option>
         <option>
           <name>CCPreprocFile</name>

@@ -13,8 +13,8 @@
             "Name": "background",
             "X": 0,
             "Y": 0,
-            "Width": 390,
-            "Height": 390,
+            "Width": 480,
+            "Height": 272,
             "Type": "Box",
             "Visible": true,
             "Draggable": false,
@@ -26,8 +26,8 @@
             "RelativeFilename": "odev_f_logo.png",
             "Alpha": 0,
             "Name": "imageLogo",
-            "X": 62,
-            "Y": 122,
+            "X": 107,
+            "Y": 99,
             "Width": 266,
             "Height": 147,
             "Type": "Image",
@@ -55,8 +55,8 @@
             "TextRotation": "0",
             "Style": "Style4",
             "Name": "buttonStart",
-            "X": 110,
-            "Y": 297,
+            "X": 155,
+            "Y": 24,
             "Width": 170,
             "Height": 60,
             "Type": "ButtonWithLabel",
@@ -114,8 +114,8 @@
             "Name": "background",
             "X": 0,
             "Y": 0,
-            "Width": 390,
-            "Height": 390,
+            "Width": 480,
+            "Height": 272,
             "Type": "Box",
             "Visible": true,
             "Draggable": false,
@@ -127,8 +127,8 @@
             "RelativeFilename": "left_arrow_small.png",
             "Alpha": 255,
             "Name": "imageBack",
-            "X": 254,
-            "Y": 174,
+            "X": 304,
+            "Y": 205,
             "Width": 53,
             "Height": 42,
             "Type": "Image",
@@ -151,8 +151,8 @@
             "ButtonStyle": "Style4",
             "IconStyle": "Icon5",
             "Name": "buttonBack",
-            "X": 110,
-            "Y": 297,
+            "X": 155,
+            "Y": 24,
             "Width": 170,
             "Height": 60,
             "Type": "ButtonWithIcon",
@@ -180,8 +180,8 @@
             "TextRotation": "0",
             "Style": "Style4",
             "Name": "buttonCount",
-            "X": 110,
-            "Y": 60,
+            "X": 155,
+            "Y": 128,
             "Width": 170,
             "Height": 60,
             "Type": "ButtonWithLabel",
@@ -208,8 +208,8 @@
               "BufferSize": 3
             },
             "Name": "textArea1",
-            "X": 74,
-            "Y": 183,
+            "X": 124,
+            "Y": 214,
             "Width": 121,
             "Height": 25,
             "Type": "TextArea",
@@ -274,10 +274,10 @@
     ],
     "Name": "UIDesign",
     "Resolution": {
-      "Width": 390,
-      "Height": 390
+      "Width": 480,
+      "Height": 272
     },
-    "SelectedColorDepth": 24,
+    "SelectedColorDepth": 16,
     "StartupScreenName": "splashScreen",
     "SelectedStartupLanguage": "GB",
     "Skin": "Dark",
@@ -288,15 +288,24 @@
       "Version": "1.1.0",
       "Description": "STM32L4R9I Evaluation board",
       "AvailableColorDepths": [
+        16,
         24
       ],
       "AvailableImageFormats": {
+        "16": {
+          "Opaque": "RGB565",
+          "NonOpaque": "ARGB8888"
+        },
         "24": {
           "Opaque": "RGB888",
           "NonOpaque": "ARGB8888"
         }
       },
       "AvailableResolutions": [
+        {
+          "Width": 480,
+          "Height": 272
+        },
         {
           "Width": 390,
           "Height": 390
