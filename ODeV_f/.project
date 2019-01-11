@@ -91,6 +91,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/include/bsp/STM32TouchController.hpp</locationURI>
 		</link>
 		<link>
+			<name>gui/target/bsp/include/bsp/mfx.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/include/bsp/mfx.h</locationURI>
+		</link>
+		<link>
 			<name>gui/target/bsp/source/bsp/STM32MCUInstrumentation.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/source/bsp/STM32MCUInstrumentation.cpp</locationURI>
@@ -106,9 +111,14 @@
 			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/include/platform/core/MCUInstrumentation.hpp</locationURI>
 		</link>
 		<link>
-			<name>gui/target/bsp/source/vendor/components/ft3x67</name>
+			<name>gui/target/bsp/source/vendor/components/Common</name>
 			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/source/vendor/Components/ft3x67</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/source/vendor/Components/Common</locationURI>
+		</link>
+		<link>
+			<name>gui/target/bsp/source/vendor/components/ft5336</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/source/vendor/Components/ft5336</locationURI>
 		</link>
 		<link>
 			<name>gui/target/bsp/source/vendor/components/mfxstm32l152</name>
@@ -134,16 +144,6 @@
 			<name>gui/target/bsp/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_audio.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/source/vendor/STM32L4R9I_EVAL/stm32l4r9i_eval_audio.h</locationURI>
-		</link>
-		<link>
-			<name>gui/target/bsp/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_dsi_lcd.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/source/vendor/STM32L4R9I_EVAL/stm32l4r9i_eval_dsi_lcd.c</locationURI>
-		</link>
-		<link>
-			<name>gui/target/bsp/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_dsi_lcd.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/source/vendor/STM32L4R9I_EVAL/stm32l4r9i_eval_dsi_lcd.h</locationURI>
 		</link>
 		<link>
 			<name>gui/target/bsp/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_dsi_ts.c</name>
@@ -226,6 +226,26 @@
 			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/source/vendor/STM32L4R9I_EVAL/stm32l4r9i_eval_ospi_ram.h</locationURI>
 		</link>
 		<link>
+			<name>gui/target/bsp/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_rgb_lcd.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/source/vendor/STM32L4R9I_EVAL/stm32l4r9i_eval_rgb_lcd.c</locationURI>
+		</link>
+		<link>
+			<name>gui/target/bsp/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_rgb_lcd.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/source/vendor/STM32L4R9I_EVAL/stm32l4r9i_eval_rgb_lcd.h</locationURI>
+		</link>
+		<link>
+			<name>gui/target/bsp/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_rgb_ts.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/source/vendor/STM32L4R9I_EVAL/stm32l4r9i_eval_rgb_ts.c</locationURI>
+		</link>
+		<link>
+			<name>gui/target/bsp/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_rgb_ts.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/source/vendor/STM32L4R9I_EVAL/stm32l4r9i_eval_rgb_ts.h</locationURI>
+		</link>
+		<link>
 			<name>gui/target/bsp/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_sd.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/source/vendor/STM32L4R9I_EVAL/stm32l4r9i_eval_sd.c</locationURI>
@@ -279,11 +299,6 @@
 			<name>gui/target/bsp/source/platform/hal/st/mcu/stm32l4cube/STM32HAL_DPI.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/source/platform/hal/ST/mcu/stm32l4cube/STM32HAL_DPI.cpp</locationURI>
-		</link>
-		<link>
-			<name>gui/target/bsp/source/platform/hal/st/mcu/stm32l4cube/STM32HAL_DSI.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/UIDesign/target/bsp/source/platform/hal/ST/mcu/stm32l4cube/STM32HAL_DSI.cpp</locationURI>
 		</link>
 		<link>
 			<name>gui/target/bsp/source/platform/hal/st/mcu/stm32l4cube/readme.txt</name>

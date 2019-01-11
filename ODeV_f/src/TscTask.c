@@ -202,8 +202,12 @@ static sys_error_code_t TscTaskExecuteStepRun(TscTask *_this) {
   xQueueReceive(_this->m_xVsyncQueue, &nDummy, portMAX_DELAY);
   AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
 
+  SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("TSC: step!\r\n"));
+
   // Update TS data
-  BSP_TS_UpdateState();
+  // TODO: STF - To be checked for the display 480x272.
+  // The default operation mode is in polling for this touch screen.
+//  BSP_TS_UpdateState();
 
   return xRes;
 }

@@ -59,11 +59,11 @@
 									<listOptionValue builtIn="false" value="USE_OS_SYSTICK"/>
 									<listOptionValue builtIn="false" value="USE_STM32L4R9I_EVAL"/>
 									<listOptionValue builtIn="false" value="USE_STM32L4R9I_EVAL_REVB"/>
-									<listOptionValue builtIn="false" value="USE_GVO_390x390"/>
+									<listOptionValue builtIn="false" value="USE_ROCKTECH_480x272"/>
 									<listOptionValue builtIn="false" value="USE_IOEXPANDER"/>
 									<listOptionValue builtIn="false" value="USE_LEDS"/>
 									<listOptionValue builtIn="false" value="USE_OSPI_NOR"/>
-									<listOptionValue builtIn="false" value="USE_BPP=24"/>
+									<listOptionValue builtIn="false" value="USE_BPP=16"/>
 									<listOptionValue builtIn="false" value="__irq="/>
 								</option>
 								<option id="com.atollic.truestudio.gcc.directories.select.456427362" name="Include path" superClass="com.atollic.truestudio.gcc.directories.select" useByScannerDiscovery="false" valueType="includePath">
@@ -133,11 +133,11 @@
 									<listOptionValue builtIn="false" value="USE_OS_SYSTICK"/>
 									<listOptionValue builtIn="false" value="USE_STM32L4R9I_EVAL"/>
 									<listOptionValue builtIn="false" value="USE_STM32L4R9I_EVAL_REVB"/>
-									<listOptionValue builtIn="false" value="USE_GVO_390x390"/>
+									<listOptionValue builtIn="false" value="USE_ROCKTECH_480x272"/>
 									<listOptionValue builtIn="false" value="USE_IOEXPANDER"/>
 									<listOptionValue builtIn="false" value="USE_LEDS"/>
 									<listOptionValue builtIn="false" value="USE_OSPI_NOR"/>
-									<listOptionValue builtIn="false" value="USE_BPP=24"/>
+									<listOptionValue builtIn="false" value="USE_BPP=16"/>
 									<listOptionValue builtIn="false" value="__irq="/>
 								</option>
 								<option id="com.atollic.truestudio.gpp.directories.select.226367605" name="Include path" superClass="com.atollic.truestudio.gpp.directories.select" useByScannerDiscovery="false" valueType="includePath">
@@ -872,5 +872,16 @@
 		</configuration>
 		<configuration configurationName="TEST_R"/>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+		<buildTargets>
+			<target name="assets" path="gui/target/gcc" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments/>
+				<buildTarget>assets</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+		</buildTargets>
+	</storageModule>
 </cproject>

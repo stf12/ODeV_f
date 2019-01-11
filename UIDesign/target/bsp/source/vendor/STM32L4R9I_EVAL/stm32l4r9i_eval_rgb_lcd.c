@@ -68,12 +68,16 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4r9i_eval_lcd.h"
+//TODO: STF.Debug - exclude some code when compiled for ODeV.
+// Font are managed by TouchGFX
+#ifndef ODEV_F
 #include "../../../Utilities/Fonts/fonts.h"
 #include "../../../Utilities/Fonts/font24.c"
 #include "../../../Utilities/Fonts/font20.c"
 #include "../../../Utilities/Fonts/font16.c"
 #include "../../../Utilities/Fonts/font12.c"
 #include "../../../Utilities/Fonts/font8.c"
+#endif
 
 /** @addtogroup BSP
   * @{

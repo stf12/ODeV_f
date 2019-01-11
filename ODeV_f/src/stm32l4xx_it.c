@@ -165,4 +165,14 @@ void I2C2_ER_IRQHandler(void)
   HAL_I2C_ER_IRQHandler(&hi2c_eval);
 }
 
+/**
+  * @brief  This function handles LTDC error global interrupt request.
+  * @param  None
+  * @retval None
+  */
+void LTDC_ER_IRQHandler(void)
+{
+  configASSERT(0);
+}
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

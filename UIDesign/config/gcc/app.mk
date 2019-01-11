@@ -2,13 +2,13 @@
 touchgfx_path := touchgfx/
 
 # Optional additional compiler flags
-user_cflags := -DUSE_BPP=24
+user_cflags := -DUSE_BPP=16
 
 # Settings for image converter output format
 alpha_dither := yes
 # Dither algorithms: 0 (no dither), 1 (Floyd-Steinberg), 2 (Jarvis, Judice and Ninke), 3 (Stucki)
 dither_algorithm := 2
-opaque_image_format := RGB888
+opaque_image_format := RGB565
 non_opaque_image_format := ARGB8888
 
 # Settings for image converter screen orientation (empty string =
