@@ -197,8 +197,8 @@ gcc_source_files := $(touchgfx_path)/framework/config/gcc/stdio.c \
 board_c_files := \
 	$(bsp_path)/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval.c \
 	$(bsp_path)/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_audio.c \
-	$(bsp_path)/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_dsi_lcd.c \
-	$(bsp_path)/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_dsi_ts.c \
+	$(bsp_path)/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_rgb_lcd.c \
+	$(bsp_path)/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_rgb_ts.c \
 	$(bsp_path)/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_eeprom.c \
 	$(bsp_path)/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_idd.c \
 	$(bsp_path)/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_io.c \
@@ -208,9 +208,9 @@ board_c_files := \
 	$(bsp_path)/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_sd.c \
 	$(bsp_path)/source/vendor/stm32l4r9i_eval/stm32l4r9i_eval_sram.c \
 	$(bsp_path)/source/vendor/stm32l4r9i_eval/stm32l4xx_it.c \
-	$(bsp_path)/source/vendor/Components/ft3x67/ft3x67.c \
+	$(bsp_path)/source/vendor/Components/ft5336/ft5336.c \
 	$(bsp_path)/source/vendor/Components/mfxstm32l152/mfxstm32l152.c \
-	$(bsp_path)/source/bsp/ts.c
+#	$(bsp_path)/source/bsp/mfx.c
 
 board_c_files += \
   $(bsp_path)/source/platform/hal/ST/mcu/stm32l4cube/STM32L4xx_HAL_Driver/stm32l4xx_hal.c \
@@ -304,11 +304,11 @@ board_cpp_files := \
 
 board_cpp_files += \
 	$(bsp_path)/source/platform/hal/ST/mcu/stm32l4cube/STM32DMA.cpp \
-	$(bsp_path)/source/platform/hal/ST/mcu/stm32l4cube/STM32HAL_DPI.cpp \
-	$(bsp_path)/source/platform/hal/ST/mcu/stm32l4cube/STM32HAL_DSI.cpp
+	$(bsp_path)/source/platform/hal/ST/mcu/stm32l4cube/STM32HAL_DPI.cpp
 
 board_include_paths := \
 	$(bsp_path)/source/vendor/stm32l4r9i_eval \
+  $(bsp_path)/source/vendor/Components \
   $(bsp_path)/include/platform/core/arm/cortex-m/CMSIS \
   $(bsp_path)/include/platform/hal/ST/mcu/stm32l4cube \
   $(bsp_path)/include/platform/hal/ST/mcu/stm32l4cube/CMSIS \
@@ -321,8 +321,8 @@ asm_source_files := \
   $(bsp_path)/source/platform/hal/ST/mcu/stm32l4cube/gcc/startup_stm32l4r9xx.s
 
 # Compiler options
-c_compiler_options += -DST -DSTM32L4R9xx -DUSE_FREERTOS_8 -DUSE_OS_SYSTICK -DUSE_STM32L4R9I_EVAL -DUSE_STM32L4R9I_EVAL_REVB -DUSE_GVO_390x390 -DUSE_HAL_DRIVER -DUSE_IOEXPANDER -DUSE_LEDS -DUSE_OSPI_NOR -DUSE_BPP=24
-cpp_compiler_options += -DST -DSTM32L4R9xx -DUSE_FREERTOS_8 -DUSE_OS_SYSTICK -DUSE_STM32L4R9I_EVAL -DUSE_STM32L4R9I_EVAL_REVB -DUSE_GVO_390x390 -DUSE_HAL_DRIVER -DUSE_IOEXPANDER -DUSE_LEDS -DUSE_OSPI_NOR -DUSE_BPP=24
+c_compiler_options += -DST -DSTM32L4R9xx -DUSE_FREERTOS_8 -DUSE_OS_SYSTICK -DUSE_STM32L4R9I_EVAL -DUSE_STM32L4R9I_EVAL_REVB -DUSE_ROCKTECH_480x272 -DUSE_HAL_DRIVER -DUSE_IOEXPANDER -DUSE_LEDS -DUSE_OSPI_NOR -DUSE_BPP=16
+cpp_compiler_options += -DST -DSTM32L4R9xx -DUSE_FREERTOS_8 -DUSE_OS_SYSTICK -DUSE_STM32L4R9I_EVAL -DUSE_STM32L4R9I_EVAL_REVB -DUSE_ROCKTECH_480x272 -DUSE_HAL_DRIVER -DUSE_IOEXPANDER -DUSE_LEDS -DUSE_OSPI_NOR -DUSE_BPP=16
 
 include_paths += platform/os $(board_include_paths) $(os_include_paths)
 
