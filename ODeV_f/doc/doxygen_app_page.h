@@ -5,7 +5,7 @@
  *
  * \section intro1 Introduction
  * This section gives a look to the simple demo application delivered with the framework. It has been developed on a
- * [NUCLEO-L452RE](https://www.st.com/content/st_com/en/products/evaluation-tools/product-evaluation-tools/mcu-eval-tools/stm32-mcu-eval-tools/stm32-mcu-nucleo/nucleo-l452re.html) board.
+ * [NUCLEO-L073RZ](https://www.st.com/en/evaluation-tools/nucleo-l073rz.html) board.
  * Despite its simplicity it is a good example to understand how to implement an application with the \ref overview "ODeV framework".
  *
  * The application implements two managed tasks, one to blink the LED with a regular interval (::HelloWorldTask), and another to put the system in low power mode and wake-up it when the user
@@ -38,14 +38,14 @@
  *
  * | Index | IRQ line       | IRQ  priority  | Note                                                               |
  * | :---: | :------------- | :------------: | :----------------------------------------------------------------- |
- * | 1     | EXTI15_10_IRQn | 13             | EXTI 13 used to detect the push button events                      |
+ * | 1     | EXTI4_15 _IRQn | 2              | EXTI 13 used to detect the push button events                      |
  * |       |                |                |                                                                    |
- * | 2     | TIM6_IRQn      | 14             | High frequency tick to generate the runtime statistics in DEBUG    |
- * | 3     | TIM3_IRQn      | 15             | generates the HAL 1ms tick                                         |
- * | 4     | SysTick_IRQn   | 15             | generate the scheduler 1ms tick                                    |
- * | 5     | PendSV_IRQn    | 15             | Used by FreeTOS                                                    |
+ * | 2     | TIM6_IRQn      | 3              | High frequency tick to generate the runtime statistics in DEBUG    |
+ * | 3     | TIM3_IRQn      | 3              | generates the HAL 1ms tick                                         |
+ * | 4     | SysTick_IRQn   | 3              | generate the scheduler 1ms tick                                    |
+ * | 5     | PendSV_IRQn    | 3              | Used by FreeTOS                                                    |
  *
- * Note that, despite the task priorities, the Cortex-M defines the IRQ priorities from the lowest 15 to the highest 0.
+ * Note that, despite the task priorities, the Cortex-M defines the IRQ priorities from the lowest 3 to the highest 0.
  *
  * \subsection HelloWorldTask Hello World Task
  * This managed task is responsible to blink the user LED with a fixed period of 1 second and a duty cycle of 50%.
