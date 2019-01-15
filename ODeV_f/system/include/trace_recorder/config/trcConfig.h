@@ -62,7 +62,11 @@ extern "C" {
  * Try that in case of build problems. Otherwise, remove the #error line below.
  *****************************************************************************/
 //#error "Trace Recorder: Please include your processor's header file here and remove this line."
+#ifdef SYS_TP_MCU_STM32L4
 #include "stm32l4xx.h"
+#elif defined (SYS_TP_MCU_STM32L0)
+#include "stm32l0xx.h"
+#endif
 
 /*******************************************************************************
  * Configuration Macro: TRC_CFG_HARDWARE_PORT
@@ -179,7 +183,7 @@ extern "C" {
  * Note: tracing ISRs requires that you insert calls to vTraceStoreISRBegin
  * and vTraceStoreISREnd in your interrupt handlers.
  *****************************************************************************/
-#define TRC_CFG_INCLUDE_ISR_TRACING 1
+#define TRC_CFG_INCLUDE_ISR_TRACING 0
 
  /*****************************************************************************
  * TRC_CFG_INCLUDE_READY_EVENTS

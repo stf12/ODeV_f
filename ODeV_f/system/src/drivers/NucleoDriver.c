@@ -38,7 +38,6 @@
 #define NUCLEO_DRV_CFG_IRQ_PRIORITY    2
 #endif
 
-
 #define SYS_DEBUGF(level, message)      SYS_DEBUGF3(SYS_DBG_DRIVERS, level, message)
 
 
@@ -66,6 +65,19 @@ typedef struct _HardwareResources {
  * Specifies the resources used by the hardware (the low level HAL API like ISR, etc.)
  */
 static HardwareResources s_xHardwareResources;
+
+
+// Inline function forward declaration
+// ***********************************
+
+// GCC requires one function forward declaration in only one .c source
+// in order to manage the inline.
+// See also http://stackoverflow.com/questions/26503235/c-inline-function-and-gcc
+#if defined (__GNUC__)
+extern sys_error_code_t NucleoDriverToggleLed(NucleoDriver *this);
+extern sys_error_code_t NucleoDriverSetLed(NucleoDriver *this, boolean_t bON);
+extern boolean_t NucleoDriverIsButtonPressed(NucleoDriver *this);
+#endif
 
 // Private member function declaration
 // ***********************************

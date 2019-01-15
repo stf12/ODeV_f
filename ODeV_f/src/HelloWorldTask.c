@@ -84,7 +84,11 @@ static void HelloWorldTaskRun(void *pParams);
 // Inline function forward declaration
 // ***********************************
 
+// GCC requires one function forward declaration in only one .c source
+// in order to manage the inline.
+// See also http://stackoverflow.com/questions/26503235/c-inline-function-and-gcc
 #if defined (__GNUC__)
+extern IDriver *HelloWorldTaskGetDriver(HelloWorldTask *_this);
 #endif
 
 

@@ -86,6 +86,7 @@ static void PushButtonTaskRun(void *pParams);
 // ***********************************
 
 #if defined (__GNUC__)
+sys_error_code_t PushButtonTaskSetDriver(PushButtonTask *_this, IDriver *pxDriver);
 #endif
 
 
