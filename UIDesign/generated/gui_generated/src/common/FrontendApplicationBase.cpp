@@ -11,6 +11,8 @@
 #include <gui/splashscreen_screen/splashScreenPresenter.hpp>
 #include <gui/main_screen/mainView.hpp>
 #include <gui/main_screen/mainPresenter.hpp>
+#include <gui/shortcutsscreen_screen/ShortcutsScreenView.hpp>
+#include <gui/shortcutsscreen_screen/ShortcutsScreenPresenter.hpp>
 
 using namespace touchgfx;
 
@@ -63,5 +65,30 @@ void FrontendApplicationBase::gotomainScreenSlideTransitionEast()
 void FrontendApplicationBase::gotomainScreenSlideTransitionEastImpl()
 {
     makeTransition<mainView, mainPresenter, touchgfx::SlideTransition<EAST>, Model >(&currentScreen, &currentPresenter, frontendHeap, &currentTransition, &model);
+}
+
+
+void FrontendApplicationBase::gotomainScreenSlideTransitionWest()
+{
+    transitionCallback = touchgfx::Callback<FrontendApplicationBase>(this, &FrontendApplication::gotomainScreenSlideTransitionWestImpl);
+    pendingScreenTransitionCallback = &transitionCallback;
+}
+
+void FrontendApplicationBase::gotomainScreenSlideTransitionWestImpl()
+{
+    makeTransition<mainView, mainPresenter, touchgfx::SlideTransition<WEST>, Model >(&currentScreen, &currentPresenter, frontendHeap, &currentTransition, &model);
+}
+
+// ShortcutsScreen
+
+void FrontendApplicationBase::gotoShortcutsScreenScreenSlideTransitionEast()
+{
+    transitionCallback = touchgfx::Callback<FrontendApplicationBase>(this, &FrontendApplication::gotoShortcutsScreenScreenSlideTransitionEastImpl);
+    pendingScreenTransitionCallback = &transitionCallback;
+}
+
+void FrontendApplicationBase::gotoShortcutsScreenScreenSlideTransitionEastImpl()
+{
+    makeTransition<ShortcutsScreenView, ShortcutsScreenPresenter, touchgfx::SlideTransition<EAST>, Model >(&currentScreen, &currentPresenter, frontendHeap, &currentTransition, &model);
 }
 

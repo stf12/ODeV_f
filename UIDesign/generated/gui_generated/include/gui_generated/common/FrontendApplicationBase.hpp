@@ -24,6 +24,12 @@ public:
     // main
     void gotomainScreenSlideTransitionEast();
 
+    void gotomainScreenSlideTransitionWest();
+
+
+    // ShortcutsScreen
+    void gotoShortcutsScreenScreenSlideTransitionEast();
+
 protected:
     touchgfx::Callback<FrontendApplicationBase> transitionCallback;
     FrontendHeap& frontendHeap;
@@ -37,6 +43,12 @@ protected:
 
     // main
     void gotomainScreenSlideTransitionEastImpl();
+
+    void gotomainScreenSlideTransitionWestImpl();
+
+
+    // ShortcutsScreen
+    void gotoShortcutsScreenScreenSlideTransitionEastImpl();
 };
 
 #endif // FRONTENDAPPLICATIONBASE_HPP

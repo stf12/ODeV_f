@@ -1050,6 +1050,12 @@
           </file>
         </group>
         <group>
+          <name>shortcutsscreen_screen</name>
+          <file>
+            <name>$PROJ_DIR$\..\..\generated\gui_generated\src\shortcutsscreen_screen\ShortcutsScreenViewBase.cpp</name>
+          </file>
+        </group>
+        <group>
           <name>splashscreen_screen</name>
           <file>
             <name>$PROJ_DIR$\..\..\generated\gui_generated\src\splashscreen_screen\splashScreenViewBase.cpp</name>
@@ -1061,13 +1067,37 @@
         <group>
           <name>__designer</name>
           <file>
+            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_buttons_round_edge_icon_button.cpp</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_buttons_round_edge_icon_button_pressed.cpp</name>
+          </file>
+          <file>
             <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_buttons_round_edge_small.cpp</name>
           </file>
           <file>
             <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_buttons_round_edge_small_pressed.cpp</name>
           </file>
           <file>
-            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_back_arrow_32.cpp</name>
+            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_document_32.cpp</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_done_32.cpp</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_go_back_32.cpp</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_go_next_32.cpp</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_remove_48.cpp</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_pageindicator_dot_indicator_small_highlight.cpp</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_pageindicator_dot_indicator_small_normal.cpp</name>
           </file>
         </group>
         <file>
@@ -1114,6 +1144,15 @@
         <name>model</name>
         <file>
           <name>$PROJ_DIR$\..\..\gui\src\model\Model.cpp</name>
+        </file>
+      </group>
+      <group>
+        <name>shortcutsscreen_screen</name>
+        <file>
+          <name>$PROJ_DIR$\..\..\gui\src\shortcutsscreen_screen\ShortcutsScreenPresenter.cpp</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\gui\src\shortcutsscreen_screen\ShortcutsScreenView.cpp</name>
         </file>
       </group>
       <group>

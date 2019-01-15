@@ -10,6 +10,8 @@
 #include <touchgfx/transitions/NoTransition.hpp>
 #include <touchgfx/transitions/SlideTransition.hpp>
 #include <touchgfx/transitions/SlideTransition.hpp>
+#include <touchgfx/transitions/SlideTransition.hpp>
+#include <touchgfx/transitions/SlideTransition.hpp>
 
 #include <gui/common/FrontendApplication.hpp>
 #include <gui/model/Model.hpp>
@@ -18,6 +20,8 @@
 #include <gui/splashscreen_screen/splashScreenPresenter.hpp>
 #include <gui/main_screen/mainView.hpp>
 #include <gui/main_screen/mainPresenter.hpp>
+#include <gui/shortcutsscreen_screen/ShortcutsScreenView.hpp>
+#include <gui/shortcutsscreen_screen/ShortcutsScreenPresenter.hpp>
 
 
 /**
@@ -42,7 +46,8 @@ public:
      */
     typedef meta::TypeList< splashScreenView,
             meta::TypeList< mainView,
-            meta::Nil >
+            meta::TypeList< ShortcutsScreenView,
+            meta::Nil > >
             > GeneratedViewTypes;
 
     /**
@@ -56,7 +61,8 @@ public:
      */
     typedef meta::TypeList< splashScreenPresenter,
             meta::TypeList< mainPresenter,
-            meta::Nil >
+            meta::TypeList< ShortcutsScreenPresenter,
+            meta::Nil > >
             > GeneratedPresenterTypes;
 
     /**

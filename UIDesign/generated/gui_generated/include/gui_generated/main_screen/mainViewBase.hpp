@@ -43,6 +43,7 @@ protected:
     touchgfx::ButtonWithIcon buttonBack;
     touchgfx::ButtonWithLabel buttonCount;
     touchgfx::TextAreaWithOneWildcard textArea1;
+    touchgfx::ButtonWithIcon buttonNext;
 
     /*
      * Wildcard Buffers

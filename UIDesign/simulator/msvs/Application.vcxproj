@@ -25,6 +25,9 @@
     <ClCompile Include="..\..\gui\src\splashscreen_screen\splashScreenPresenter.cpp"/>
     <ClCompile Include="..\..\gui\src\splashscreen_screen\splashScreenView.cpp"/>
     <ClCompile Include="..\..\generated\gui_generated\src\splashscreen_screen\splashScreenViewBase.cpp"/>
+    <ClCompile Include="..\..\gui\src\shortcutsscreen_screen\ShortcutsScreenPresenter.cpp"/>
+    <ClCompile Include="..\..\gui\src\shortcutsscreen_screen\ShortcutsScreenView.cpp"/>
+    <ClCompile Include="..\..\generated\gui_generated\src\shortcutsscreen_screen\ShortcutsScreenViewBase.cpp"/>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\assets\texts\texts.xlsx"/>
@@ -177,6 +180,9 @@
     <ClInclude Include="..\..\gui\include\gui\splashscreen_screen\splashScreenPresenter.hpp"/>
     <ClInclude Include="..\..\gui\include\gui\splashscreen_screen\splashScreenView.hpp"/>
     <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\splashscreen_screen\splashScreenViewBase.hpp"/>
+    <ClInclude Include="..\..\gui\include\gui\shortcutsscreen_screen\ShortcutsScreenPresenter.hpp"/>
+    <ClInclude Include="..\..\gui\include\gui\shortcutsscreen_screen\ShortcutsScreenView.hpp"/>
+    <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\shortcutsscreen_screen\ShortcutsScreenViewBase.hpp"/>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\touchgfx.rc"/>

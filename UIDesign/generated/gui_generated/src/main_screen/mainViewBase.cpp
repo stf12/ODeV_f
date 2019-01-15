@@ -15,9 +15,9 @@ mainViewBase::mainViewBase() :
     imageBack.setXY(304, 205);
     imageBack.setBitmap(Bitmap(BITMAP_LEFT_ARROW_SMALL_ID));
 
-    buttonBack.setXY(155, 24);
-    buttonBack.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_SMALL_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_SMALL_PRESSED_ID), Bitmap(BITMAP_DARK_ICONS_BACK_ARROW_32_ID), Bitmap(BITMAP_DARK_ICONS_BACK_ARROW_32_ID));
-    buttonBack.setIconXY(76, 14);
+    buttonBack.setXY(39, 32);
+    buttonBack.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_SMALL_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_SMALL_PRESSED_ID), Bitmap(BITMAP_DARK_ICONS_GO_BACK_32_ID), Bitmap(BITMAP_DARK_ICONS_GO_BACK_32_ID));
+    buttonBack.setIconXY(69, 15);
     buttonBack.setAction(buttonCallback);
 
     buttonCount.setXY(155, 128);
@@ -35,11 +35,17 @@ mainViewBase::mainViewBase() :
     textArea1.resizeToCurrentText();
     textArea1.setTypedText(TypedText(T_SINGLEUSEID2));
 
+    buttonNext.setXY(272, 32);
+    buttonNext.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_SMALL_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_SMALL_PRESSED_ID), Bitmap(BITMAP_DARK_ICONS_GO_NEXT_32_ID), Bitmap(BITMAP_DARK_ICONS_GO_NEXT_32_ID));
+    buttonNext.setIconXY(69, 15);
+    buttonNext.setAction(buttonCallback);
+
     add(background);
     add(imageBack);
     add(buttonBack);
     add(buttonCount);
     add(textArea1);
+    add(buttonNext);
 }
 
 void mainViewBase::setupScreen()
@@ -62,5 +68,12 @@ void mainViewBase::buttonCallbackHandler(const touchgfx::AbstractButton& src)
         //When buttonCount clicked call virtual function
         //Call OnButtonCountClicked
         OnButtonCountClicked();
+    }
+    else if (&src == &buttonNext)
+    {
+        //InteractionGoToTextScreen
+        //When buttonNext clicked change screen to ShortcutsScreen
+        //Go to ShortcutsScreen with screen transition towards East
+        application().gotoShortcutsScreenScreenSlideTransitionEast();
     }
 }

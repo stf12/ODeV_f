@@ -175,6 +175,18 @@
     <Filter Include="Source Files\generated\gui_generated\splashscreen_screen">
       <UniqueIdentifier>BB95473C-4CB7-43F2-812D-23CE1C494248</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\gui\shortcutsscreen_screen">
+      <UniqueIdentifier>89735621-4486-44CC-A943-E12983A63AFF</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gui\shortcutsscreen_screen">
+      <UniqueIdentifier>67DBAF16-9AAA-45A5-B259-813D99E7D362</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\generated\gui_generated\shortcutsscreen_screen">
+      <UniqueIdentifier>0669C72D-EFD9-4324-B531-C063A3615D83</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\generated\gui_generated\shortcutsscreen_screen">
+      <UniqueIdentifier>474EF3C9-26DB-4276-8406-9FCB2AD9BF27</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(TouchGFXReleasePath)\framework\source\platform\driver\touch\SDL2TouchController.cpp">
@@ -218,6 +230,15 @@
     </ClCompile>
     <ClCompile Include="..\..\generated\gui_generated\src\splashscreen_screen\splashScreenViewBase.cpp">
       <Filter>Source Files\generated\gui_generated\splashscreen_screen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\src\shortcutsscreen_screen\ShortcutsScreenPresenter.cpp">
+      <Filter>Source Files\gui\shortcutsscreen_screen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\src\shortcutsscreen_screen\ShortcutsScreenView.cpp">
+      <Filter>Source Files\gui\shortcutsscreen_screen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\generated\gui_generated\src\shortcutsscreen_screen\ShortcutsScreenViewBase.cpp">
+      <Filter>Source Files\generated\gui_generated\shortcutsscreen_screen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -666,6 +687,15 @@
     </ClInclude>
     <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\splashscreen_screen\splashScreenViewBase.hpp">
       <Filter>Header Files\generated\gui_generated\splashscreen_screen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\include\gui\shortcutsscreen_screen\ShortcutsScreenPresenter.hpp">
+      <Filter>Header Files\gui\shortcutsscreen_screen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\include\gui\shortcutsscreen_screen\ShortcutsScreenView.hpp">
+      <Filter>Header Files\gui\shortcutsscreen_screen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\shortcutsscreen_screen\ShortcutsScreenViewBase.hpp">
+      <Filter>Header Files\generated\gui_generated\shortcutsscreen_screen</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
