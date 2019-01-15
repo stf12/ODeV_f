@@ -1,0 +1,9 @@
+/build/
+/assets/images/__designer/
+/output_CompileSimulator.log
+/output_GenerateAssets.log
+/output_PostGenerate.log
+/output_RunSimulator.log
+/output_CompileTarget.log
+/output_FlashTarget.log
+/simulator/touchgfx.res
