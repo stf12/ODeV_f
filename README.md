@@ -8,3 +8,7 @@ It is the result of the last several years of developing applications for STM32.
 For more information look at:
 * The [ODeV framework web site](https://www.stf12.org/odev/framework/)
 * The API Documentation pages. [Desktop version](http://www.stf12.org/odev/api-doc/html/) or [Mobile version](http://www.stf12.org/odev/api-doc/m/html/)
+
+### Branch specific information
+This branch has been developed and tested on a NUCLEO-L073RZ board.
+This is the port of the framework for STM32L0 devices.
