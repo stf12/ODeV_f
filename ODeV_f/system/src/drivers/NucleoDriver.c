@@ -35,7 +35,7 @@
 #include "sysdebug.h"
 
 #ifndef NUCLEO_DRV_CFG_IRQ_PRIORITY
-#define NUCLEO_DRV_CFG_IRQ_PRIORITY    13
+#define NUCLEO_DRV_CFG_IRQ_PRIORITY    2
 #endif
 
 
@@ -110,7 +110,7 @@ sys_error_code_t NucleoDriver_vtblInit(IDriver *_this, void *pParams) {
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, NUCLEO_DRV_CFG_IRQ_PRIORITY, 0);
+  HAL_NVIC_SetPriority(EXTI4_15_IRQn, NUCLEO_DRV_CFG_IRQ_PRIORITY, 0);
 
   // Configure the software resource
   pObj->m_bPB1Pressed = HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) != GPIO_PIN_SET;
@@ -134,8 +134,8 @@ sys_error_code_t NucleoDriver_vtblStart(IDriver *_this) {
   s_xHardwareResources.xSyncObj = pObj->m_xSyncObj;
   __enable_irq();
 
-  HAL_NVIC_ClearPendingIRQ(EXTI15_10_IRQn);
-  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+  HAL_NVIC_ClearPendingIRQ(EXTI4_15_IRQn);
+  HAL_NVIC_EnableIRQ(EXTI4_15_IRQn);
 
   return xRes;
 }
@@ -152,7 +152,7 @@ sys_error_code_t NucleoDriver_vtblStop(IDriver *_this) {
   s_xHardwareResources.xSyncObj = NULL;
   __enable_irq();
 
-  HAL_NVIC_DisableIRQ(EXTI15_10_IRQn);
+  HAL_NVIC_DisableIRQ(EXTI4_15_IRQn);
 
   return xRes;
 }
@@ -216,7 +216,7 @@ sys_error_code_t NucleoDriverStopWaitingForButtonEvent(NucleoDriver *_this) {
 /**
  * EXTI ISR [PIN10 - PIN15]
  */
-void EXTI15_10_IRQHandler(void) {
+void EXTI4_15_IRQHandler(void) {
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
 }
 

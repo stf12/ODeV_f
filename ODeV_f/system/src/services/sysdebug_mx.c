@@ -57,8 +57,7 @@ void MX_USART2_UART_Init(UART_HandleTypeDef* uartHandle) {
   uartHandle->Init.HwFlowCtl = UART_HWCONTROL_NONE;
   uartHandle->Init.OverSampling = UART_OVERSAMPLING_16;
   uartHandle->Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  uartHandle->AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_DMADISABLEONERROR_INIT;
-  uartHandle->AdvancedInit.DMADisableonRxError = UART_ADVFEATURE_DMA_DISABLEONRXERROR;
+  uartHandle->AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
   if (HAL_UART_Init(uartHandle) != HAL_OK) {
     sys_error_handler();
   }
@@ -82,7 +81,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
+    GPIO_InitStruct.Alternate = GPIO_AF4_USART2;
     HAL_GPIO_Init(UART_TX_GPIO_Port, &GPIO_InitStruct);
   }
 }
@@ -105,7 +104,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
 void MX_TIM6_Init(TIM_HandleTypeDef* tim_baseHandle)
 {
-  TIM_MasterConfigTypeDef sMasterConfig;
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
 
   tim_baseHandle->Instance = TIM6;
   tim_baseHandle->Init.Prescaler = 399;
@@ -135,7 +134,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
     __HAL_RCC_TIM6_CLK_ENABLE();
 
     /* TIM6 interrupt Init */
-    HAL_NVIC_SetPriority(TIM6_DAC_IRQn, 14, 0);
+    HAL_NVIC_SetPriority(TIM6_DAC_IRQn, 3, 0);
 //    HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
   }
 }

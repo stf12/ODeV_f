@@ -56,9 +56,12 @@ static system_clock_t system_clock;
 // *********************
 
 void SystemClock_Config(void) {
-  RCC_OscInitTypeDef RCC_OscInitStruct;
-  RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_PeriphCLKInitTypeDef PeriphClkInit;
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+
+  //Configure the main internal regulator output voltage
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
   //Initializes the CPU, AHB and APB busses clocks
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
@@ -66,12 +69,10 @@ void SystemClock_Config(void) {
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 1;
-  RCC_OscInitStruct.PLL.PLLN = 8;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
-  RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV4;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLLMUL_4;
+  RCC_OscInitStruct.PLL.PLLDIV = RCC_PLLDIV_2;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
     sys_error_handler();
   }
 
@@ -80,34 +81,19 @@ void SystemClock_Config(void) {
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  {
     sys_error_handler();
   }
-
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2;
   PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_HSI;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK) {
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+  {
     sys_error_handler();
   }
-
-  //Configure the main internal regulator output voltage
-  if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK) {
-    sys_error_handler();
-  }
-
-  // NOTE: SYSTICK is initialized by FreeRTOS port layer!!!
-
-//  //Configure the Systick interrupt time
-//  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
-//
-//  //Configure the Systick
-//  HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
-//
-//  //SysTick_IRQn interrupt configuration
-//  HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
 }
 
 void SystemClock_Backup(void)
@@ -133,9 +119,7 @@ void SystemClock_Restore(void)
    *   Do not change or update the base-clock source (e.g. MSI and LSE)
    */
 
-  if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK) {
-    sys_error_handler();
-  }
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
   if (__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_CFGR_SWS_PLL) {
     if (HAL_RCC_OscConfig(&(system_clock.osc)) != HAL_OK) {
@@ -156,7 +140,7 @@ void SysPowerConfig() {
   // This function is called in the early step of the system initialization.
   // All the PINs used by the application are reconfigured later by the application tasks.
 
-  GPIO_InitTypeDef GPIO_InitStruct;
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   // Configure all GPIO as analog to reduce current consumption on non used IOs
   // Enable GPIOs clock
@@ -188,7 +172,7 @@ void SysPowerConfig() {
   // Configure GPIO pins : PC0 PC1 PC2 PC3
   //                       PC4 PC5 PC6 PC7
   //                       PC8 PC9 PC10 PC11
-  //                       PC12 PC13
+  //                       PC12 PC13 PC14
   GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
                           |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7
                           |GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11
@@ -199,8 +183,8 @@ void SysPowerConfig() {
   GPIO_InitStruct.Pin = GPIO_PIN_2;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  // Configure GPIO pin : PH0 PH1 PH3
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_3;
+  // Configure GPIO pin : PH0 PH1
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1;
   HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
 
   // Disable GPIOs clock
@@ -219,23 +203,11 @@ void HAL_MspInit(void)
   __HAL_RCC_SYSCFG_CLK_ENABLE();
   __HAL_RCC_PWR_CLK_ENABLE();
 
-  HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
-
   // System interrupt init
-  // MemoryManagement_IRQn interrupt configuration
-  HAL_NVIC_SetPriority(MemoryManagement_IRQn, 0, 0);
-  // BusFault_IRQn interrupt configuration
-  HAL_NVIC_SetPriority(BusFault_IRQn, 0, 0);
-  // UsageFault_IRQn interrupt configuration
-  HAL_NVIC_SetPriority(UsageFault_IRQn, 0, 0);
-  // SVCall_IRQn interrupt configuration
-  HAL_NVIC_SetPriority(SVCall_IRQn, 0, 0);
-  // DebugMonitor_IRQn interrupt configuration
-  HAL_NVIC_SetPriority(DebugMonitor_IRQn, 0, 0);
   // PendSV_IRQn interrupt configuration
-  HAL_NVIC_SetPriority(PendSV_IRQn, 15, 0);
+  HAL_NVIC_SetPriority(PendSV_IRQn, 3, 0);
   // SysTick_IRQn interrupt configuration
-  HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
+  HAL_NVIC_SetPriority(SysTick_IRQn, 3, 0);
 }
 
 // Private function definition

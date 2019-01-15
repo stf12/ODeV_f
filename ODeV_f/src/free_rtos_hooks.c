@@ -32,7 +32,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "sysdebug.h"
-#include "stm32l4xx_hal.h"
+#include "systp.h"
 
 #define SYS_DEBUGF(level, message)      SYS_DEBUGF3(SYS_DBG_APP, level, message)
 

@@ -50,7 +50,7 @@
 /* Includes ------------------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 
-  void assert_failed(char* file, uint32_t line);
+  void assert_failed(uint8_t* file, uint32_t line);
 
 #ifdef __cplusplus
 }

@@ -186,7 +186,7 @@ sys_error_code_t SysDefPowerModeHelper_vtblDidEnterPowerMode(IAppPowerModeHelper
 //      PWR->SCR = SKP_PRWR_SCR_CWUF_1_5;
 
       SystemClock_Backup();
-      HAL_PWREx_EnterSTOP1Mode(PWR_STOPENTRY_WFI);
+      HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 
       // The MCU has exited the STOP mode
       // reset the WWDG
