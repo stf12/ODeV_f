@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Trace Recorder Library for Tracealyzer v4.2.5
+ * Trace Recorder Library for Tracealyzer v4.2.9
  * Percepio AB, www.percepio.com
  *
  * trcSnapshotRecorder.c
@@ -946,21 +946,21 @@ static uint8_t prvTraceUserEventFormat(const char* formatStr, va_list vl, uint8_
 				{
 					case 'd':
 						i = writeInt32(	buffer,
-												i,
-												(uint32_t)va_arg(vl, uint32_t));
-								break;
+										i,
+										(uint32_t)va_arg(vl, uint32_t));
+						break;
 					case 'x':
 					case 'X':
 					case 'u':
 						i = writeInt32(	buffer,
-												i,
-												(uint32_t)va_arg(vl, uint32_t));
-								break;
+										i,
+										(uint32_t)va_arg(vl, uint32_t));
+						break;
 					case 's':
 						i = writeInt16(	buffer,
-												i,
-												xTraceRegisterString((char*)va_arg(vl, char*)));
-								break;
+										i,
+										xTraceRegisterString((char*)va_arg(vl, char*)));
+						break;
 
 #if (TRC_CFG_INCLUDE_FLOAT_SUPPORT)
 					/* Yes, "double" as type also in the float
@@ -968,9 +968,9 @@ static uint8_t prvTraceUserEventFormat(const char* formatStr, va_list vl, uint8_
 					by the va_arg stuff. */
 					case 'f':
 						i = writeFloat(	buffer,
-												i,
-												(float)va_arg(vl, double));
-								break;
+										i,
+										(float)va_arg(vl, double));
+						break;
 #else
 					/* No support for floats, but attempt to store a float user event
 					avoid a possible crash due to float reference. Instead store the
@@ -979,68 +979,68 @@ static uint8_t prvTraceUserEventFormat(const char* formatStr, va_list vl, uint8_
 
 					case 'f':
 						i = writeInt32(	buffer,
+										i,
+										(uint32_t)va_arg(vl, double));
+						break;
+#endif
+					case 'l':
+						formatStrIndex++;
+						switch (formatStr[formatStrIndex])
+						{
+#if (TRC_CFG_INCLUDE_FLOAT_SUPPORT)
+							case 'f':	i = writeDouble(buffer,
+														i,
+														(double)va_arg(vl, double));
+								break;
+#else
+							/* No support for floats, but attempt to store a float user event
+							avoid a possible crash due to float reference. Instead store the
+							data on uint_32 format (will not be displayed anyway). This is just
+							to keep va_arg and i consistent. */
+							case 'f':
+								i = writeInt32(	buffer, /* In this case, the value will not be shown anyway */
+												i,
+												(uint32_t)va_arg(vl, double));
+
+								i = writeInt32(	buffer, /* Do it twice, to write in total 8 bytes */
 												i,
 												(uint32_t)va_arg(vl, double));
 								break;
 #endif
-					case 'l':
-								formatStrIndex++;
-								switch (formatStr[formatStrIndex])
-								{
-#if (TRC_CFG_INCLUDE_FLOAT_SUPPORT)
-									case 'f':	i = writeDouble(buffer,
-																i,
-																(double)va_arg(vl, double));
-												break;
-#else
-									/* No support for floats, but attempt to store a float user event
-									avoid a possible crash due to float reference. Instead store the
-									data on uint_32 format (will not be displayed anyway). This is just
-									to keep va_arg and i consistent. */
-							case 'f':
-								i = writeInt32(	buffer, /* In this case, the value will not be shown anyway */
-																i,
-																(uint32_t)va_arg(vl, double));
-
-												i = writeInt32(	buffer, /* Do it twice, to write in total 8 bytes */
-																i,
-																(uint32_t)va_arg(vl, double));
-										break;
-#endif
-								}
-								break;
+						}
+						break;
 					case 'h':
-								formatStrIndex++;
-								switch (formatStr[formatStrIndex])
-								{
+						formatStrIndex++;
+						switch (formatStr[formatStrIndex])
+						{
 							case 'd':
 								i = writeInt16(	buffer,
-																i,
-																(uint16_t)va_arg(vl, uint32_t));
-												break;
+												i,
+												(uint16_t)va_arg(vl, uint32_t));
+								break;
 							case 'u':
 								i = writeInt16(	buffer,
-																i,
-																(uint16_t)va_arg(vl, uint32_t));
-												break;
-								}
+												i,
+												(uint16_t)va_arg(vl, uint32_t));
 								break;
+						}
+						break;
 					case 'b':
-								formatStrIndex++;
-								switch (formatStr[formatStrIndex])
-								{
+						formatStrIndex++;
+						switch (formatStr[formatStrIndex])
+						{
 							case 'd':
 								i = writeInt8(	buffer,
-																i,
-																(uint8_t)va_arg(vl, uint32_t));
-												break;
+												i,
+												(uint8_t)va_arg(vl, uint32_t));
+								break;
 							case 'u':
 								i = writeInt8(	buffer,
-																i,
-																(uint8_t)va_arg(vl, uint32_t));
-												break;
-								}
+												i,
+												(uint8_t)va_arg(vl, uint32_t));
 								break;
+						}
+						break;
 					default:
 						/* False alarm: this wasn't a valid format specifier */
 						argCounter--;

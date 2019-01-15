@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Trace Recorder Library for Tracealyzer v4.2.5
+ * Trace Recorder Library for Tracealyzer v4.2.9
  * Percepio AB, www.percepio.com
  *
  * trcKernelPort.c
@@ -316,8 +316,16 @@ void vTraceEnable(int startOption)
 	{
 		TRC_STREAM_PORT_INIT();
 		
-		/* Note: Requires that TRC_CFG_INCLUDE_USER_EVENTS is 1. */
-		trcWarningChannel = xTraceRegisterString("Warnings from Recorder");
+	   /* The #WFR channel means "Warnings from Recorder" and
+		* is used to store warnings and errors from the recorder.
+		* The abbreviation #WFR is used instead of the longer full name,
+		* to avoid truncation by small slots in the symbol table. 
+		* This is translated in Tracealyzer and shown as the full name,
+		* "Warnings from Recorder".
+		*
+		* Note: Requires that TRC_CFG_INCLUDE_USER_EVENTS is 1. */
+		
+		trcWarningChannel = xTraceRegisterString("#WFR"); 
 
 		/* Creates the TzCtrl task - receives trace commands (start, stop, ...) */
 		#if defined(configSUPPORT_STATIC_ALLOCATION) && (configSUPPORT_STATIC_ALLOCATION == 1)

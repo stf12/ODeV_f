@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Trace Recorder Library for Tracealyzer v4.2.5
+ * Trace Recorder Library for Tracealyzer v4.2.9
  * Percepio AB, www.percepio.com
  *
  * trcConfig.h
@@ -102,7 +102,7 @@ extern "C" {
  * TRC_RECORDER_MODE_SNAPSHOT
  * TRC_RECORDER_MODE_STREAMING
  ******************************************************************************/
-#define TRC_CFG_RECORDER_MODE TRC_RECORDER_MODE_STREAMING
+#define TRC_CFG_RECORDER_MODE TRC_RECORDER_MODE_SNAPSHOT
 
 /******************************************************************************
  * TRC_CFG_FREERTOS_VERSION
@@ -183,7 +183,7 @@ extern "C" {
  * Note: tracing ISRs requires that you insert calls to vTraceStoreISRBegin
  * and vTraceStoreISREnd in your interrupt handlers.
  *****************************************************************************/
-#define TRC_CFG_INCLUDE_ISR_TRACING 0
+#define TRC_CFG_INCLUDE_ISR_TRACING 1
 
  /*****************************************************************************
  * TRC_CFG_INCLUDE_READY_EVENTS

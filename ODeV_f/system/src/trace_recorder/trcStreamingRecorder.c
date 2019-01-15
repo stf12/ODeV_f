@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Trace Recorder Library for Tracealyzer v4.2.5
+ * Trace Recorder Library for Tracealyzer v4.2.9
  * Percepio AB, www.percepio.com
  *
  * trcStreamingRecorder.c
@@ -49,7 +49,10 @@
 #if (TRC_USE_TRACEALYZER_RECORDER == 1)
 
 #include <stdio.h>
+#include <string.h>
 #include <stdarg.h>
+
+#include "trcExtensions.h"
 
 uint32_t trcHeapCounter = 0;
 
@@ -132,17 +135,32 @@ typedef struct{
 	char* WritePointer;
 } PageType;
 
-/* Code used for "task address" when no task has started. (NULL = idle task) */
+/* Code used for "task address" when no task has started, to indicate "(startup)".
+ * This value was used since NULL/0 was already reserved for the idle task. */
 #define HANDLE_NO_TASK 2
 
+/* The status codes for the pages of the internal trace buffer. */
 #define PAGE_STATUS_FREE 0
 #define PAGE_STATUS_WRITE 1
 #define PAGE_STATUS_READ 2
 
-#define PSF_ASSERT(_assert, _err, _return) if (! (_assert)){ prvTraceError(_err); return _return; }
+/* Calls prvTraceError if the _assert condition is false. For void functions,
+where no return value is to be provided. */
+#define PSF_ASSERT_VOID(_assert, _err) if (! (_assert)){ prvTraceError(_err); return; }
+
+/* Calls prvTraceError if the _assert condition is false. For non-void functions,
+where a return value is to be provided. */
+#define PSF_ASSERT_RET(_assert, _err, _return) if (! (_assert)){ prvTraceError(_err); return _return; }
 
 /* Part of the PSF format - encodes the number of 32-bit params in an event */
 #define PARAM_COUNT(n) ((n & 0xF) << 12)
+
+/* We skip the slot for PSF_ERROR_NONE so error code 1 is the first bit */
+#define GET_ERROR_WARNING_FLAG(errCode) (ErrorAndWarningFlags & (1 << ((errCode) - 1)))
+#define SET_ERROR_WARNING_FLAG(errCode) (ErrorAndWarningFlags |= (1 << ((errCode) - 1)))
+
+/* Used for flags indicating if a certain error or warning has occurred */
+static uint32_t ErrorAndWarningFlags = 0;
 
 /* The Symbol Table instance - keeps names of tasks and other named objects. */
 static SymbolTable symbolTable = { { { 0 } } };
@@ -163,7 +181,7 @@ static uint32_t ISR_stack[TRC_CFG_MAX_ISR_NESTING];
 static int8_t ISR_stack_index = -1;
 
 /* Any error that occurred in the recorder (also creates User Event) */
-static int errorCode = 0;
+static int errorCode = PSF_ERROR_NONE;
 
 /* Counts the number of trace sessions (not yet used) */
 static uint32_t SessionCounter = 0u;
@@ -175,7 +193,7 @@ uint32_t RecorderEnabled = 0u;
 static uint32_t PSFEndianessIdentifier = 0x50534600;
 
 /* Used to interpret the data format */
-static uint16_t FormatVersion = 0x0005;
+static uint16_t FormatVersion = 0x0006;
 
 /* The number of events stored. Used as event sequence number. */
 static uint32_t eventCounter = 0;
@@ -193,6 +211,8 @@ uint32_t TotalBytesRemaining = (TRC_CFG_PAGED_EVENT_BUFFER_PAGE_COUNT) * (TRC_CF
 PageType PageInfo[TRC_CFG_PAGED_EVENT_BUFFER_PAGE_COUNT];
 
 char* EventBuffer = NULL;
+
+PSFExtensionInfoType PSFExtensionInfo = TRC_EXTENSION_INFO;
 
 /*******************************************************************************
  * NoRoomForSymbol
@@ -272,8 +292,8 @@ static void prvTraceStoreObjectDataTable(void);
 /* Store the Timestamp Config on Start */
 static void prvTraceStoreTSConfig(void);
 
-/* Store the current warnings */
-static void prvTraceStoreWarnings(void);
+/* Store information about trace library extensions. */
+static void prvTraceStoreExtensionInfo(void);
 
 /* Internal function for starting/stopping the recorder. */
 static void prvSetRecorderEnabled(uint32_t isEnabled);
@@ -291,10 +311,13 @@ static int prvGetBufferPage(int32_t* bytesUsed);
 /* Performs timestamping using definitions in trcHardwarePort.h */
 static uint32_t prvGetTimestamp32(void);
 
+/* Returns the string associated with the error code */
+static const char* prvTraceGetError(int errCode);
+
 /* Signal an error. */
 void prvTraceError(int errCode);
 
-/* Signal an warning (does not stop the recorder). */
+/* Signal a warning (does not stop the recorder). */
 void prvTraceWarning(int errCode);
 
 /******************************************************************************
@@ -337,7 +360,7 @@ void vTraceStoreKernelObjectName(void* object, const char* name)
 {
 	uint16_t eventID = PSF_EVENT_OBJ_NAME;
 	
-	PSF_ASSERT(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE, );
+	PSF_ASSERT_VOID(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE);
 	
 	/* Always save in symbol table, in case the recording has not yet started */
 	prvTraceSaveSymbol(object, name);
@@ -374,7 +397,7 @@ traceString xTraceRegisterString(const char* name)
 	
 	prvTraceSaveSymbol((const void*)name, name);
 
-	PSF_ASSERT(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE, (traceString)name);
+	PSF_ASSERT_RET(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE, (traceString)name);
 
 	/* Always save in symbol table, if the recording has not yet started */
 	prvTraceStoreStringEvent(1, eventID, (const char*)name, (uint32_t)name);
@@ -410,7 +433,7 @@ traceString xTraceRegisterString(const char* name)
 void vTracePrint(traceString chn, const char* str)
 {
 	uint16_t eventID = PSF_EVENT_USER_EVENT;
-	PSF_ASSERT(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE, );
+	PSF_ASSERT_VOID(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE);
 	
 	prvTraceStoreSimpleStringEventHelper(eventID, chn, str);
 }
@@ -525,7 +548,7 @@ void vTracePrintF(traceString chn, const char* fmt, ...)
 	}
 	eventID += nArgs;
 	
-	PSF_ASSERT(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE, );
+	PSF_ASSERT_VOID(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE);
 
 	va_start(vl, fmt);
 	prvTraceStoreStringEventHelper(nArgs, eventID, chn, i, fmt, &vl);
@@ -562,7 +585,7 @@ traceHandle xTraceSetISRProperties(const char* name, uint8_t priority)
 	/* Always save in symbol table, in case the recording has not yet started */
 	prvTraceSaveSymbol((const void*)name, name);
 
-	PSF_ASSERT(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE, (traceHandle)name);
+	PSF_ASSERT_RET(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE, (traceHandle)name);
 	
 	/* Note: "name" is used both as a string argument, and the address as ID */
 	prvTraceStoreStringEvent(2, eventID, name, name, priority);
@@ -675,7 +698,6 @@ void vTraceStoreISREnd(int isTaskSwitchRequired)
 	TRACE_EXIT_CRITICAL_SECTION();
 }
 
-
 /*******************************************************************************
  * xTraceGetLastError
  *
@@ -683,102 +705,7 @@ void vTraceStoreISREnd(int isTaskSwitchRequired)
  *****************************************************************************/
 const char* xTraceGetLastError(void)
 {
-	/* Note: the error messages are short, in order to fit in a User Event.
-	Instead, the users can read more in the below comments.*/
-	
-	switch (errorCode)
-	{
-	
-	case PSF_WARNING_SYMBOL_TABLE_SLOTS:
-		/* There was not enough symbol table slots for storing symbol names.
-		The number of missing slots is counted by NoRoomForSymbol. Inspect this
-		variable and increase TRC_CFG_SYMBOL_TABLE_SLOTS by at least that value. */
-
-		return "Exceeded SYMBOL_TABLE_SLOTS (see xTraceGetLastError)";
-
-	case PSF_WARNING_SYMBOL_MAX_LENGTH:
-		/* A symbol name exceeded TRC_CFG_SYMBOL_MAX_LENGTH in length.
-		Make sure the symbol names are at most TRC_CFG_SYMBOL_MAX_LENGTH,
-		or inspect LongestSymbolName and increase TRC_CFG_SYMBOL_MAX_LENGTH
-		to at least this value. */
-
-		return "Exceeded SYMBOL_MAX_LENGTH (see xTraceGetLastError)";
-
-	case PSF_WARNING_OBJECT_DATA_SLOTS:
-		/* There was not enough symbol object table slots for storing object
-		properties, such as task priorites. The number of missing slots is 
-		counted by NoRoomForObjectData. Inspect this variable and increase 
-		TRC_CFG_OBJECT_DATA_SLOTS by at least that value. */
-		
-		return "Exceeded OBJECT_DATA_SLOTS (see xTraceGetLastError)";
-
-	case PSF_WARNING_STRING_TOO_LONG:
-		/* Some string argument was longer than the maximum payload size
-		and has been truncated by "MaxBytesTruncated" bytes.
-
-		This may happen for the following functions:
-		- vTracePrint
-		- vTracePrintF
-		- vTraceStoreKernelObjectName
-		- xTraceRegisterString
-		- vTraceSetISRProperties
-
-		A PSF event may store maximum 60 bytes payload, including data
-		arguments and string characters. For User Events, also the User
-		Event Channel (4 bytes) must be squeezed in, if a channel is
-		specified (can be NULL). */
-
-		return "String too long (see xTraceGetLastError)";
-
-	case PSF_WARNING_STREAM_PORT_READ:
-		/* TRC_STREAM_PORT_READ_DATA is expected to return 0 when completed successfully.
-		This means there is an error in the communication with host/Tracealyzer. */
-
-		return "TRC_STREAM_PORT_READ_DATA returned error (!= 0).";
-
-	case PSF_WARNING_STREAM_PORT_WRITE:
-		/* TRC_STREAM_PORT_WRITE_DATA is expected to return 0 when completed successfully.
-		This means there is an error in the communication with host/Tracealyzer. */
-
-		return "TRC_STREAM_PORT_WRITE_DATA returned error (!= 0).";
-
-	case PSF_ERROR_EVENT_CODE_TOO_LARGE:
-		/* The highest allowed event code is 4095, anything higher is an unexpected error. 
-		Please contact support@percepio.com for assistance.*/
-		
-		return "Invalid event code (see xTraceGetLastError)";
-	
-	case PSF_ERROR_ISR_NESTING_OVERFLOW:
-		/* Nesting of ISR trace calls exceeded the limit (TRC_CFG_MAX_ISR_NESTING).
-		If this is unlikely, make sure that you call vTraceStoreISRExit in the end 
-		of all ISR handlers. Or increase TRC_CFG_MAX_ISR_NESTING. */
-
-		return "Exceeded ISR nesting (see xTraceGetLastError)";
-
-	case PSF_ERROR_DWT_NOT_SUPPORTED:
-		/* On ARM Cortex-M only - failed to initialize DWT Cycle Counter since not supported by this chip.
-		DWT timestamping is selected automatically for ART Cortex-M3, M4 and higher, based on the __CORTEX_M
-		macro normally set by ARM's CMSIS library, since typically available. You can however select
-		SysTick timestamping instead by defining adding "#define TRC_CFG_ARM_CM_USE_SYSTICK".*/
-
-		return "DWT not supported (see xTraceGetLastError)";
-
-	case PSF_ERROR_DWT_CYCCNT_NOT_SUPPORTED:
-		/* On ARM Cortex-M only - failed to initialize DWT Cycle Counter since not supported by this chip.
-		DWT timestamping is selected automatically for ART Cortex-M3, M4 and higher, based on the __CORTEX_M
-		macro normally set by ARM's CMSIS library, since typically available. You can however select 
-		SysTick timestamping instead by defining adding "#define TRC_CFG_ARM_CM_USE_SYSTICK".*/
-		
-		return "DWT_CYCCNT not supported (see xTraceGetLastError)";
-	
-	case PSF_ERROR_TZCTRLTASK_NOT_CREATED:
-		/* vTraceEnable failed creating the trace control task (TzCtrl) - incorrect parameters (priority?)
-		or insufficient heap size? */
-		return "Could not create TzCtrl (see xTraceGetLastError)";
-	
-	}
-	
-	return NULL;
+	return prvTraceGetError(errorCode);
 }
 
 /*******************************************************************************
@@ -884,12 +811,12 @@ static void prvSetRecorderEnabled(uint32_t isEnabled)
         prvTraceStoreHeader();
 		prvTraceStoreSymbolTable();
     	prvTraceStoreObjectDataTable();
+    	prvTraceStoreExtensionInfo();
         prvTraceStoreEvent3(	PSF_EVENT_TRACE_START,
 							(uint32_t)TRACE_GET_OS_TICKS(),
 							(uint32_t)currentTask,
 							SessionCounter++);
         prvTraceStoreTSConfig();
-		prvTraceStoreWarnings();
 	}
     else
     {
@@ -912,15 +839,14 @@ static void prvTraceStoreSymbolTable(void)
 	{
 		for (i = 0; i < (sizeof(SymbolTable) / sizeof(uint32_t)); i += (SYMBOL_TABLE_SLOT_SIZE / sizeof(uint32_t)))
 		{
-            TRC_STREAM_PORT_ALLOCATE_EVENT(uint32_t, data, SYMBOL_TABLE_SLOT_SIZE);
-            if (data != NULL)
+			TRC_STREAM_PORT_ALLOCATE_EVENT_BLOCKING(uint32_t, data, SYMBOL_TABLE_SLOT_SIZE);            
+            
+            for (j = 0; j < (SYMBOL_TABLE_SLOT_SIZE / sizeof(uint32_t)); j++)
             {
-                for (j = 0; j < (SYMBOL_TABLE_SLOT_SIZE / sizeof(uint32_t)); j++)
-                {
-                        data[j] = symbolTable.SymbolTableBuffer.pSymbolTableBufferUINT32[i+j];
-                }
-			    TRC_STREAM_PORT_COMMIT_EVENT(data, SYMBOL_TABLE_SLOT_SIZE);
-			}
+            	data[j] = symbolTable.SymbolTableBuffer.pSymbolTableBufferUINT32[i+j];
+            }
+
+			TRC_STREAM_PORT_COMMIT_EVENT_BLOCKING(data, SYMBOL_TABLE_SLOT_SIZE);						
 		}
 	}
 	TRACE_EXIT_CRITICAL_SECTION();
@@ -939,15 +865,14 @@ static void prvTraceStoreObjectDataTable(void)
 	{
 		for (i = 0; i < (sizeof(ObjectDataTable) / sizeof(uint32_t)); i += (OBJECT_DATA_SLOT_SIZE / sizeof(uint32_t)))
         {
-            TRC_STREAM_PORT_ALLOCATE_EVENT(uint32_t, data, OBJECT_DATA_SLOT_SIZE);
-            if (data != NULL)
+            TRC_STREAM_PORT_ALLOCATE_EVENT_BLOCKING(uint32_t, data, OBJECT_DATA_SLOT_SIZE);
+            
+            for (j = 0; j < (OBJECT_DATA_SLOT_SIZE / sizeof(uint32_t)); j++)
             {
-                for (j = 0; j < (OBJECT_DATA_SLOT_SIZE / sizeof(uint32_t)); j++)
-                {
-                        data[j] = objectDataTable.ObjectDataTableBuffer.pObjectDataTableBufferUINT32[i+j];
-                }
-                TRC_STREAM_PORT_COMMIT_EVENT(data, OBJECT_DATA_SLOT_SIZE);
-			}
+            	data[j] = objectDataTable.ObjectDataTableBuffer.pObjectDataTableBufferUINT32[i+j];
+            }
+
+			TRC_STREAM_PORT_COMMIT_EVENT_BLOCKING(data, OBJECT_DATA_SLOT_SIZE);			
         }
 	}
 	TRACE_EXIT_CRITICAL_SECTION();
@@ -962,38 +887,144 @@ static void prvTraceStoreHeader(void)
 
 	if (RecorderEnabled)
 	{
-	  	TRC_STREAM_PORT_ALLOCATE_EVENT(PSFHeaderInfo, header, sizeof(PSFHeaderInfo));
-		if (header != NULL)
-		{
-			header->psf = PSFEndianessIdentifier;
-			header->version = FormatVersion;
-			header->platform = TRACE_KERNEL_VERSION;
-            header->options = 0;
-			header->heapCounter = trcHeapCounter;
-            /* Lowest bit used for TRC_IRQ_PRIORITY_ORDER */
-            header->options = header->options | (TRC_IRQ_PRIORITY_ORDER << 0);
-			header->symbolSize = SYMBOL_TABLE_SLOT_SIZE;
-			header->symbolCount = (TRC_CFG_SYMBOL_TABLE_SLOTS);
-			header->objectDataSize = 8;
-			header->objectDataCount = (TRC_CFG_OBJECT_DATA_SLOTS);
-			TRC_STREAM_PORT_COMMIT_EVENT(header, sizeof(PSFHeaderInfo));
-		}
+	  	TRC_STREAM_PORT_ALLOCATE_EVENT_BLOCKING(PSFHeaderInfo, header, sizeof(PSFHeaderInfo));
+		header->psf = PSFEndianessIdentifier;
+		header->version = FormatVersion;
+		header->platform = TRACE_KERNEL_VERSION;
+		header->options = 0;
+		header->heapCounter = trcHeapCounter;
+        /* Lowest bit used for TRC_IRQ_PRIORITY_ORDER */
+		header->options = header->options | (TRC_IRQ_PRIORITY_ORDER << 0);
+		header->symbolSize = SYMBOL_TABLE_SLOT_SIZE;
+		header->symbolCount = (TRC_CFG_SYMBOL_TABLE_SLOTS);
+		header->objectDataSize = 8;
+		header->objectDataCount = (TRC_CFG_OBJECT_DATA_SLOTS);
+		TRC_STREAM_PORT_COMMIT_EVENT_BLOCKING(header, sizeof(PSFHeaderInfo));
 	}
 	TRACE_EXIT_CRITICAL_SECTION();
 }
 
-/* Store the current warnings */
-static void prvTraceStoreWarnings(void)
+/* Stores the header information on Start */
+static void prvTraceStoreExtensionInfo(void)
 {
+  	TRACE_ALLOC_CRITICAL_SECTION();
+
+	TRACE_ENTER_CRITICAL_SECTION();
+
 	if (RecorderEnabled)
 	{
-		const char* errStr = xTraceGetLastError();
-
-		if (errStr != NULL)
-		{
-			prvTraceStoreSimpleStringEventHelper(PSF_EVENT_USER_EVENT, trcWarningChannel, errStr);
-		}
+		TRC_STREAM_PORT_ALLOCATE_EVENT_BLOCKING(PSFExtensionInfoType, extinfo, sizeof(PSFExtensionInfoType));
+		memcpy(extinfo, &PSFExtensionInfo, sizeof(PSFExtensionInfoType));
+		TRC_STREAM_PORT_COMMIT_EVENT_BLOCKING(extinfo, sizeof(PSFExtensionInfoType));		
 	}
+	TRACE_EXIT_CRITICAL_SECTION();
+}
+
+/* Returns the error or warning, as a string, or NULL if none. */
+static const char* prvTraceGetError(int errCode)
+{
+	/* Note: the error messages are short, in order to fit in a User Event.
+	Instead, the users can read more in the below comments.*/
+
+	switch (errCode)
+	{
+
+	case PSF_WARNING_SYMBOL_TABLE_SLOTS:
+		/* There was not enough symbol table slots for storing symbol names.
+		The number of missing slots is counted by NoRoomForSymbol. Inspect this
+		variable and increase TRC_CFG_SYMBOL_TABLE_SLOTS by at least that value. */
+
+		return "Exceeded SYMBOL_TABLE_SLOTS (see prvTraceGetError)";
+
+	case PSF_WARNING_SYMBOL_MAX_LENGTH:
+		/* A symbol name exceeded TRC_CFG_SYMBOL_MAX_LENGTH in length.
+		Make sure the symbol names are at most TRC_CFG_SYMBOL_MAX_LENGTH,
+		or inspect LongestSymbolName and increase TRC_CFG_SYMBOL_MAX_LENGTH
+		to at least this value. */
+
+		return "Exceeded SYMBOL_MAX_LENGTH (see prvTraceGetError)";
+
+	case PSF_WARNING_OBJECT_DATA_SLOTS:
+		/* There was not enough symbol object table slots for storing object
+		properties, such as task priorites. The number of missing slots is
+		counted by NoRoomForObjectData. Inspect this variable and increase
+		TRC_CFG_OBJECT_DATA_SLOTS by at least that value. */
+
+		return "Exceeded OBJECT_DATA_SLOTS (see prvTraceGetError)";
+
+	case PSF_WARNING_STRING_TOO_LONG:
+		/* Some string argument was longer than the maximum payload size
+		and has been truncated by "MaxBytesTruncated" bytes.
+
+		This may happen for the following functions:
+		- vTracePrint
+		- vTracePrintF
+		- vTraceStoreKernelObjectName
+		- xTraceRegisterString
+		- vTraceSetISRProperties
+
+		A PSF event may store maximum 60 bytes payload, including data
+		arguments and string characters. For User Events, also the User
+		Event Channel (4 bytes) must be squeezed in, if a channel is
+		specified (can be NULL). */
+
+		return "String too long (see prvTraceGetError)";
+
+	case PSF_WARNING_STREAM_PORT_READ:
+		/* TRC_STREAM_PORT_READ_DATA is expected to return 0 when completed successfully.
+		This means there is an error in the communication with host/Tracealyzer. */
+
+		return "TRC_STREAM_PORT_READ_DATA returned error (!= 0).";
+
+	case PSF_WARNING_STREAM_PORT_WRITE:
+		/* TRC_STREAM_PORT_WRITE_DATA is expected to return 0 when completed successfully.
+		This means there is an error in the communication with host/Tracealyzer. */
+
+		return "TRC_STREAM_PORT_WRITE_DATA returned error (!= 0).";
+
+	case PSF_WARNING_STREAM_PORT_INITIAL_BLOCKING:
+		/* Blocking occurred during vTraceEnable. This happens if the trace buffer is
+		smaller than the initial transmission (trace header, object table, and symbol table). */
+
+		return "Blocking in vTraceEnable (see xTraceGetLastError)";
+
+	case PSF_ERROR_EVENT_CODE_TOO_LARGE:
+		/* The highest allowed event code is 4095, anything higher is an unexpected error.
+		Please contact support@percepio.com for assistance.*/
+
+		return "Invalid event code (see prvTraceGetError)";
+
+	case PSF_ERROR_ISR_NESTING_OVERFLOW:
+		/* Nesting of ISR trace calls exceeded the limit (TRC_CFG_MAX_ISR_NESTING).
+		If this is unlikely, make sure that you call vTraceStoreISRExit in the end
+		of all ISR handlers. Or increase TRC_CFG_MAX_ISR_NESTING. */
+
+		return "Exceeded ISR nesting (see prvTraceGetError)";
+
+	case PSF_ERROR_DWT_NOT_SUPPORTED:
+		/* On ARM Cortex-M only - failed to initialize DWT Cycle Counter since not supported by this chip.
+		DWT timestamping is selected automatically for ART Cortex-M3, M4 and higher, based on the __CORTEX_M
+		macro normally set by ARM's CMSIS library, since typically available. You can however select
+		SysTick timestamping instead by defining adding "#define TRC_CFG_ARM_CM_USE_SYSTICK".*/
+
+		return "DWT not supported (see prvTraceGetError)";
+
+	case PSF_ERROR_DWT_CYCCNT_NOT_SUPPORTED:
+		/* On ARM Cortex-M only - failed to initialize DWT Cycle Counter since not supported by this chip.
+		DWT timestamping is selected automatically for ART Cortex-M3, M4 and higher, based on the __CORTEX_M
+		macro normally set by ARM's CMSIS library, since typically available. You can however select
+		SysTick timestamping instead by defining adding "#define TRC_CFG_ARM_CM_USE_SYSTICK".*/
+
+		return "DWT_CYCCNT not supported (see prvTraceGetError)";
+
+	case PSF_ERROR_TZCTRLTASK_NOT_CREATED:
+		/* vTraceEnable failed creating the trace control task (TzCtrl) - incorrect parameters (priority?)
+		or insufficient heap size? */
+		return "Could not create TzCtrl (see prvTraceGetError)";
+
+	}
+
+	return NULL;
 }
 
 /* Store an event with zero parameters (event ID only) */
@@ -1001,7 +1032,7 @@ void prvTraceStoreEvent0(uint16_t eventID)
 {
   	TRACE_ALLOC_CRITICAL_SECTION();
 
-	PSF_ASSERT(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE, );
+	PSF_ASSERT_VOID(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE);
 
 	TRACE_ENTER_CRITICAL_SECTION();
 
@@ -1028,7 +1059,7 @@ void prvTraceStoreEvent1(uint16_t eventID, uint32_t param1)
 {
   	TRACE_ALLOC_CRITICAL_SECTION();
 
-	PSF_ASSERT(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE, );
+	PSF_ASSERT_VOID(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE);
 
 	TRACE_ENTER_CRITICAL_SECTION();
 
@@ -1056,7 +1087,7 @@ void prvTraceStoreEvent2(uint16_t eventID, uint32_t param1, uint32_t param2)
 {
   	TRACE_ALLOC_CRITICAL_SECTION();
 
-	PSF_ASSERT(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE, );
+	PSF_ASSERT_VOID(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE);
 
 	TRACE_ENTER_CRITICAL_SECTION();
 
@@ -1088,7 +1119,7 @@ void prvTraceStoreEvent3(	uint16_t eventID,
 {
   	TRACE_ALLOC_CRITICAL_SECTION();
 
-	PSF_ASSERT(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE, );
+	PSF_ASSERT_VOID(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE);
 
 	TRACE_ENTER_CRITICAL_SECTION();
 
@@ -1120,7 +1151,7 @@ void prvTraceStoreEvent(int nParam, uint16_t eventID, ...)
 	int i;
     TRACE_ALLOC_CRITICAL_SECTION();
 
-	PSF_ASSERT(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE, );
+	PSF_ASSERT_VOID(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE);
 
 	TRACE_ENTER_CRITICAL_SECTION();
 
@@ -1583,21 +1614,25 @@ void prvProcessCommand(TracealyzerCommandType* cmd)
 /* Called on warnings, when the recording can continue. */
 void prvTraceWarning(int errCode)
 {
-	if (!errorCode)
+	if (GET_ERROR_WARNING_FLAG(errCode) == 0)
 	{
-		errorCode = errCode;
-		prvTraceStoreWarnings();
+		/* Will never reach this point more than once per warning type, since we verify if ErrorAndWarningFlags[errCode] has already been set */
+		SET_ERROR_WARNING_FLAG(errCode);
+
+		prvTraceStoreSimpleStringEventHelper(PSF_EVENT_USER_EVENT, trcWarningChannel, prvTraceGetError(errCode));
 	}
 }
 
 /* Called on critical errors in the recorder. Stops the recorder! */
 void prvTraceError(int errCode)
 {
-	if (! errorCode)
+	if (errorCode == PSF_ERROR_NONE)
 	{
 		/* Will never reach this point more than once, since we verify if errorCode has already been set */
 		errorCode = errCode;
-		prvTraceStoreWarnings();
+		SET_ERROR_WARNING_FLAG(errorCode);
+
+		prvTraceStoreSimpleStringEventHelper(PSF_EVENT_USER_EVENT, trcWarningChannel, prvTraceGetError(errorCode));
 		prvTraceStoreSimpleStringEventHelper(PSF_EVENT_USER_EVENT, trcWarningChannel, "Recorder stopped in prvTraceError()");
 
 		prvSetRecorderEnabled(0);

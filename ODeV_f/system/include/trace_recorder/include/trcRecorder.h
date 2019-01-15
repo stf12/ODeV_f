@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Trace Recorder Library for Tracealyzer v4.2.5
+ * Trace Recorder Library for Tracealyzer v4.2.9
  * Percepio AB, www.percepio.com
  *
  * trcRecorder.h
@@ -55,26 +55,32 @@ extern "C" {
 #include "trcConfig.h"
 #include "trcPortDefines.h"
 
-
 #if (TRC_CFG_RECORDER_MODE == TRC_RECORDER_MODE_SNAPSHOT)
+
 typedef uint16_t traceString;
 typedef uint8_t traceUBChannel;
 typedef uint8_t traceObjectClass;
 
 #if (TRC_CFG_USE_16BIT_OBJECT_HANDLES == 1)
 typedef uint16_t traceHandle;
-#else
+#else /* (TRC_CFG_USE_16BIT_OBJECT_HANDLES == 1) */
 typedef uint8_t traceHandle;
-#endif
+#endif /* (TRC_CFG_USE_16BIT_OBJECT_HANDLES == 1) */
 	
 #include "trcHardwarePort.h"
 #include "trcKernelPort.h"
 
-// Not available in snapshot mode
+// Not yet available in snapshot mode
 #define vTraceConsoleChannelPrintF(fmt, ...)
+#define prvTraceStoreEvent0(...)
+#define prvTraceStoreEvent1(...)
+#define prvTraceStoreEvent2(...)
+#define prvTraceStoreEvent3(...)
+#define prvTraceStoreEvent(...)
+#define prvTraceStoreStringEvent(...)
 
-#endif
-	
+#endif /* (TRC_CFG_RECORDER_MODE == TRC_RECORDER_MODE_SNAPSHOT) */
+
 #if (TRC_CFG_RECORDER_MODE == TRC_RECORDER_MODE_STREAMING)
 
 typedef const char* traceString;
@@ -84,7 +90,7 @@ typedef const void* traceHandle;
 #include "trcStreamingPort.h"
 #include "trcKernelPort.h"
 
-#endif
+#endif /* (TRC_CFG_RECORDER_MODE == TRC_RECORDER_MODE_STREAMING) */
 
 #if (TRC_USE_TRACEALYZER_RECORDER == 1)
 
@@ -1460,12 +1466,34 @@ if (!(eval)) \
  * Depending on "TRC_STREAM_PORT_USE_INTERNAL_BUFFER", this either allocates
  * space in the paged event buffer, or on the local stack. In the latter case,
  * the COMMIT event is used to write the data to the streaming interface.
+ *
+ * The BLOCKING option is only used within vTraceEnable, to ensure the full
+ * header, object table and symbol table is transferred without data loss.
  ******************************************************************************/
 #ifndef TRC_STREAM_PORT_ALLOCATE_EVENT
 #if (TRC_STREAM_PORT_USE_INTERNAL_BUFFER == 1)
-	#define TRC_STREAM_PORT_ALLOCATE_EVENT(_type, _ptrData, _size) _type* _ptrData; _ptrData = (_type*)prvPagedEventBufferGetWritePointer(_size);
+	#define TRC_STREAM_PORT_ALLOCATE_EVENT(_type, _ptrData, _size) \
+	_type* _ptrData; \
+	_ptrData = (_type*)prvPagedEventBufferGetWritePointer(_size);
+	
+	/**************************************************************************
+     If your application gets stuck in TRC_STREAM_PORT_ALLOCATE_EVENT_BLOCKING,
+     it means it fails to transfer the header, object table or symbol table
+     during vTraceEnable.
+     This occurs if the trace buffer is too small to accomodate these in full,
+     i.e. before the streaming interface is started and begins to transfer.
+	 
+	 Note that this is intentionally blocking to avoid data loss, but only
+     used within vTraceEnable.
+    **************************************************************************/
+   
+	#define TRC_STREAM_PORT_ALLOCATE_EVENT_BLOCKING(_type, _ptrData, _size) \
+	_type* _ptrData; \
+	do { _ptrData = (_type*)prvPagedEventBufferGetWritePointer(_size); } while (_ptrData == NULL);
+
 #else
 	#define TRC_STREAM_PORT_ALLOCATE_EVENT(_type, _ptrData, _size) _type _tmpArray[_size / sizeof(_type)]; _type* _ptrData = _tmpArray;
+	#define TRC_STREAM_PORT_ALLOCATE_EVENT_BLOCKING(_type, _ptrData, _size) _type _tmpArray[_size / sizeof(_type)]; _type* _ptrData = _tmpArray;
 #endif
 #endif
 
@@ -1490,10 +1518,16 @@ if (!(eval)) \
 
  /******************************************************************************
  * TRC_STREAM_PORT_COMMIT_EVENT
+ * TRC_STREAM_PORT_COMMIT_EVENT_BLOCKING
  *
  * The COMMIT macro is used to write a single event record directly to the 
  * streaming inteface, without first storing the event in the internal buffer.
  * This is currently only used in the SEGGER J-Link RTT port. 
+ *
+ * The BLOCKING version is used when sending the initial trace header, which is
+ * important to receive in full. Otherwise, when using non-blocking RTT transfer
+ * this may be corrupted if using an RTT buffer smaller than the combined size
+ * of the header, object table and symbol table.
  *
  * This relies on the TRC_STREAM_PORT_WRITE_DATA macro, defined in by the 
  * stream port in trcStreamingPort.h. The COMMIT macro calls 
@@ -1508,6 +1542,7 @@ if (!(eval)) \
 #ifndef TRC_STREAM_PORT_COMMIT_EVENT
 #if (TRC_STREAM_PORT_USE_INTERNAL_BUFFER == 1)
 	#define TRC_STREAM_PORT_COMMIT_EVENT(_ptrData, _size) /* Not used */
+	#define TRC_STREAM_PORT_COMMIT_EVENT_BLOCKING(_ptrData, _size) /* Not used */
 #else
 	#define TRC_STREAM_PORT_COMMIT_EVENT(_ptrData, _size) \
 	{ \
@@ -1515,6 +1550,19 @@ if (!(eval)) \
 	 if (TRC_STREAM_PORT_WRITE_DATA(_ptrData, _size, &dummy) != 0) \
 		prvTraceWarning(PSF_WARNING_STREAM_PORT_WRITE); \
 	}
+	
+    /* Only used during vTraceEnable */
+	#define TRC_STREAM_PORT_COMMIT_EVENT_BLOCKING(_ptrData, _size) \
+	{ \
+		int counter = 0; \
+		int32_t dummy = 0; \
+	  	while (TRC_STREAM_PORT_WRITE_DATA(_ptrData, _size, &dummy) != 0) \
+			counter++; \
+		\
+		if (counter > 0) \
+			prvTraceWarning(PSF_WARNING_STREAM_PORT_INITIAL_BLOCKING); \
+	}
+
 #endif
 #endif
 
@@ -1671,12 +1719,13 @@ void prvTraceWarning(int errCode);
 #define PSF_ERROR_DWT_CYCCNT_NOT_SUPPORTED 4
 #define PSF_ERROR_TZCTRLTASK_NOT_CREATED 5
 
-#define PSF_WARNING_SYMBOL_TABLE_SLOTS 101
-#define PSF_WARNING_SYMBOL_MAX_LENGTH 102
-#define PSF_WARNING_OBJECT_DATA_SLOTS 103
-#define PSF_WARNING_STRING_TOO_LONG 104
-#define PSF_WARNING_STREAM_PORT_READ 105
-#define PSF_WARNING_STREAM_PORT_WRITE 106
+#define PSF_WARNING_SYMBOL_TABLE_SLOTS 6
+#define PSF_WARNING_SYMBOL_MAX_LENGTH 7
+#define PSF_WARNING_OBJECT_DATA_SLOTS 8
+#define PSF_WARNING_STRING_TOO_LONG 9
+#define PSF_WARNING_STREAM_PORT_READ 10
+#define PSF_WARNING_STREAM_PORT_WRITE 11
+#define PSF_WARNING_STREAM_PORT_INITIAL_BLOCKING 12
 
 /******************************************************************************/
 /*** INTERNAL STREAMING FUNCTIONS *********************************************/
