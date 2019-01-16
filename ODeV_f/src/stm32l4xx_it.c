@@ -54,8 +54,10 @@ static inline void ExtiDefISR();
 // External variables
 // ******************
 
-extern SD_HandleTypeDef  hsd_eval;
+//extern SD_HandleTypeDef  hsd_eval;
 extern I2C_HandleTypeDef hi2c_eval;
+extern PCD_HandleTypeDef hpcd;
+//extern USBD_HandleTypeDef USBD_Device;
 
 EXTI_DECLARE_PIN2F_MAP()
 
@@ -135,15 +137,15 @@ void EXTI15_10_IRQHandler(void)
   ExtiDefISR();
 }
 
-/**
- * @brief  This function handles SDMMC interrupt request.
- * @param  None
- * @retval None
- */
-void SDMMC1_IRQHandler(void)
-{
-  HAL_SD_IRQHandler(&hsd_eval);
-}
+///**
+// * @brief  This function handles SDMMC interrupt request.
+// * @param  None
+// * @retval None
+// */
+//void SDMMC1_IRQHandler(void)
+//{
+//  HAL_SD_IRQHandler(&hsd_eval);
+//}
 
 /**
   * @brief  This function handles I2C transfer global interrupt request.
@@ -173,6 +175,16 @@ void I2C2_ER_IRQHandler(void)
 void LTDC_ER_IRQHandler(void)
 {
   configASSERT(0);
+}
+
+/**
+  * @brief  This function handles USB-On-The-Go FS global interrupt request.
+  * @param  None
+  * @retval None
+  */
+void OTG_FS_IRQHandler(void)
+{
+  HAL_PCD_IRQHandler(&hpcd);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
