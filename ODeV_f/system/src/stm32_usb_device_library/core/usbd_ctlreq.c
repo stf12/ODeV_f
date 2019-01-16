@@ -435,7 +435,8 @@ static void USBD_GetDescriptor(USBD_HandleTypeDef *pdev ,
 
   switch (req->wValue >> 8)
   {
-#if (USBD_LPM_ENABLED == 1U)
+//#if (USBD_LPM_ENABLED == 1U)
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1U) || (USBD_LPM_ENABLED == 1U))
   case USB_DESC_TYPE_BOS:
     pbuf = pdev->pDesc->GetBOSDescriptor(pdev->dev_speed, &len);
     break;
@@ -519,6 +520,12 @@ static void USBD_GetDescriptor(USBD_HandleTypeDef *pdev ,
       USBD_CtlError(pdev , req);
       return;
     }
+
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V1_0 == 1U)
+  case USBD_IDX_MS_OS_STR_V1_0:
+    pbuf = pdev->pClass->GetOsStrDescriptor_V1_0(pdev, (req->wValue) , &len);
+    break;    
+#endif
 
   default:
      USBD_CtlError(pdev , req);

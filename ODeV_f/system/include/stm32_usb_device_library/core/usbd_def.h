@@ -172,6 +172,53 @@
 #define USBD_EP_TYPE_BULK                                 2U
 #define USBD_EP_TYPE_INTR                                 3U
 
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V1_0 == 1) || (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1))
+#define  WINDOWS_VERSION_8_1                            0x06030000
+// GET_MS_DESCRIPTOR_FEATURE - This value is up to customer (bMS_VendorCode)
+#define  GET_MS_DESCRIPTOR_FEATURE                      0x04
+#define  MS_PROPERTY_TYPE_REG_SZ                        0x01
+#define  MS_PROPERTY_TYPE_EG_EXPAND_SZ                  0x02
+#define  MS_PROPERTY_TYPE_REG_BINARY                    0x03
+#define  MS_PROPERTY_TYPE_REG_DWORD_LITTLE_ENDIAN       0x04
+#define  MS_PROPERTY_TYPE_REG_DWORD_BIG_ENDIAN          0x05
+#define  MS_PROPERTY_TYPE_REG_LINK                      0x06
+#define  MS_PROPERTY_TYPE_REG_MULTI_SZ                  0x07
+#endif
+
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V1_0 == 1)
+#define  USBD_IDX_MS_OS_STR_V1_0                        0xEE
+#define  MS_FEATURE_DESC_GENRE                          0x0001
+#define  MS_FEATURE_DESC_EXTENDED_COMPAT_ID             0x0004
+#define  MS_FEATURE_DESC_EXTENDED_PROPERTIES            0x0005
+#endif
+
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1)
+#define  USBD_IDX_MS_OS_STR_V2_0                        0x07
+#define  MS_OS_20_SET_HEADER_DESCRIPTOR                 0x00
+#define  MS_OS_20_SUBSET_HEADER_CONFIGURATION           0x01
+#define  MS_OS_20_SUBSET_HEADER_FUNCTION                0x02
+#define  MS_OS_20_FEATURE_COMPATBLE_ID                  0x03
+#define  MS_OS_20_FEATURE_REG_PROPERTY                  0x04
+#define  MS_OS_20_FEATURE_MIN_RESUME_TIME               0x05
+#define  MS_OS_20_FEATURE_MODEL_ID                      0x06
+#define  MS_OS_20_FEATURE_CCGP_DEVICE                   0x07
+#endif
+
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1) || (USBD_LPM_ENABLED == 1))
+#define BOS_CAPABILITY_WIRELESS_USB                     0x01
+#define BOS_CAPABILITY_USB20_EXTENSION                  0x02
+#define BOS_CAPABILITY_SUPERSPEED_USB                   0x03
+#define BOS_CAPABILITY_CONTAINER_ID                     0x04
+#define BOS_CAPABILITY_PLATFORM                         0x05
+#define BOS_CAPABILITY_POWER_DELIVERY                   0x06
+#define BOS_CAPABILITY_BATTERY_INFO                     0x07
+#define BOS_CAPABILITY_POWER_DELIVERY_CONSUMER_PORT     0x08
+#define BOS_CAPABILITY_POWER_DELIVERY_PROVIDER_PORT     0x09
+#define BOS_CAPABILITY_SUPERSPEED_PLUS                  0x0A
+#define BOS_CAPABILITY_PRECISION_TIME_MEASUREMENT       0x0B
+#define BOS_CAPABILITY_WIRELESS_USB_EXT                 0x0C
+#define BOS_CAPABILITY_BILLBOARD                        0x0D
+#endif
 
 /**
   * @}
@@ -216,7 +263,14 @@ typedef struct _Device_cb
 #if (USBD_SUPPORT_USER_STRING == 1U)
   uint8_t  *(*GetUsrStrDescriptor)(struct _USBD_HandleTypeDef *pdev ,uint8_t index,  uint16_t *length);
 #endif
-
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V1_0 == 1)
+  uint8_t  *(*GetOsStrDescriptor_V1_0)(struct _USBD_HandleTypeDef *pdev, uint16_t wValue, uint16_t *length);
+  uint8_t  *(*GetOsExtCompatIdDescriptor)(struct _USBD_HandleTypeDef *pdev, uint16_t wValue, uint16_t *length);
+  uint8_t  *(*GetOsExtPropDescriptor)(struct _USBD_HandleTypeDef *pdev, uint16_t wValue, uint16_t *length);
+#endif
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1)
+  uint8_t  *(*GetOsStrDescriptor_V2_0)(struct _USBD_HandleTypeDef *pdev, uint16_t wValue, uint16_t *length);
+#endif
 } USBD_ClassTypeDef;
 
 /* Following USB Device Speed */
@@ -244,7 +298,7 @@ typedef struct
   uint8_t  *(*GetSerialStrDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);
   uint8_t  *(*GetConfigurationStrDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);
   uint8_t  *(*GetInterfaceStrDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);
-#if (USBD_LPM_ENABLED == 1U)
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1) || (USBD_LPM_ENABLED == 1))
   uint8_t  *(*GetBOSDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);
 #endif
 } USBD_DescriptorsTypeDef;
@@ -347,6 +401,189 @@ typedef struct _USBD_HandleTypeDef
 /** @defgroup USBD_DEF_Exported_FunctionsPrototype
   * @{
   */
+
+#pragma pack(1)
+
+
+// how many interfaces? 
+#define MAX_USB_FUNC_NUM                      3
+#define MAX_USB_PROPERTY_NUM                  1
+
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V1_0 == 1)
+
+typedef struct _MS_OS_STR_DESC_V1_0
+{
+  uint8_t bLength;
+  uint8_t bDscType;
+  uint16_t string[7];
+  uint8_t vendorCode;
+  uint8_t bPad;
+} MS_OS_STR_DESC_V1_0;
+
+typedef struct _MS_COMPAT_ID_FUNC_DESC_V1_0
+{
+  uint8_t bFirstInterfaceNumber;
+  uint8_t reserved_1;
+  uint8_t compatID[8];
+  uint8_t subCompatID[8];
+  uint8_t reserved_2[6];
+} MS_COMPAT_ID_FUNC_DESC_V1_0;
+
+typedef struct _MS_COMPAT_ID_FEATURE_DESC_V1_0
+{
+  //header
+  uint32_t dwLength;
+  uint16_t bcdVersion;
+  uint16_t wIndex;
+  uint8_t bCount;
+  uint8_t reserved[7];
+  //function
+  MS_COMPAT_ID_FUNC_DESC_V1_0 func[MAX_USB_FUNC_NUM];
+} MS_COMPAT_ID_FEATURE_DESC_V1_0;
+
+typedef struct MS_PROPERTY_SELECTIVE_SUSPEND
+{
+  uint32_t dwSize;
+  uint32_t dwPropertyDataType;
+  uint16_t wPropertyNameLength;
+  uint16_t bPropertyName[24];
+  uint32_t dwPropertyDataLength;
+  uint32_t bPropertyData;
+} MS_PROPERTY_SELECTIVE_SUSPEND;
+
+typedef struct _MS_PROPERTY_FEATURE_DESC
+{
+  //header
+  uint32_t dwLength;
+  uint16_t bcdVersion;
+  uint16_t wIndex;
+  uint16_t wCount;
+  //preperties
+  MS_PROPERTY_SELECTIVE_SUSPEND prop[MAX_USB_PROPERTY_NUM];
+} MS_PROPERTY_FEATURE_DESC;
+
+#endif
+
+
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1)
+typedef struct _MS_OS_DESC_SET_HEADER_V2_0
+{
+  uint16_t wLength;
+  uint16_t wDescriptorType;
+  uint32_t dwWindowsVersion;
+  uint16_t wTotalLength;
+} MS_OS_DESC_SET_HEADER_V2_0;
+
+typedef struct _MS_OS_CONFIG_HEADER_V2_0
+{
+  uint16_t wLength;
+  uint16_t wDescriptorType;
+  uint8_t bConfigurationValue;
+  uint8_t bReserved;
+  uint16_t wTotalLength;
+} MS_OS_CONFIG_HEADER_V2_0;
+
+typedef struct _MS_OS_FUNC_HEADER_V2_0
+{
+  uint16_t wLength;
+  uint16_t wDescriptorType;
+  uint8_t bFirstInterface;
+  uint8_t bReserved;
+  uint16_t wSubsetLength;
+} MS_OS_FUNC_HEADER_V2_0;
+
+typedef struct _MS_OS_FEATURE_COMPAT_ID_V2_0
+{
+  uint16_t wLength;
+  uint16_t wDescriptorType;
+  uint8_t CompatibleID[8];
+  uint8_t SubCompatibleID[8];
+} MS_OS_FEATURE_COMPAT_ID_V2_0;
+
+typedef struct _MS_OS_FEATURE_REG_SELECTIVE_SUSPEND_V2_0
+{
+  uint16_t wLength;
+  uint16_t wDescriptorType;
+  uint16_t wPropertyDataType;
+  uint16_t wPropertyNameLength;
+  uint16_t bPropertyName[24];
+  uint16_t wPropertyDataLength;
+  uint32_t PropertyData;
+} MS_OS_FEATURE_REG_SELECTIVE_SUSPEND_V2_0;
+
+typedef struct _MS_OS_FUNC_SUBSET_V2_0
+{
+  MS_OS_FUNC_HEADER_V2_0 hdr;
+  MS_OS_FEATURE_REG_SELECTIVE_SUSPEND_V2_0 reg;
+} MS_OS_FUNC_SUBSET_V2_0;
+
+
+typedef struct _MS_OS_CONFIG_SUBSET_V2_0
+{
+  MS_OS_CONFIG_HEADER_V2_0 hdr;
+  MS_OS_FUNC_SUBSET_V2_0 funcs[MAX_USB_FUNC_NUM];
+} MS_OS_CONFIG_SUBSET_V2_0;
+
+typedef struct _MS_OS_STR_DESC_V2_0
+{
+  MS_OS_DESC_SET_HEADER_V2_0 hdr;
+  MS_OS_FEATURE_REG_SELECTIVE_SUSPEND_V2_0 reg1;
+#if 1
+  MS_OS_CONFIG_SUBSET_V2_0 conf;
+#endif
+} MS_OS_STR_DESC_V2_0;
+
+#endif
+
+
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1) || (USBD_LPM_ENABLED == 1))
+
+typedef struct _BOS_DESC_HEADER
+{
+  uint8_t bLength;
+  uint8_t bDescriptorType;
+  uint16_t wTotalLengh;
+  uint8_t bNumDeviceCaps;
+} BOS_DESC_HEADER;
+
+typedef struct _BOS_CAPABILITY_LPM
+{
+  uint8_t bLength;
+  uint8_t bDescriptorType;
+  uint8_t bDevCapabilityType;
+  uint32_t bmAttributes;
+} BOS_CAPABILITY_LPM;
+
+typedef struct _BOS_CAPABILITY_MS_OS_V2_0
+{
+  //header
+  uint8_t bLength;
+  uint8_t bDescriptorType;
+  uint8_t bDevCapabilityType;
+  uint8_t bReserved;
+  uint8_t PlatformCapabilityUUID[16];
+  //set information
+  uint32_t dwWindowsVersion;
+  uint16_t wMSOSDescriptorSetTotalLength;
+  uint8_t bMS_VendorCode;
+  uint8_t bAltEnumCode;
+} BOS_CAPABILITY_MS_OS_V2_0;
+
+
+typedef struct _BOS_DESCRIPTOR
+{
+  BOS_DESC_HEADER hdr;
+#if (USBD_LPM_ENABLED == 1)
+  BOS_CAPABILITY_LPM lpm;
+#endif
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1)
+  BOS_CAPABILITY_MS_OS_V2_0 ms_os;
+#endif
+} BOS_DESCRIPTOR;
+
+#endif
+
+#pragma pack()
 
 /**
   * @}

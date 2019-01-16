@@ -292,6 +292,13 @@ USBD_StatusTypeDef USBD_LL_SetupStage(USBD_HandleTypeDef *pdev, uint8_t *psetup)
 
   pdev->ep0_data_len = pdev->request.wLength;
 
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V1_0==1) || (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0==1))
+extern USBD_StatusTypeDef USBD_VendorRequest(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef  *req);
+  if(USBD_VendorRequest(pdev, &pdev->request) == USBD_OK){
+    return USBD_OK;
+  }
+#endif
+
   switch (pdev->request.bmRequest & 0x1FU)
   {
   case USB_REQ_RECIPIENT_DEVICE:
@@ -478,7 +485,8 @@ USBD_StatusTypeDef USBD_LL_Reset(USBD_HandleTypeDef  *pdev)
   pdev->dev_config= 0U;
   pdev->dev_remote_wakeup = 0U;
 
-  if (pdev->pClassData)
+//  if (pdev->pClassData)
+  if (pdev->pClass)
   {
     pdev->pClass->DeInit(pdev, (uint8_t)pdev->dev_config);
   }
