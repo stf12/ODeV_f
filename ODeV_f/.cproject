@@ -74,6 +74,8 @@
 									<listOptionValue builtIn="false" value="&quot;../system/include/drivers&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/services&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/stm32l4-hal&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/stm32_usb_device_library/class/hid&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/stm32_usb_device_library/core&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/freertos&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/src/freertos/portable/GCC/ARM_CM4F&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/trace_recorder/include&quot;"/>
@@ -148,6 +150,8 @@
 									<listOptionValue builtIn="false" value="&quot;../system/include/drivers&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/services&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/stm32l4-hal&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/stm32_usb_device_library/class/hid&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/stm32_usb_device_library/core&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/freertos&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/src/freertos/portable/GCC/ARM_CM4F&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/trace_recorder/include&quot;"/>
