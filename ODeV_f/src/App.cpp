@@ -91,7 +91,7 @@ sys_error_code_t SysOnStartApplication(ApplicationContext *pAppContext) {
   USBD_Init(&USBD_Device, &HID_Desc, 0);
 
   // Add Supported Class
-  USBD_RegisterClass(&USBD_Device, USBD_HID_CLASS);
+  USBD_RegisterClass(&USBD_Device, (USBD_ClassTypeDef*)USBD_HID_CLASS);
 
   // Start Device Process
   USBD_Start(&USBD_Device);

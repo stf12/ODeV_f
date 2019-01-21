@@ -67,32 +67,52 @@
 /** @defgroup USBD_HID_Exported_Defines
   * @{
   */
-#define HID_EPIN_ADDR                 0x81U
-#define HID_EPIN_SIZE                 0x04U
+#define HID_MOUSE_EPIN_ADDR                  0x81U
+#define HID_MOUSE_EPIN_SIZE                  0x04U
 
-#define USB_HID_CONFIG_DESC_SIZ       34U
-#define USB_HID_DESC_SIZ              9U
-#define HID_MOUSE_REPORT_DESC_SIZE    74U
+#define HID_KEYBOARD_EPIN_ADDR               0x82U
+#define HID_KEYBOARD_EPIN_SIZE               0x08U
 
-#define HID_DESCRIPTOR_TYPE           0x21U
-#define HID_REPORT_DESC               0x22U
+#define HID_CUSTOM_EPIN_ADDR                 0x83U
+#define HID_CUSTOM_EPIN_SIZE                 0x08U
+
+#define HID_CUSTOM_EPOUT_ADDR                0x03U
+#define HID_CUSTOM_EPOUT_SIZE                0x08U
+
+#define USB_HID_CONFIG_DESC_SIZ              91U
+#define USB_HID_DESC_SIZ                     9U
+#define HID_MOUSE_REPORT_DESC_SIZE           50U
+#define HID_MOUSE_REPORT_DESC_SIZE_MBS       0U
+#define HID_MOUSE_REPORT_DESC_SIZE_LBS       50U
+#define HID_KEYBOARD_REPORT_DESC_SIZE        59U
+#define HID_CUSTOM_REPORT_DESC_SIZE          85U
+#define HID_MOUSE_IF_IDX                     0U
+#define HID_KEYBOARD_IF_IDX                  1U
+#define HID_CUSTOM_IF_IDX                    2U
+
+#define HID_DESCRIPTOR_TYPE                  0x21U
+#define HID_REPORT_DESC                      0x22U
 
 #ifndef HID_HS_BINTERVAL
-  #define HID_HS_BINTERVAL            0x07U
+  #define HID_HS_BINTERVAL                   0x07U
 #endif /* HID_HS_BINTERVAL */
 
 #ifndef HID_FS_BINTERVAL
-  #define HID_FS_BINTERVAL            0x0AU
+  #define HID_FS_BINTERVAL                   0x0AU
 #endif /* HID_FS_BINTERVAL */
 
-#define HID_REQ_SET_PROTOCOL          0x0BU
-#define HID_REQ_GET_PROTOCOL          0x03U
+#define HID_REQ_SET_PROTOCOL                 0x0BU
+#define HID_REQ_GET_PROTOCOL                 0x03U
 
-#define HID_REQ_SET_IDLE              0x0AU
-#define HID_REQ_GET_IDLE              0x02U
+#define HID_REQ_SET_IDLE                     0x0AU
+#define HID_REQ_GET_IDLE                     0x02U
 
-#define HID_REQ_SET_REPORT            0x09U
-#define HID_REQ_GET_REPORT            0x01U
+#define HID_REQ_SET_REPORT                   0x09U
+#define HID_REQ_GET_REPORT                   0x01U
+
+#define HID_MOUSE_INTERFACE                  0x00U
+#define HID_KEYBOARD_INTERFACE               0x01U
+#define HID_CUSTOM_INTERFACE                 0x02U
 /**
   * @}
   */
@@ -111,10 +131,12 @@ HID_StateTypeDef;
 
 typedef struct
 {
+  uint8_t              Interface;          ///< 1 when the output report is for the USB IF 1 (Keyboard)
+  uint32_t             IsReportAvailable;
   uint32_t             Protocol;
   uint32_t             IdleState;
   uint32_t             AltSetting;
-  HID_StateTypeDef     state;
+  HID_StateTypeDef     state[USBD_MAX_NUM_INTERFACES];
 }
 USBD_HID_HandleTypeDef;
 /**
@@ -135,7 +157,7 @@ USBD_HID_HandleTypeDef;
   * @{
   */
 
-extern USBD_ClassTypeDef  USBD_HID;
+extern const USBD_ClassTypeDef  USBD_HID;
 #define USBD_HID_CLASS    &USBD_HID
 /**
   * @}

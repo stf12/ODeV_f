@@ -6,37 +6,37 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright(c) 2017 STMicroelectronics International N.V. 
+  * <h2><center>&copy; Copyright(c) 2017 STMicroelectronics International N.V.
   * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without 
+  * Redistribution and use in source and binary forms, with or without
   * modification, are permitted, provided that the following conditions are met:
   *
-  * 1. Redistribution of source code must retain the above copyright notice, 
+  * 1. Redistribution of source code must retain the above copyright notice,
   *    this list of conditions and the following disclaimer.
   * 2. Redistributions in binary form must reproduce the above copyright notice,
   *    this list of conditions and the following disclaimer in the documentation
   *    and/or other materials provided with the distribution.
-  * 3. Neither the name of STMicroelectronics nor the names of other 
-  *    contributors to this software may be used to endorse or promote products 
+  * 3. Neither the name of STMicroelectronics nor the names of other
+  *    contributors to this software may be used to endorse or promote products
   *    derived from this software without specific written permission.
-  * 4. This software, including modifications and/or derivative works of this 
+  * 4. This software, including modifications and/or derivative works of this
   *    software, must execute solely and exclusively on microcontroller or
   *    microprocessor devices manufactured by or for STMicroelectronics.
-  * 5. Redistribution and use of this software other than as permitted under 
-  *    this license is void and will automatically terminate your rights under 
-  *    this license. 
+  * 5. Redistribution and use of this software other than as permitted under
+  *    this license is void and will automatically terminate your rights under
+  *    this license.
   *
-  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS" 
-  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT 
-  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT
+  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
   * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
-  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT 
+  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT
   * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
   * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
-  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
   * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
   * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
@@ -50,9 +50,9 @@
 
 /* Private typedef ----------------------------------------------------------- */
 /* Private define ------------------------------------------------------------ */
-#define USBD_VID                          0x0483 // Samsung VID:0x04E8, ST VID:0x0483
-#define USBD_PID                          0x5712 // Samsung START2 PID:0xA00A, Samsung WoA PID:0xA036, ST PID:0x5712
-#define USBD_LANGID_STRING            0x409
+#define USBD_VID                          0x0483 // ST VID:0x0483
+#define USBD_PID                          0x5712 // ST PID:0x5712
+#define USBD_LANGID_STRING                0x409
 #define USBD_MANUFACTURER_STRING          "STF12 Demo"
 #define USBD_PRODUCT_FS_STRING            "STF12.1_V000.000.000.000"
 #define USBD_PRODUCT_FS_FW_VERSION_IDX    0x9  ///< Specifies the start index of the fw version in the USBD_PRODUCT_FS_STRING
@@ -197,7 +197,7 @@ static uint32_t GetFwVersion(void);
 static void WriteFwVersion(char *str, uint8_t nStartIdx, uint32_t nFwVersion);
 
 /**
-  * @brief  Returns the device descriptor. 
+  * @brief  Returns the device descriptor.
   * @param  speed: Current device speed
   * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
@@ -209,7 +209,7 @@ uint8_t *USBD_HID_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t * length)
 }
 
 /**
-  * @brief  Returns the LangID string descriptor.        
+  * @brief  Returns the LangID string descriptor.
   * @param  speed: Current device speed
   * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
@@ -221,7 +221,7 @@ uint8_t *USBD_HID_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * length
 }
 
 /**
-  * @brief  Returns the product string descriptor. 
+  * @brief  Returns the product string descriptor.
   * @param  speed: Current device speed
   * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
@@ -238,7 +238,7 @@ uint8_t *USBD_HID_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * lengt
 }
 
 /**
-  * @brief  Returns the manufacturer string descriptor. 
+  * @brief  Returns the manufacturer string descriptor.
   * @param  speed: Current device speed
   * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
@@ -250,7 +250,7 @@ uint8_t *USBD_HID_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * 
 }
 
 /**
-  * @brief  Returns the serial number string descriptor.        
+  * @brief  Returns the serial number string descriptor.
   * @param  speed: Current device speed
   * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
@@ -267,7 +267,7 @@ uint8_t *USBD_HID_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * length
 }
 
 /**
-  * @brief  Returns the configuration string descriptor.    
+  * @brief  Returns the configuration string descriptor.
   * @param  speed: Current device speed
   * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
@@ -279,7 +279,7 @@ uint8_t *USBD_HID_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * length
 }
 
 /**
-  * @brief  Returns the interface string descriptor.        
+  * @brief  Returns the interface string descriptor.
   * @param  speed: Current device speed
   * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
@@ -291,8 +291,8 @@ uint8_t *USBD_HID_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * len
 }
 
 /**
-  * @brief  Create the serial number string descriptor 
-  * @param  None 
+  * @brief  Create the serial number string descriptor
+  * @param  None
   * @retval None
   */
 static void Get_SerialNum(void)
@@ -328,9 +328,9 @@ uint8_t *USBD_USR_BOSDescriptor(USBD_SpeedTypeDef speed , uint16_t *length)
 #endif
 
 /**
-  * @brief  Convert Hex 32Bits value into char 
+  * @brief  Convert Hex 32Bits value into char
   * @param  value: value to convert
-  * @param  pbuf: pointer to the buffer 
+  * @param  pbuf: pointer to the buffer
   * @param  len: buffer length
   * @retval None
   */
