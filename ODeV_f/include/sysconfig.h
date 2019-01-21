@@ -53,6 +53,11 @@
 #define SYS_CFG_USE_DEFAULT_PM_HELPER              1
 #define SYS_CFG_DEF_PM_HELPER_STANDBY              0  ///< if defined to 1 then the MCU goes in STANDBY mode when the system enters in SLEEP_1.
 
+// file usbd_conf.h
+#define USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V1_0      0
+#define USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0      0
+#define USBD_CFG_ENABLE_MS_SELECTIVE_SUSPEND       0
+
 
 // Tasks configuration
 // *******************

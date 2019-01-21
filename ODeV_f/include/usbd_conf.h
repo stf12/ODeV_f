@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    USB_Device/HID_Standalone/Inc/usbd_conf.h
+  * @file    usbd_conf.h
   * @author  MCD Application Team
   * @brief   General low level driver configuration
   ******************************************************************************
@@ -49,26 +49,46 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
+#include "FreeRTOS.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "systypes.h"
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Common Config */
-#define USBD_MAX_NUM_INTERFACES               1
+#define USBD_MAX_NUM_INTERFACES                        3
 #define USBD_MAX_NUM_CONFIGURATION            1
 #define USBD_MAX_STR_DESC_SIZ                 0x100
 #define USBD_SUPPORT_USER_STRING              0 
 #define USBD_SELF_POWERED                     0
 #define USBD_DEBUG_LEVEL                      0
 
+#ifndef USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V1_0
+#define USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V1_0          1
+#endif
+
+#ifndef USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0
+#define USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0          1
+#endif
+
+#ifndef USBD_CFG_ENABLE_MS_SELECTIVE_SUSPEND
+#define USBD_CFG_ENABLE_MS_SELECTIVE_SUSPEND           1
+#endif
+
+#if ((ENABLE_MS_OS_DESCRIPTOR_V1_0==1) || (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0==1))
+  #if ((USBD_CFG_ENABLE_MS_SELECTIVE_SUSPEND!=1) && (USBD_CFG_ENABLE_MS_SELECTIVE_SUSPEND!=0))
+    #error "Choose 1 or 0 for USBD_CFG_ENABLE_MS_SELECTIVE_SUSPEND"
+  #endif
+#endif
+
 /* Exported macro ------------------------------------------------------------*/
 /* Memory management macros */   
-#define USBD_malloc               malloc
-#define USBD_free                 free
-#define USBD_memset               memset
-#define USBD_memcpy               memcpy
+#define USBD_malloc               (uint32_t *)pvPortMalloc
+#define USBD_free                 vPortFree
+//#define USBD_memset               memset
+//#define USBD_memcpy               memcpy
     
 /* DEBUG macros */  
 #if (USBD_DEBUG_LEVEL > 0)
@@ -96,6 +116,14 @@
 #endif
 
 /* Exported functions ------------------------------------------------------- */
+
+/**
+ * The USB bus is suspended after the SuspendCallback has been executed.
+ * The USB bus is resumed after receiving a SOD packet.
+ *
+ * @return `TRUE` if the USB bus is suspended, `FALSE` otherwise.
+ */
+boolean_t USBD_IsBusSuspended(void);
 
 #endif /* __USBD_CONF_H */
 

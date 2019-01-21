@@ -142,6 +142,8 @@ static uint8_t  USBD_HID_DataIn (USBD_HandleTypeDef *pdev, uint8_t epnum);
   * @{
   */
 
+static USBD_HID_HandleTypeDef s_xHidClassData;
+
 USBD_ClassTypeDef  USBD_HID =
 {
   USBD_HID_Init,
@@ -412,7 +414,12 @@ static uint8_t  USBD_HID_Init (USBD_HandleTypeDef *pdev, uint8_t cfgidx)
   USBD_LL_OpenEP(pdev, HID_EPIN_ADDR, USBD_EP_TYPE_INTR, HID_EPIN_SIZE);
   pdev->ep_in[HID_EPIN_ADDR & 0xFU].is_used = 1U;
 
-  pdev->pClassData = USBD_malloc(sizeof (USBD_HID_HandleTypeDef));
+//  pdev->pClassData = USBD_malloc(sizeof (USBD_HID_HandleTypeDef));
+  s_xHidClassData.AltSetting = 0;
+  s_xHidClassData.IdleState = 0;
+  s_xHidClassData.Protocol = 0;
+  s_xHidClassData.state = HID_IDLE;
+  pdev->pClassData = &s_xHidClassData;
 
   if (pdev->pClassData == NULL)
   {
@@ -441,7 +448,7 @@ static uint8_t  USBD_HID_DeInit (USBD_HandleTypeDef *pdev,
   /* FRee allocated memory */
   if(pdev->pClassData != NULL)
   {
-    USBD_free(pdev->pClassData);
+//    USBD_free(pdev->pClassData);
     pdev->pClassData = NULL;
   }
 

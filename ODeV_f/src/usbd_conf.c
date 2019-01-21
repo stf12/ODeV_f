@@ -50,14 +50,19 @@
 #include "usbd_desc.h"
 //#include "usbd_hid.h"
 
+#include "syslowpower.h"
+
+#include "sysdebug.h"
+
 /* Private typedef ----------------------------------------------------------- */
 /* Private define ------------------------------------------------------------ */
 /* Private macro ------------------------------------------------------------- */
 /* Private variables --------------------------------------------------------- */
 PCD_HandleTypeDef hpcd;
-__IO uint32_t remotewakeupon = 0;
+//__IO uint32_t remotewakeupon = 0;
+static volatile boolean_t s_bUsbBusSuspended = TRUE;
 /* Private function prototypes ----------------------------------------------- */
-static void SystemClockConfig_STOP(void);
+//static void SystemClockConfig_STOP(void);
 /* Private functions --------------------------------------------------------- */
 
 /*******************************************************************************
@@ -122,7 +127,7 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef * hpcd)
 {
   /* Disable USB FS Clock */
   __HAL_RCC_USB_OTG_FS_CLK_DISABLE();
-  __HAL_RCC_SYSCFG_CLK_DISABLE();
+//  __HAL_RCC_SYSCFG_CLK_DISABLE(); //TODO: STF - why?
 }
 
 /*******************************************************************************
@@ -169,6 +174,12 @@ void HAL_PCD_DataInStageCallback(PCD_HandleTypeDef * hpcd, uint8_t epnum)
 void HAL_PCD_SOFCallback(PCD_HandleTypeDef * hpcd)
 {
   USBD_LL_SOF(hpcd->pData);
+
+  if (s_bUsbBusSuspended) {
+    s_bUsbBusSuspended = FALSE;
+
+    SYS_DEBUGF3(SYS_DBG_INIT, SYS_DBG_LEVEL_VERBOSE, ("USBD: flag=FALSE.\r\n"));
+  }
 }
 
 /**
@@ -183,6 +194,10 @@ void HAL_PCD_ResetCallback(PCD_HandleTypeDef * hpcd)
 
   /* Set USB Current Speed */
   USBD_LL_SetSpeed(hpcd->pData, USBD_SPEED_FULL);
+
+  if (!s_bUsbBusSuspended) {
+    s_bUsbBusSuspended = TRUE;
+  }
 }
 
 /**
@@ -195,13 +210,27 @@ void HAL_PCD_SuspendCallback(PCD_HandleTypeDef * hpcd)
   __HAL_PCD_GATE_PHYCLOCK(hpcd);
   USBD_LL_Suspend(hpcd->pData);
 
-  /* Enter in STOP mode */
-  if (hpcd->Init.low_power_enable)
-  {
-    /* Set SLEEPDEEP bit and SleepOnExit of Cortex System Control Register */
-    SCB->SCR |=
-      (uint32_t) ((uint32_t) (SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
-  }
+//  SYS_DEBUGF3(SYS_DBG_INIT, SYS_DBG_LEVEL_VERBOSE, ("USBD: suspend; flag=%u.\r\n", s_bUsbBusSuspended));
+
+//  SysEvent xEvent;
+//  if (!s_bUsbBusSuspended) {
+//    s_bUsbBusSuspended = TRUE;
+//    xEvent.nRawEvent = SYS_PM_MAKE_EVENT(SYS_PM_EVT_SRC_USB, SYS_PM_EVT_PARAM_SUSPEND);
+//  }
+//  else {
+//    xEvent.nRawEvent = SYS_PM_MAKE_EVENT(SYS_PM_EVT_SRC_USB, SYS_PM_EVT_PARAM_SUSPEND_NOISE);
+//  }
+//
+//  SysPostPowerModeEvent(xEvent);
+
+    // STF - USB Library example code
+//  /* Enter in STOP mode */
+//  if (hpcd->Init.low_power_enable)
+//  {
+//    /* Set SLEEPDEEP bit and SleepOnExit of Cortex System Control Register */
+//    SCB->SCR |=
+//      (uint32_t) ((uint32_t) (SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
+//  }
 }
 
 /**
@@ -211,18 +240,36 @@ void HAL_PCD_SuspendCallback(PCD_HandleTypeDef * hpcd)
   */
 void HAL_PCD_ResumeCallback(PCD_HandleTypeDef * hpcd)
 {
-  if ((hpcd->Init.low_power_enable) && (remotewakeupon == 0))
-  {
-    SystemClockConfig_STOP();
+  // STF - USB Library example code
+//  if ((hpcd->Init.low_power_enable) && (remotewakeupon == 0))
+//  {
+//    SystemClockConfig_STOP();
+//
+//    /* Reset SLEEPDEEP bit of Cortex System Control Register */
+//    SCB->SCR &=
+//      (uint32_t) ~
+//      ((uint32_t) (SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
+//  }
 
-    /* Reset SLEEPDEEP bit of Cortex System Control Register */
-    SCB->SCR &=
-      (uint32_t) ~
-      ((uint32_t) (SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
-  }
   __HAL_PCD_UNGATE_PHYCLOCK(hpcd);
   USBD_LL_Resume(hpcd->pData);
-  remotewakeupon = 0;
+
+//  uint16_t nResumeTriggeringEvt = hpcd->Instance->FNR; // check the bit RXDP and RXDM - FNR[14, 15]
+//  nResumeTriggeringEvt = nResumeTriggeringEvt >> 14;
+//
+//  SYS_DEBUGF3(SYS_DBG_INIT, SYS_DBG_LEVEL_VERBOSE, ("USBD: resume:0x%x.\r\n", nResumeTriggeringEvt));
+//
+//  SysPowerStatus xPowerStatus = SysGetPowerStatus();
+//  if (xPowerStatus.m_bResumeUSBEventFromHost) {
+//    SysEvent xEvent;
+//    if ((nResumeTriggeringEvt == USBD_RESUME_EVT_DETECTION_ROOT_RESUME) || (nResumeTriggeringEvt == USBD_RESUME_EVT_DETECTION_ROOT_RESET)) {
+//      xEvent.nRawEvent = SYS_PM_MAKE_EVENT(SYS_PM_EVT_SRC_USB, SYS_PM_EVT_PARAM_RESUME);
+//    }
+//    else {
+//      xEvent.nRawEvent = SYS_PM_MAKE_EVENT(SYS_PM_EVT_SRC_USB, SYS_PM_EVT_PARAM_RESUME_NOISE);
+//    }
+//    SysPostPowerModeEvent(xEvent);
+//  }
 }
 
 /**
@@ -481,6 +528,7 @@ uint32_t USBD_LL_GetRxDataSize(USBD_HandleTypeDef * pdev, uint8_t ep_addr)
   return HAL_PCD_EP_GetRxCount(pdev->pData, ep_addr);
 }
 
+#if 0 //TODO: STF.Begin - not needed for this demo.
 /**
   * @brief  Configures system clock after wakeup from STOP mode.
   * @param  None
@@ -584,7 +632,6 @@ static void SystemClockConfig_STOP(void)
 #endif
 }
 
-#if 0 //TODO: STF.Begin - not needed for this demo.
 /**
   * @brief  GPIO EXTI Callback function
   *         Handle remote-wakeup through Tamper button
