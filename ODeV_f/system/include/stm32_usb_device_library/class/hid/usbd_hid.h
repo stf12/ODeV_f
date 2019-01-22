@@ -176,11 +176,22 @@ extern const USBD_ClassTypeDef  USBD_HID;
 /** @defgroup USB_CORE_Exported_Functions
   * @{
   */
-uint8_t USBD_HID_SendReport (USBD_HandleTypeDef *pdev,
-                                 uint8_t *report,
-                                 uint16_t len);
+uint8_t USBD_HID_MouseSendReport(USBD_HandleTypeDef *pdev, uint8_t *report, uint16_t len);
+
+uint8_t USBD_HID_KeyboardSendReport(USBD_HandleTypeDef *pdev, uint8_t *report, uint16_t len);
+
+uint8_t USBD_HID_CustomSendReport(USBD_HandleTypeDef *pdev, uint8_t *report, uint16_t len);
 
 uint32_t USBD_HID_GetPollingInterval (USBD_HandleTypeDef *pdev);
+
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V1_0 == 1) || (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1))
+USBD_StatusTypeDef USBD_VendorRequest(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef  *req);
+#endif
+
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1)
+extern const MS_OS_STR_DESC_V2_0 MsOsStrDescriptor_V2_0;
+#endif
+
 
 /**
   * @}

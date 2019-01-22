@@ -1,42 +1,42 @@
 /**
   ******************************************************************************
-  * @file    USB_Device/HID_Standalone/Src/usbd_conf.c
+  * @file    usbd_conf.c
   * @author  MCD Application Team
   * @brief   This file implements the USB Device library callbacks and MSP
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright(c) 2017 STMicroelectronics International N.V. 
+  * <h2><center>&copy; Copyright(c) 2017 STMicroelectronics International N.V.
   * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without 
+  * Redistribution and use in source and binary forms, with or without
   * modification, are permitted, provided that the following conditions are met:
   *
-  * 1. Redistribution of source code must retain the above copyright notice, 
+  * 1. Redistribution of source code must retain the above copyright notice,
   *    this list of conditions and the following disclaimer.
   * 2. Redistributions in binary form must reproduce the above copyright notice,
   *    this list of conditions and the following disclaimer in the documentation
   *    and/or other materials provided with the distribution.
-  * 3. Neither the name of STMicroelectronics nor the names of other 
-  *    contributors to this software may be used to endorse or promote products 
+  * 3. Neither the name of STMicroelectronics nor the names of other
+  *    contributors to this software may be used to endorse or promote products
   *    derived from this software without specific written permission.
-  * 4. This software, including modifications and/or derivative works of this 
+  * 4. This software, including modifications and/or derivative works of this
   *    software, must execute solely and exclusively on microcontroller or
   *    microprocessor devices manufactured by or for STMicroelectronics.
-  * 5. Redistribution and use of this software other than as permitted under 
-  *    this license is void and will automatically terminate your rights under 
-  *    this license. 
+  * 5. Redistribution and use of this software other than as permitted under
+  *    this license is void and will automatically terminate your rights under
+  *    this license.
   *
-  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS" 
-  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT 
-  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT
+  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
   * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
-  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT 
+  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT
   * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
   * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
-  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
   * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
   * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
@@ -58,8 +58,7 @@
 /* Private define ------------------------------------------------------------ */
 /* Private macro ------------------------------------------------------------- */
 /* Private variables --------------------------------------------------------- */
-PCD_HandleTypeDef hpcd;
-//__IO uint32_t remotewakeupon = 0;
+PCD_HandleTypeDef g_hpcd;
 static volatile boolean_t s_bUsbBusSuspended = TRUE;
 /* Private function prototypes ----------------------------------------------- */
 //static void SystemClockConfig_STOP(void);
@@ -274,7 +273,7 @@ void HAL_PCD_ResumeCallback(PCD_HandleTypeDef * hpcd)
 
 /**
   * @brief  ISOOUTIncomplete callback.
-  * @param  hpcd: PCD handle 
+  * @param  hpcd: PCD handle
   * @param  epnum: Endpoint Number
   * @retval None
   */
@@ -285,7 +284,7 @@ void HAL_PCD_ISOOUTIncompleteCallback(PCD_HandleTypeDef * hpcd, uint8_t epnum)
 
 /**
   * @brief  ISOINIncomplete callback.
-  * @param  hpcd: PCD handle 
+  * @param  hpcd: PCD handle
   * @param  epnum: Endpoint Number
   * @retval None
   */
@@ -327,28 +326,28 @@ void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef * hpcd)
 USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef * pdev)
 {
   /* Set LL Driver parameters */
-  hpcd.Instance = USB_OTG_FS;
-  hpcd.Init.dev_endpoints = 5;
-  hpcd.Init.use_dedicated_ep1 = 0;
-  hpcd.Init.ep0_mps = 0x40;
-  hpcd.Init.dma_enable = 0;
-  hpcd.Init.low_power_enable = 1;
-  hpcd.Init.lpm_enable = 0;
-  hpcd.Init.battery_charging_enable = 0;
-  hpcd.Init.phy_itface = PCD_PHY_EMBEDDED;
-  hpcd.Init.Sof_enable = 0;
-  hpcd.Init.speed = PCD_SPEED_FULL;
-  hpcd.Init.vbus_sensing_enable = 1;
+  g_hpcd.Instance = USB_OTG_FS;
+  g_hpcd.Init.dev_endpoints = 5;
+  g_hpcd.Init.use_dedicated_ep1 = 0;
+  g_hpcd.Init.ep0_mps = 0x40;
+  g_hpcd.Init.dma_enable = 0;
+  g_hpcd.Init.low_power_enable = 1;
+  g_hpcd.Init.lpm_enable = 0;
+  g_hpcd.Init.battery_charging_enable = 0;
+  g_hpcd.Init.phy_itface = PCD_PHY_EMBEDDED;
+  g_hpcd.Init.Sof_enable = 0;
+  g_hpcd.Init.speed = PCD_SPEED_FULL;
+  g_hpcd.Init.vbus_sensing_enable = 1;
   /* Link The driver to the stack */
-  hpcd.pData = pdev;
-  pdev->pData = &hpcd;
+  g_hpcd.pData = pdev;
+  pdev->pData = &g_hpcd;
   /* Initialize LL Driver */
-  HAL_PCD_Init(&hpcd);
+  HAL_PCD_Init(&g_hpcd);
 
   /* configure EPs FIFOs */
-  HAL_PCDEx_SetRxFiFo(&hpcd, 0x80);
-  HAL_PCDEx_SetTxFiFo(&hpcd, 0, 0x40);
-  HAL_PCDEx_SetTxFiFo(&hpcd, 1, 0x80);
+  HAL_PCDEx_SetRxFiFo(&g_hpcd, 0x80);
+  HAL_PCDEx_SetTxFiFo(&g_hpcd, 0, 0x40);
+  HAL_PCDEx_SetTxFiFo(&g_hpcd, 1, 0x80);
 
   return USBD_OK;
 }
@@ -365,7 +364,7 @@ USBD_StatusTypeDef USBD_LL_DeInit(USBD_HandleTypeDef * pdev)
 }
 
 /**
-  * @brief  Starts the Low Level portion of the Device driver. 
+  * @brief  Starts the Low Level portion of the Device driver.
   * @param  pdev: Device handle
   * @retval USBD Status
   */
@@ -490,7 +489,7 @@ USBD_StatusTypeDef USBD_LL_SetUSBAddress(USBD_HandleTypeDef * pdev,
   * @param  pdev: Device handle
   * @param  ep_addr: Endpoint Number
   * @param  pbuf: Pointer to data to be sent
-  * @param  size: Data size    
+  * @param  size: Data size
   * @retval USBD Status
   */
 USBD_StatusTypeDef USBD_LL_Transmit(USBD_HandleTypeDef * pdev,
@@ -551,7 +550,7 @@ static void SystemClockConfig_STOP(void)
   RCC_OscInitStruct.HSI48State          = RCC_HSI48_ON;
   RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_OFF;
   HAL_RCC_OscConfig(&RCC_OscInitStruct);
-  
+
   /* Enable MSI Oscillator and activate PLL with MSI as source   */
   /* (Default MSI Oscillator enabled at system reset remains ON) */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
@@ -576,8 +575,8 @@ static void SystemClockConfig_STOP(void)
   RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV2;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;  
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;  
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
   HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3);
 
   /* AHB prescaler divider at 1 as second step */
@@ -586,9 +585,9 @@ static void SystemClockConfig_STOP(void)
   HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
 
 #elif defined (USB_USE_LSE_MSI_CLOCK)
-  
+
   RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
-  
+
   /* Enable MSI Oscillator and activate PLL with MSI as source   */
   /* (Default MSI Oscillator enabled at system reset remains ON) */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE|RCC_OSCILLATORTYPE_MSI;
@@ -619,8 +618,8 @@ static void SystemClockConfig_STOP(void)
   RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV2;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;  
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;  
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
   HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3);
 
   /* AHB prescaler divider at 1 as second step */
@@ -642,37 +641,37 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if (GPIO_Pin == WAKEUP_BUTTON_PIN)
   {
-    if ((((USBD_HandleTypeDef *) hpcd.pData)->dev_remote_wakeup == 1) &&
-        (((USBD_HandleTypeDef *) hpcd.pData)->dev_state ==
+    if ((((USBD_HandleTypeDef *) g_hpcd.pData)->dev_remote_wakeup == 1) &&
+        (((USBD_HandleTypeDef *) g_hpcd.pData)->dev_state ==
          USBD_STATE_SUSPENDED))
     {
-      if ((&hpcd)->Init.low_power_enable)
+      if ((&g_hpcd)->Init.low_power_enable)
       {
         /* Reset SLEEPDEEP bit of Cortex System Control Register */
         SCB->SCR &=
           (uint32_t) ~
             ((uint32_t) (SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
-        
+
         SystemClockConfig_STOP();
       }
-      
+
       /* Ungate PHY clock */
-      __HAL_PCD_UNGATE_PHYCLOCK((&hpcd));
-      
+      __HAL_PCD_UNGATE_PHYCLOCK((&g_hpcd));
+
       /* Activate Remote wakeup */
-      HAL_PCD_ActivateRemoteWakeup((&hpcd));
-      
+      HAL_PCD_ActivateRemoteWakeup((&g_hpcd));
+
       /* Remote wakeup delay */
       HAL_Delay(10);
-      
+
       /* Disable Remote wakeup */
-      HAL_PCD_DeActivateRemoteWakeup((&hpcd));
-      
+      HAL_PCD_DeActivateRemoteWakeup((&g_hpcd));
+
       /* change state to configured */
-      ((USBD_HandleTypeDef *) hpcd.pData)->dev_state = USBD_STATE_CONFIGURED;
-      
+      ((USBD_HandleTypeDef *) g_hpcd.pData)->dev_state = USBD_STATE_CONFIGURED;
+
       /* Change remote_wakeup feature to 0 */
-      ((USBD_HandleTypeDef *) hpcd.pData)->dev_remote_wakeup = 0;
+      ((USBD_HandleTypeDef *) g_hpcd.pData)->dev_remote_wakeup = 0;
       remotewakeupon = 1;
     }
   }
@@ -687,6 +686,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 void USBD_LL_Delay(uint32_t Delay)
 {
   HAL_Delay(Delay);
+}
+
+boolean_t USBD_IsBusSuspended(void) {
+  return s_bUsbBusSuspended;
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

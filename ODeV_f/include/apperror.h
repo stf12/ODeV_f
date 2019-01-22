@@ -54,6 +54,8 @@ extern "C" {
 // Task Level error code
 // *********************
 
+#define SYS_BASE_HCC_BASE_ERROR_CODE                          APP_BASE_ERROR_CODE
+#define SYS_HCC_TASK_REPORT_LOST_ERROR_CODE                   SYS_BASE_HCC_BASE_ERROR_CODE + 1
 
 
 #ifdef __cplusplus

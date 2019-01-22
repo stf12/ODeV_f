@@ -70,6 +70,11 @@
 #define INIT_TASK_CFG_STACK_SIZE                   (configMINIMAL_STACK_SIZE * 4)
 #define INIT_TASK_CFG_QUEUE_LENGTH                 100
 
+// file HostComChannelTask.c
+#define HCC_TASK_CFG_STACK_DEPTH                   (120*2)
+#define HCC_TASK_CFG_PRIORITY                      (configMAX_PRIORITIES - 2)
+#define HCC_TASK_CFG_IN_QUEUE_LENGTH               80
+
 // file HelloWorldTask.c
 // uncomment the following lines to change the task common parameters
 //#define HW_TASK_CFG_STACK_DEPTH                    120

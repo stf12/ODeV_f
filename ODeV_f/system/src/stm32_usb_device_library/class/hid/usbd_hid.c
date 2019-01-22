@@ -871,13 +871,47 @@ uint8_t  USBD_HID_CustomIF_Setup (USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef
   * @param  buff: pointer to report
   * @retval status
   */
-uint8_t USBD_HID_SendReport(USBD_HandleTypeDef  *pdev, uint8_t *report, uint16_t len) {
+uint8_t USBD_HID_MouseSendReport(USBD_HandleTypeDef  *pdev, uint8_t *report, uint16_t len) {
   USBD_HID_HandleTypeDef     *hhid = (USBD_HID_HandleTypeDef*)pdev->pClassData;
 
   if (pdev->dev_state == USBD_STATE_CONFIGURED ) {
     if(hhid->state[HID_MOUSE_IF_IDX] == HID_IDLE) {
       hhid->state[HID_MOUSE_IF_IDX] = HID_BUSY;
       USBD_LL_Transmit (pdev, HID_MOUSE_EPIN_ADDR, report, len);
+    }
+    else {
+      return USBD_BUSY;
+    }
+  }
+
+  return USBD_OK;
+}
+
+uint8_t USBD_HID_KeyboardSendReport(USBD_HandleTypeDef *pdev, uint8_t *report, uint16_t len) {
+  USBD_HID_HandleTypeDef     *hhid = (USBD_HID_HandleTypeDef*)pdev->pClassData;
+
+  if (pdev->dev_state == USBD_STATE_CONFIGURED ) {
+    if(hhid->state[HID_KEYBOARD_IF_IDX] == HID_IDLE) {
+      hhid->state[HID_KEYBOARD_IF_IDX] = HID_BUSY;
+      if (USBD_BUSY == USBD_LL_Transmit (pdev, HID_KEYBOARD_EPIN_ADDR, report, len)) {
+        return USBD_BUSY;
+      }
+    }
+    else {
+      return USBD_BUSY;
+    }
+  }
+
+  return USBD_OK;
+}
+
+uint8_t USBD_HID_CustomSendReport(USBD_HandleTypeDef *pdev, uint8_t *report, uint16_t len) {
+  USBD_HID_HandleTypeDef     *hhid = (USBD_HID_HandleTypeDef*)pdev->pClassData;
+
+  if (pdev->dev_state == USBD_STATE_CONFIGURED ) {
+    if(hhid->state[HID_CUSTOM_IF_IDX] == HID_IDLE) {
+      hhid->state[HID_CUSTOM_IF_IDX] = HID_BUSY;
+      USBD_LL_Transmit (pdev, HID_CUSTOM_EPIN_ADDR, report, len);
     }
     else {
       return USBD_BUSY;

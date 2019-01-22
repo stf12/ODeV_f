@@ -81,7 +81,7 @@ uint8_t *USBD_USR_BOSDescriptor(USBD_SpeedTypeDef speed , uint16_t *length);
 #endif
 
 /* Private variables --------------------------------------------------------- */
-USBD_DescriptorsTypeDef HID_Desc = {
+USBD_DescriptorsTypeDef g_xHidDesc = {
   USBD_HID_DeviceDescriptor,
   USBD_HID_LangIDStrDescriptor,
   USBD_HID_ManufacturerStrDescriptor,

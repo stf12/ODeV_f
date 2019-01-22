@@ -50,6 +50,7 @@ extern "C" {
 #define SYS_DBG_GUI                        SYS_DBG_ON                 ///< GUI task (TouchGFX) debug control byte
 #define SYS_DBG_TSC                        SYS_DBG_ON                 ///< Touch Screen Controller (TouchGFX) debug control byte
 #define SYS_DBG_HID_USB_DEVICE_SERVICES    SYS_DBG_OFF                ///< USB debug control byte
+#define SYS_DBG_HCC_TASK                   SYS_DBG_OFF                ///< Hst Communication Channel task debug control byte
 
 
 #ifdef __cplusplus

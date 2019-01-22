@@ -35,18 +35,20 @@
 #include "PushButtonTask.h"
 #include "GuiTask.h"
 #include "TscTask.h"
+#include "HostComChannelTask.h"
 
 
 static AManagedTask *s_pxHelloWorldObj = NULL;
 static AManagedTaskEx *s_pxPushButtonObj = NULL;
 static AManagedTaskEx *s_pxGuiTaskObj = NULL;
 static AManagedTaskEx *s_pxTscTaskObj = NULL;
+static AManagedTaskEx *s_pxHostComChannelTask = NULL;
 
-#include "usbd_core.h"
-#include "usbd_desc.h"
-#include "usbd_hid.h"
-USBD_HandleTypeDef USBD_Device;
-extern PCD_HandleTypeDef hpcd;
+//#include "usbd_core.h"
+//#include "usbd_desc.h"
+//#include "usbd_hid.h"
+//USBD_HandleTypeDef USBD_Device;
+//extern PCD_HandleTypeDef hpcd;
 
 
 extern "C"
@@ -54,20 +56,19 @@ sys_error_code_t SysLoadApplicationContext(ApplicationContext *pAppContext) {
   assert_param(pAppContext);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
-
   // Allocate the task objects
   s_pxHelloWorldObj = HelloWorldTaskAlloc();
   s_pxPushButtonObj = PushButtonTaskAlloc();
   s_pxGuiTaskObj = GuiTaskAlloc();
   s_pxTscTaskObj = TscTaskAlloc();
+  s_pxHostComChannelTask = HostComChannelTaskAlloc();
 
   // Add the task object to the context.
   xRes = ACAddTask(pAppContext, s_pxHelloWorldObj);
   xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxPushButtonObj);
   xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxTscTaskObj);
   xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxGuiTaskObj);
-
-
+  xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxHostComChannelTask);
 
   return xRes;
 }
@@ -79,22 +80,22 @@ sys_error_code_t SysOnStartApplication(ApplicationContext *pAppContext) {
   IDriver *pxNucleoDriver = HelloWorldTaskGetDriver((HelloWorldTask*)s_pxHelloWorldObj);
   PushButtonTaskSetDriver((PushButtonTask*)s_pxPushButtonObj, pxNucleoDriver);
 
-  // test the USB IP and the USD Device Library.
-
-  // Enable Power Clock
-  __HAL_RCC_PWR_CLK_ENABLE();
-
-  // Enable USB power on Pwrctrl CR2 register
-  HAL_PWREx_EnableVddUSB();
-
-  // Init Device Library
-  USBD_Init(&USBD_Device, &HID_Desc, 0);
-
-  // Add Supported Class
-  USBD_RegisterClass(&USBD_Device, (USBD_ClassTypeDef*)USBD_HID_CLASS);
-
-  // Start Device Process
-  USBD_Start(&USBD_Device);
+//  // test the USB IP and the USD Device Library.
+//
+//  // Enable Power Clock
+//  __HAL_RCC_PWR_CLK_ENABLE();
+//
+//  // Enable USB power on Pwrctrl CR2 register
+//  HAL_PWREx_EnableVddUSB();
+//
+//  // Init Device Library
+//  USBD_Init(&USBD_Device, &HID_Desc, 0);
+//
+//  // Add Supported Class
+//  USBD_RegisterClass(&USBD_Device, (USBD_ClassTypeDef*)USBD_HID_CLASS);
+//
+//  // Start Device Process
+//  USBD_Start(&USBD_Device);
 
   return SYS_NO_ERROR_CODE;
 }

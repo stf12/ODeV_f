@@ -56,7 +56,7 @@ static inline void ExtiDefISR();
 
 //extern SD_HandleTypeDef  hsd_eval;
 extern I2C_HandleTypeDef hi2c_eval;
-extern PCD_HandleTypeDef hpcd;
+extern PCD_HandleTypeDef g_hpcd;
 //extern USBD_HandleTypeDef USBD_Device;
 
 EXTI_DECLARE_PIN2F_MAP()
@@ -184,7 +184,7 @@ void LTDC_ER_IRQHandler(void)
   */
 void OTG_FS_IRQHandler(void)
 {
-  HAL_PCD_IRQHandler(&hpcd);
+  HAL_PCD_IRQHandler(&g_hpcd);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
