@@ -53,6 +53,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include  "usbd_ioreq.h"
+#include "HID-USBHelper.h"
+#include "hid_report_parser.h"
 
 /** @addtogroup STM32_USB_DEVICE_LIBRARY
   * @{
@@ -128,9 +130,17 @@ typedef enum
 }
 HID_StateTypeDef;
 
+/**
+ * A convenient way to operate the device report.
+ */
+typedef union _HIDReportBuffU {
+  HIDReport xReport;
+  uint8_t pcReportBuffer[sizeof(HIDReport)];
+} HIDReportBuffU;
 
 typedef struct
 {
+  HIDReportBuffU       Report;
   uint8_t              Interface;          ///< 1 when the output report is for the USB IF 1 (Keyboard)
   uint32_t             IsReportAvailable;
   uint32_t             Protocol;

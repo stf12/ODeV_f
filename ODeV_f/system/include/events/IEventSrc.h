@@ -55,47 +55,47 @@ typedef struct _IEventSrc IEventSrc;
 /**
  * Initialize an event source. This function should be called after the
  *
- * @param this [IN] specifies a pointer to an IEventSrc object.
+ * @param _this [IN] specifies a pointer to an IEventSrc object.
  * @return SYS_NO_ERROR_CODE if success, an subclass specific error code otherwise.
  */
-inline sys_error_code_t IEventSrcInit(IEventSrc *this);
+inline sys_error_code_t IEventSrcInit(IEventSrc *_this);
 
 /**
- * Register a listener with this event souce.
+ * Register a listener with this event source.
  *
- * @param this [IN] specifies a pointer to an IEventSrc object.
+ * @param _this [IN] specifies a pointer to an IEventSrc object.
  * @param pListener [IN] specifies a pointer to an IEventListener object.
  * @return SYS_NO_ERROR_CODE if success, an subclass specific error code otherwise.
  */
-inline sys_error_code_t IEventSrcAddEventListener(IEventSrc *this, IEventListener *pListener);
+inline sys_error_code_t IEventSrcAddEventListener(IEventSrc *_this, IEventListener *pListener);
 
 /**
  * Remove a listener from this event source,
  *
- * @param this [IN] specifies a pointer to an IEventSrc object.
+ * @param _this [IN] specifies a pointer to an IEventSrc object.
  * @param pListener [IN] specifies a pointer to an IEventListener object.
  * @return SYS_NO_ERROR_CODE if success, an subclass specific error code otherwise.
  */
-inline sys_error_code_t IEventSrcRemoveEventListener(IEventSrc *this, IEventListener *pListener);
+inline sys_error_code_t IEventSrcRemoveEventListener(IEventSrc *_this, IEventListener *pListener);
 
 /**
  * Get the maximum number of IEventListener that can be registered with this event source.
  *
- * @param this [IN] specifies a pointer to an IEventSrc object.
+ * @param _this [IN] specifies a pointer to an IEventSrc object.
  * @return the maximum number of IEventListener that can be registered with this event source
  */
-inline uint32_t IEventSrcGetMaxListenerCount(const IEventSrc *this);
+inline uint32_t IEventSrcGetMaxListenerCount(const IEventSrc *_this);
 
 /**
  * Send an IEvent to all the registered IEventListener.
  *
- * @param this [IN] specifies a pointer to an IEventSrc object.
+ * @param _this [IN] specifies a pointer to an IEventSrc object.
  * @param pxEvent [IN] specifies a pointer to an IEvent object.
  * @param pvParams [IN] specifies a generic pointer that can be used by the application
  *                      extend the semantic  Event design pattern.
  * @return SYS_NO_ERROR_CODE if success, an subclass specific error code otherwise.
  */
-inline sys_error_code_t IEventSrcSendEvent(const IEventSrc *this, const IEvent *pxEvent, void *pvParams);
+inline sys_error_code_t IEventSrcSendEvent(const IEventSrc *_this, const IEvent *pxEvent, void *pvParams);
 
 
 // Inline functions definition

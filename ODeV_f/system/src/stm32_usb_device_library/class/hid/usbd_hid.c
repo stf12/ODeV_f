@@ -74,7 +74,7 @@
 #include "usbd_ctlreq.h"
 #include "sysdebug.h"
 
-#define SYS_DEBUGF(level, message)      SYS_DEBUGF3(SYS_DBG_INIT, level, message)
+#define SYS_DEBUGF(level, message)      SYS_DEBUGF3(SYS_DBG_HID_USB_DEVICE_SERVICES, level, message)
 
 
 
@@ -139,6 +139,8 @@ static uint8_t  *USBD_HID_GetDeviceQualifierDesc (uint16_t *length);
 
 static uint8_t  USBD_HID_DataIn (USBD_HandleTypeDef *pdev, uint8_t epnum);
 
+static uint8_t USBD_HID_EP0_RxReady(USBD_HandleTypeDef *pdev);
+
 static uint8_t  USBD_HID_MouseIF_Setup (USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 static uint8_t  USBD_HID_KeyboardIF_Setup (USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 static uint8_t  USBD_HID_CustomIF_Setup (USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
@@ -169,7 +171,7 @@ const USBD_ClassTypeDef  USBD_HID =
   USBD_HID_DeInit,
   USBD_HID_Setup,
   NULL, /*EP0_TxSent*/
-  NULL, /*EP0_RxReady*/
+  USBD_HID_EP0_RxReady, /*EP0_RxReady*/
   USBD_HID_DataIn, /*DataIn*/
   NULL, /*DataOut*/
   NULL, /*SOF */
@@ -474,15 +476,15 @@ __ALIGN_BEGIN static const uint8_t HID_KEYBOARD_ReportDesc[HID_KEYBOARD_REPORT_D
   0x09, 0x06,        // Usage (Keyboard)
   0xA1, 0x01,        // Collection (Application)
   0x05, 0x07,        //   Usage Page (Kbrd/Keypad)
-  0x19, 0xE0,        //   Usage Minimum (0xE0)
-  0x29, 0xE7,        //   Usage Maximum (0xE7)
+  0x19, 0xE0,        //   Usage Minimum (Keyboard LeftControl)
+  0x29, 0xE7,        //   Usage Maximum (Keyboard Right GUI)
   0x15, 0x00,        //   Logical Minimum (0)
   0x25, 0x01,        //   Logical Maximum (1)
   0x75, 0x01,        //   Report Size (1)
   0x95, 0x08,        //   Report Count (8)
   0x81, 0x02,        //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
   0x81, 0x01,        //   Input (Const,Array,Abs,No Wrap,Linear,Preferred State,No Null Position)
-  0x19, 0x00,        //   Usage Minimum (0x00)
+  0x19, 0x00,        //   Usage Minimum (UNDEFINED)
   0x29, 0x73,        //   Usage Maximum (0x73)
   0x15, 0x00,        //   Logical Minimum (0)
   0x25, 0x73,        //   Logical Maximum (115)
@@ -660,7 +662,7 @@ static uint8_t  USBD_HID_Setup (USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *
       return (USBD_HID_CustomIF_Setup(pdev, req));
     }
     else {
-//      SYS_DEBUGF(SYS_DBG_LEVEL_SL, ("HID_USB_D_S: unknown IF:%i.\r\n", req->wIndex));
+      SYS_DEBUGF(SYS_DBG_LEVEL_SL, ("HID_USB_D_S: unknown IF:%i.\r\n", req->wIndex));
     }
     break;
   case USB_REQ_RECIPIENT_ENDPOINT:
@@ -670,12 +672,11 @@ static uint8_t  USBD_HID_Setup (USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *
     else if ((req->wIndex == HID_KEYBOARD_EPIN_ADDR)) {
       return (USBD_HID_KeyboardIF_Setup(pdev, req));
     }
-    else if(req->wIndex == HID_CUSTOM_INTERFACE) {
+    else if(req->wIndex == HID_CUSTOM_EPIN_ADDR) {
       return (USBD_HID_CustomIF_Setup(pdev, req));
     }
     else {
-      SYS_DEBUGF(SYS_DBG_LEVEL_SL, ("HID_USB_D_S: unknown IF:%i.\r\n", req->wIndex));
-      //sys_error_handler();
+      SYS_DEBUGF(SYS_DBG_LEVEL_SL, ("HID_USB_D_S: unknown EP:%i.\r\n", req->wIndex));
     }
     break;
   }
@@ -696,10 +697,10 @@ static uint8_t  USBD_HID_MouseIF_Setup (USBD_HandleTypeDef *pdev, USBD_SetupReqT
 {
   uint16_t len = 0;
   USBD_HID_HandleTypeDef     *hhid = (USBD_HID_HandleTypeDef*) pdev->pClassData;
-//  HIDUSBHelper *pHelper = (HIDUSBHelper*)pdev->pUserData;
-//  UsbEvent xEvent;
+  HIDUSBHelper *pHelper = (HIDUSBHelper*)pdev->pUserData;
+  UsbEvent xEvent;
 
-  SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("HID_USB_D_S: TouchCtrlIF_Setup() ---> bRequest = 0x%x bmRequest = 0x%x\r\n", req->bRequest, req->bmRequest));
+  SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("HID_USB_D_S: MouselIF_Setup() ---> bRequest = 0x%x bmRequest = 0x%x\r\n", req->bRequest, req->bmRequest));
 
   switch (req->bmRequest & USB_REQ_TYPE_MASK) {
 
@@ -719,12 +720,12 @@ static uint8_t  USBD_HID_MouseIF_Setup (USBD_HandleTypeDef *pdev, USBD_SetupReqT
       break;
     case HID_REQ_SET_REPORT:
       hhid->IsReportAvailable = 1;
-//      USBD_CtlPrepareRx (pdev, hhid->Report.pcReportBuffer, (uint8_t)(req->wLength)); //TODO: STF
+      USBD_CtlPrepareRx (pdev, hhid->Report.pcReportBuffer, (uint8_t)(req->wLength));
       break;
     case HID_REQ_GET_REPORT:
-//      SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("HID_USB_D_S: TouchCtrlIF_Setup() ---> reportID = %x \r\n", LOBYTE(req->wValue)));
-//      UsbEventInit(&xEvent, (IEventSrc*)pHelper, E_USB_GET_REPORT, LOBYTE(req->wValue), NULL);
-//      IEventSrcSendEvent((IEventSrc*)pHelper, (IEvent*)&xEvent, NULL);
+      SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("HID_USB_D_S: MouseIF_Setup() ---> reportID = %x \r\n", LOBYTE(req->wValue)));
+      UsbEventInit(&xEvent, (IEventSrc*)pHelper, E_USB_GET_REPORT, LOBYTE(req->wValue), NULL);
+      IEventSrcSendEvent((IEventSrc*)pHelper, (IEvent*)&xEvent, NULL);
       break;
     default:
       USBD_CtlError (pdev, req);
@@ -776,7 +777,7 @@ uint8_t  USBD_HID_KeyboardIF_Setup (USBD_HandleTypeDef *pdev, USBD_SetupReqTyped
     case HID_REQ_SET_REPORT:
       hhid->IsReportAvailable = 1;
       hhid->Interface = 1;
-//      USBD_CtlPrepareRx (pdev, hhid->Report.pcReportBuffer, (uint8_t)(req->wLength)); //TODO: STF
+      USBD_CtlPrepareRx (pdev, hhid->Report.pcReportBuffer, (uint8_t)(req->wLength));
       break;
     default:
       USBD_CtlError (pdev, req);
@@ -834,7 +835,7 @@ uint8_t  USBD_HID_CustomIF_Setup (USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef
       break;
     case HID_REQ_SET_REPORT:
       hhid->IsReportAvailable = 1;
-//      USBD_CtlPrepareRx(pdev, (uint8_t *)&hhid->Report.pcReportBuffer, req->wLength); //TODO: STF
+      USBD_CtlPrepareRx(pdev, (uint8_t *)&hhid->Report.pcReportBuffer, req->wLength);
       break;
     default:
       USBD_CtlError (pdev, req);
@@ -970,6 +971,38 @@ static uint8_t  USBD_HID_DataIn (USBD_HandleTypeDef *pdev,
   /* Ensure that the FIFO is empty before a new transfer, this condition could
   be caused by  a new transfer before the end of the previous transfer */
   ((USBD_HID_HandleTypeDef *)pdev->pClassData)->state[epnum-1] = HID_IDLE;
+  return USBD_OK;
+}
+
+/**
+  * Handles control request data.
+  *
+  * @param  pdev: device instance
+  * @retval status
+  */
+uint8_t USBD_HID_EP0_RxReady(USBD_HandleTypeDef *pdev)
+{
+  USBD_HID_HandleTypeDef     *hhid = (USBD_HID_HandleTypeDef*)pdev->pClassData;
+  HIDUSBHelper *pHelper = (HIDUSBHelper*)pdev->pUserData;
+  UsbEvent xEvent;
+
+  if (hhid->IsReportAvailable == 1) {
+    if (hhid->Interface == 1) {
+      // Special case!!! The only output report without a report ID in the report descriptor.
+      // It is the report 0x11 that specifies the status of the LEDs.
+      // Normalize the content of the buffer so also this report has an ID.
+      hhid->Report.pcReportBuffer[1] = hhid->Report.pcReportBuffer[0];
+      hhid->Report.pcReportBuffer[0] = HID_REPORT_ID_LEDS;
+      hhid->Interface = 0;
+    }
+
+    SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("HID_USB_D_S: EP0_RxReady() ---> reportID = %x \r\n", hhid->Report.xReport.reportID));
+
+    UsbEventInit(&xEvent, (IEventSrc*)pHelper, E_USB_SET_REPORT, hhid->Report.xReport.reportID, hhid->Report.pcReportBuffer);
+    IEventSrcSendEvent((IEventSrc*)pHelper, (IEvent*)&xEvent, NULL);
+    hhid->IsReportAvailable = 0;
+  }
+
   return USBD_OK;
 }
 
