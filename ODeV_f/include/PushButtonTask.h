@@ -43,6 +43,7 @@ extern "C" {
 #include "AManagedTaskEx_vtbl.h"
 #include "IDriver.h"
 #include "IDriverVtbl.h"
+#include "queue.h"
 
 
 /**
@@ -71,6 +72,8 @@ struct _PushButtonTask {
    * so this variable track when the user press the button, but it is not released yet.
    */
   boolean_t m_bButtonArmed;
+
+  QueueHandle_t m_xOutputQueue;
 };
 
 
@@ -94,6 +97,8 @@ AManagedTaskEx *PushButtonTaskAlloc();
  */
 inline sys_error_code_t PushButtonTaskSetDriver(PushButtonTask *_this, IDriver *pDxriver);
 
+inline sys_error_code_t PushButtonTaskSetOutputQueue(PushButtonTask *_this, QueueHandle_t xQueue);
+
 
 // Inline functions definition
 // ***************************
@@ -104,6 +109,16 @@ sys_error_code_t PushButtonTaskSetDriver(PushButtonTask *_this, IDriver *pxDrive
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
   _this->m_pxDriver = pxDriver;
+
+  return xRes;
+}
+
+SYS_DEFINE_INLINE
+sys_error_code_t PushButtonTaskSetOutputQueue(PushButtonTask *_this, QueueHandle_t xQueue) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+
+  _this->m_xOutputQueue = xQueue;
 
   return xRes;
 }

@@ -177,7 +177,7 @@ void HAL_PCD_SOFCallback(PCD_HandleTypeDef * hpcd)
   if (s_bUsbBusSuspended) {
     s_bUsbBusSuspended = FALSE;
 
-    SYS_DEBUGF3(SYS_DBG_INIT, SYS_DBG_LEVEL_VERBOSE, ("USBD: flag=FALSE.\r\n"));
+    SYS_DEBUGF3(SYS_DBG_HID_USB_DEVICE_SERVICES, SYS_DBG_LEVEL_VERBOSE, ("USBD: flag=FALSE.\r\n"));
   }
 }
 
@@ -209,7 +209,7 @@ void HAL_PCD_SuspendCallback(PCD_HandleTypeDef * hpcd)
   __HAL_PCD_GATE_PHYCLOCK(hpcd);
   USBD_LL_Suspend(hpcd->pData);
 
-//  SYS_DEBUGF3(SYS_DBG_INIT, SYS_DBG_LEVEL_VERBOSE, ("USBD: suspend; flag=%u.\r\n", s_bUsbBusSuspended));
+  SYS_DEBUGF3(SYS_DBG_HID_USB_DEVICE_SERVICES, SYS_DBG_LEVEL_VERBOSE, ("USBD: suspend; flag=%u.\r\n", s_bUsbBusSuspended));
 
 //  SysEvent xEvent;
 //  if (!s_bUsbBusSuspended) {
@@ -252,6 +252,8 @@ void HAL_PCD_ResumeCallback(PCD_HandleTypeDef * hpcd)
 
   __HAL_PCD_UNGATE_PHYCLOCK(hpcd);
   USBD_LL_Resume(hpcd->pData);
+
+  SYS_DEBUGF3(SYS_DBG_HID_USB_DEVICE_SERVICES, SYS_DBG_LEVEL_VERBOSE, ("USBD: resume.\r\n"));
 
 //  uint16_t nResumeTriggeringEvt = hpcd->Instance->FNR; // check the bit RXDP and RXDM - FNR[14, 15]
 //  nResumeTriggeringEvt = nResumeTriggeringEvt >> 14;
@@ -347,7 +349,9 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef * pdev)
   /* configure EPs FIFOs */
   HAL_PCDEx_SetRxFiFo(&g_hpcd, 0x80);
   HAL_PCDEx_SetTxFiFo(&g_hpcd, 0, 0x40);
-  HAL_PCDEx_SetTxFiFo(&g_hpcd, 1, 0x80);
+  HAL_PCDEx_SetTxFiFo(&g_hpcd, 1, 0x20);
+  HAL_PCDEx_SetTxFiFo(&g_hpcd, 2, 0x40);
+  HAL_PCDEx_SetTxFiFo(&g_hpcd, 3, 0x20);
 
   return USBD_OK;
 }
@@ -689,7 +693,7 @@ void USBD_LL_Delay(uint32_t Delay)
 }
 
 boolean_t USBD_IsBusSuspended(void) {
-  return s_bUsbBusSuspended;
+  return FALSE; //s_bUsbBusSuspended;
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

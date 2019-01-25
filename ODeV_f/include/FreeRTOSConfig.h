@@ -103,7 +103,7 @@
 #endif
 #define configUSE_RECURSIVE_MUTEXES              1
 #define configUSE_COUNTING_SEMAPHORES            0
-#define configQUEUE_REGISTRY_SIZE                10
+#define configQUEUE_REGISTRY_SIZE                12
 #define configUSE_QUEUE_SETS                     0
 #define configENABLE_BACKWARD_COMPATIBILITY      1
 #define configNUM_THREAD_LOCAL_STORAGE_POINTERS  0

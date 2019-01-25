@@ -36,6 +36,7 @@
 #include "GuiTask.h"
 #include "TscTask.h"
 #include "HostComChannelTask.h"
+#include "gui/common/FrontendApplication.hpp"
 
 
 static AManagedTask *s_pxHelloWorldObj = NULL;
@@ -43,12 +44,6 @@ static AManagedTaskEx *s_pxPushButtonObj = NULL;
 static AManagedTaskEx *s_pxGuiTaskObj = NULL;
 static AManagedTaskEx *s_pxTscTaskObj = NULL;
 static AManagedTaskEx *s_pxHostComChannelTask = NULL;
-
-//#include "usbd_core.h"
-//#include "usbd_desc.h"
-//#include "usbd_hid.h"
-//USBD_HandleTypeDef USBD_Device;
-//extern PCD_HandleTypeDef hpcd;
 
 
 extern "C"
@@ -80,22 +75,13 @@ sys_error_code_t SysOnStartApplication(ApplicationContext *pAppContext) {
   IDriver *pxNucleoDriver = HelloWorldTaskGetDriver((HelloWorldTask*)s_pxHelloWorldObj);
   PushButtonTaskSetDriver((PushButtonTask*)s_pxPushButtonObj, pxNucleoDriver);
 
-//  // test the USB IP and the USD Device Library.
-//
-//  // Enable Power Clock
-//  __HAL_RCC_PWR_CLK_ENABLE();
-//
-//  // Enable USB power on Pwrctrl CR2 register
-//  HAL_PWREx_EnableVddUSB();
-//
-//  // Init Device Library
-//  USBD_Init(&USBD_Device, &HID_Desc, 0);
-//
-//  // Add Supported Class
-//  USBD_RegisterClass(&USBD_Device, (USBD_ClassTypeDef*)USBD_HID_CLASS);
-//
-//  // Start Device Process
-//  USBD_Start(&USBD_Device);
+  // Set the output delivery queue.
+  QueueHandle_t xQueue = HostComChannelGetInputReportQueue(s_pxHostComChannelTask);
+
+  FrontendApplication* guiApp = static_cast<FrontendApplication*>(FrontendApplication::getInstance());
+  guiApp->getModel().SetOutputQueue(xQueue);
+
+  PushButtonTaskSetOutputQueue((PushButtonTask*)s_pxPushButtonObj, xQueue);
 
   return SYS_NO_ERROR_CODE;
 }

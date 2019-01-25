@@ -78,12 +78,17 @@
 // file HelloWorldTask.c
 // uncomment the following lines to change the task common parameters
 //#define HW_TASK_CFG_STACK_DEPTH                    120
-//#define HW_TASK_CFG_PRIORITY                       (tskIDLE_PRIORITY+1)
+#define HW_TASK_CFG_PRIORITY                       (tskIDLE_PRIORITY+1)
 
 // file PushButtonTask.c
 // uncomment the following lines to change the task common parameters
 //#define PB_TASK_CFG_STACK_DEPTH                    120
-//#define PB_TASK_CFG_PRIORITY                       (tskIDLE_PRIORITY+2)
+#define PB_TASK_CFG_PRIORITY                       (tskIDLE_PRIORITY+1)
 
+// file TscTask.c
+#define TSC_TASK_CFG_PRIORITY                      (tskIDLE_PRIORITY+2)
+
+// file GuiTask.cpp
+#define GUI_TASK_CFG_PRIORITY                      (tskIDLE_PRIORITY+2)
 
 #endif /* SYSCONFIG_H_ */

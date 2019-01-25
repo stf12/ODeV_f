@@ -893,9 +893,7 @@ uint8_t USBD_HID_KeyboardSendReport(USBD_HandleTypeDef *pdev, uint8_t *report, u
   if (pdev->dev_state == USBD_STATE_CONFIGURED ) {
     if(hhid->state[HID_KEYBOARD_IF_IDX] == HID_IDLE) {
       hhid->state[HID_KEYBOARD_IF_IDX] = HID_BUSY;
-      if (USBD_BUSY == USBD_LL_Transmit (pdev, HID_KEYBOARD_EPIN_ADDR, report, len)) {
-        return USBD_BUSY;
-      }
+      USBD_LL_Transmit (pdev, HID_KEYBOARD_EPIN_ADDR, report, len);
     }
     else {
       return USBD_BUSY;
@@ -1078,7 +1076,7 @@ const MS_COMPAT_ID_FEATURE_DESC_V1_0 ExtCompatIDFeatureDescriptor_V1_0 =
   MAX_USB_FUNC_NUM,                         //bCount
   {0,0,0,0,0,0,0},                          //reserved[7]
   //fuction
-  .func[0].bFirstInterfaceNumber = HID_TOUCH_CTRL_INTERFACE,
+  .func[0].bFirstInterfaceNumber = HID_MOUSE_INTERFACE,
   .func[0].reserved_1 = 1,
   .func[0].compatID = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
   .func[0].subCompatID = {0,0,0,0,0,0,0,0},
@@ -1132,7 +1130,7 @@ static uint8_t* USBD_HID_ExtPropDescriptor(USBD_HandleTypeDef *pdev, uint16_t wV
 //uint8_t page_num = (wValue>>8)&0xff;
 uint8_t intf_num = (wValue)&0xff;
 
-  if((intf_num == HID_TOUCH_CTRL_INTERFACE) || (intf_num == HID_KEYBOARD_INTERFACE) || (intf_num == HID_CUSTOM_INTERFACE)){
+  if((intf_num == HID_MOUSE_INTERFACE) || (intf_num == HID_KEYBOARD_INTERFACE) || (intf_num == HID_CUSTOM_INTERFACE)){
     *length = sizeof(ExtPropertyFeatureDescriptor_V1_0);
     return (uint8_t *)&ExtPropertyFeatureDescriptor_V1_0;
   }
@@ -1167,7 +1165,7 @@ const MS_OS_STR_DESC_V2_0 MsOsStrDescriptor_V2_0 =
   //func header
   .conf.funcs[0].hdr.wLength = sizeof(MsOsStrDescriptor_V2_0.conf.funcs[0].hdr),
   .conf.funcs[0].hdr.wDescriptorType = MS_OS_20_SUBSET_HEADER_FUNCTION,
-  .conf.funcs[0].hdr.bFirstInterface = HID_TOUCH_CTRL_INTERFACE,
+  .conf.funcs[0].hdr.bFirstInterface = HID_MOUSE_INTERFACE,
   .conf.funcs[0].hdr.bReserved = 0x00,
   .conf.funcs[0].hdr.wSubsetLength = sizeof(MsOsStrDescriptor_V2_0.conf.funcs[0].hdr)+sizeof(MsOsStrDescriptor_V2_0.conf.funcs[0].reg),
   //registry

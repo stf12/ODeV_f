@@ -36,6 +36,9 @@
 #include "NucleoDriver_vtbl.h"
 #include "gui/common/FrontendApplication.hpp"
 
+#include "hid_report_parser.h"
+#include "string.h"
+
 #ifndef PB_TASK_CFG_STACK_DEPTH
 #define PB_TASK_CFG_STACK_DEPTH      120
 #endif
@@ -87,6 +90,8 @@ static void PushButtonTaskRun(void *pParams);
 // ***********************************
 
 #if defined (__GNUC__)
+extern sys_error_code_t PushButtonTaskSetOutputQueue(PushButtonTask *_this, QueueHandle_t xQueue);
+extern sys_error_code_t PushButtonTaskSetDriver(PushButtonTask *_this, IDriver *pxDriver);
 #endif
 
 
@@ -188,6 +193,25 @@ static sys_error_code_t PushButtonTaskExecuteStepRun(PushButtonTask *_this) {
         uint8_t nIncrement = 1;
         FrontendApplication* guiApp = static_cast<FrontendApplication*>(FrontendApplication::getInstance());
         guiApp->getModel().incrementCounter(nIncrement);
+
+        if (_this->m_xOutputQueue) {
+//          static HIDReport xReport02;
+//          memset(&xReport02, 0, sizeof(HIDReport));
+//          xReport02.reportID = HID_REPORT_ID_MOUSE;
+//          xReport02.inputReport02.nDX = 0x25;
+//
+//          xQueueSendToBack(_this->m_xOutputQueue, &xReport02, pdMS_TO_TICKS(50));
+
+//          static HIDReport xReport10;
+//          memset(&xReport10, 0, sizeof(HIDReport));
+//          xReport10.reportID = HID_REPORT_ID_KEYBOARD;
+//          xReport10.inputReport10.nKeyCodeArray[0] = 0x16; // s for STF :)
+//          xQueueSendToBack(_this->m_xOutputQueue, &xReport10, pdMS_TO_TICKS(50));
+//
+//          vTaskDelay(pdMS_TO_TICKS(500));
+//          xReport10.inputReport10.nKeyCodeArray[0] = 0; // s for STF :)
+//          xQueueSendToBack(_this->m_xOutputQueue, &xReport10, pdMS_TO_TICKS(50));
+        }
       }
       else {
         _this->m_bButtonArmed = TRUE;

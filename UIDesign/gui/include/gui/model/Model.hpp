@@ -52,6 +52,12 @@ public:
      */
     void incrementCounter(uint8_t nIncrement);
 
+#ifdef ODEV_F
+    void sendChar();
+    void moveCursor();
+    void SetOutputQueue(QueueHandle_t xQueue);
+#endif
+
 protected:
     /**
      * Pointer to the currently active presenter.
@@ -64,6 +70,7 @@ private:
     uint8_t m_nCounter;
 #ifdef ODEV_F
     QueueHandle_t m_xInputQueue;
+    QueueHandle_t m_xOutputQueue; ///< to send HID report to the host via USB.
 #endif
 };
 
