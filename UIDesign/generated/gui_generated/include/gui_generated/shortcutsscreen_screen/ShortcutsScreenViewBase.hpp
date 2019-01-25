@@ -20,6 +20,19 @@ public:
 
     virtual void setupScreen();
 
+    /*
+     * Custom Action Handlers
+     */
+    virtual void OnButtonCopyClicked()
+    {
+        // Override and implement this function in ShortcutsScreenView
+    }
+
+    virtual void OnButtonCutClicked()
+    {
+        // Override and implement this function in ShortcutsScreenView
+    }
+
 protected:
     FrontendApplication& application() {
         return *static_cast<FrontendApplication*>(Application::getInstance());

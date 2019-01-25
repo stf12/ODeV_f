@@ -27,6 +27,10 @@ public:
 
     virtual ~ShortcutsScreenPresenter() {};
 
+    void OnButtonCopyClicked();
+
+    void OnButtonCutClicked();
+
 private:
     ShortcutsScreenPresenter();
 

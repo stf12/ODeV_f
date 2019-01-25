@@ -319,14 +319,14 @@
                     "Pressed": "__designer\\dark_buttons_round_edge_icon_button_pressed.png",
                     "Released": "__designer\\dark_buttons_round_edge_icon_button.png",
                     "Alpha": 255,
-                    "IconPressed": "__designer\\dark_icons_remove_48.png",
-                    "IconReleased": "__designer\\dark_icons_remove_48.png",
-                    "IconX": 6,
-                    "IconY": 6,
-                    "IconHeight": 48,
-                    "IconWidth": 48,
+                    "IconPressed": "__designer\\dark_icons_expand_48.png",
+                    "IconReleased": "__designer\\dark_icons_expand_48.png",
+                    "IconX": 7,
+                    "IconY": 7,
+                    "IconHeight": 46,
+                    "IconWidth": 46,
                     "ButtonStyle": "Style1",
-                    "IconStyle": "Icon54",
+                    "IconStyle": "Icon20",
                     "Name": "buttonCut",
                     "X": 0,
                     "Y": -1,
@@ -500,6 +500,30 @@
               "ScreenTransitionDirection": "West",
               "ActionComponent": "main",
               "Type": "ActionGotoScreen"
+            }
+          },
+          {
+            "InteractionName": "Interaction2",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "TriggerComponent": "buttonCopy",
+              "Type": "TriggerClicked"
+            },
+            "Action": {
+              "FunctionName": "OnButtonCopyClicked",
+              "Type": "ActionCustom"
+            }
+          },
+          {
+            "InteractionName": "Interaction3",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "TriggerComponent": "buttonCut",
+              "Type": "TriggerClicked"
+            },
+            "Action": {
+              "FunctionName": "OnButtonCutClicked",
+              "Type": "ActionCustom"
             }
           }
         ],

@@ -1085,13 +1085,13 @@
             <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_done_32.cpp</name>
           </file>
           <file>
+            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_expand_48.cpp</name>
+          </file>
+          <file>
             <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_go_back_32.cpp</name>
           </file>
           <file>
             <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_go_next_32.cpp</name>
-          </file>
-          <file>
-            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_remove_48.cpp</name>
           </file>
           <file>
             <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_pageindicator_dot_indicator_small_highlight.cpp</name>

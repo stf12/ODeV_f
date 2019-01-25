@@ -11,6 +11,9 @@ public:
     virtual ~ShortcutsScreenView() {}
     virtual void setupScreen();
     virtual void tearDownScreen();
+
+    virtual void OnButtonCopyClicked();
+    virtual void OnButtonCutClicked();
 protected:
 };
 

@@ -16,13 +16,15 @@ ShortcutsScreenViewBase::ShortcutsScreenViewBase() :
     swipeContainer1Page1.setPosition(0, 0, 480, 135);
 
     buttonCut.setXY(0, -1);
-    buttonCut.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_PRESSED_ID), Bitmap(BITMAP_DARK_ICONS_REMOVE_48_ID), Bitmap(BITMAP_DARK_ICONS_REMOVE_48_ID));
-    buttonCut.setIconXY(6, 6);
+    buttonCut.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_PRESSED_ID), Bitmap(BITMAP_DARK_ICONS_EXPAND_48_ID), Bitmap(BITMAP_DARK_ICONS_EXPAND_48_ID));
+    buttonCut.setIconXY(7, 7);
+    buttonCut.setAction(buttonCallback);
     swipeContainer1Page1.add(buttonCut);
 
     buttonCopy.setXY(60, -1);
     buttonCopy.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_PRESSED_ID), Bitmap(BITMAP_DARK_ICONS_DOCUMENT_32_ID), Bitmap(BITMAP_DARK_ICONS_DOCUMENT_32_ID));
     buttonCopy.setIconXY(16, 14);
+    buttonCopy.setAction(buttonCallback);
     swipeContainer1Page1.add(buttonCopy);
     swipeContainer1.add(swipeContainer1Page1);
 
@@ -64,11 +66,17 @@ void ShortcutsScreenViewBase::buttonCallbackHandler(const touchgfx::AbstractButt
 {
     if (&src == &buttonCut)
     {
-
+        //Interaction3
+        //When buttonCut clicked call virtual function
+        //Call OnButtonCutClicked
+        OnButtonCutClicked();
     }
     else if (&src == &buttonCopy)
     {
-
+        //Interaction2
+        //When buttonCopy clicked call virtual function
+        //Call OnButtonCopyClicked
+        OnButtonCopyClicked();
     }
     else if (&src == &buttonPaste)
     {
