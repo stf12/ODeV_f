@@ -36,6 +36,7 @@
 #include "GuiTask.h"
 #include "TscTask.h"
 #include "HostComChannelTask.h"
+#include "ShortcutsDemonTask.h"
 #include "gui/common/FrontendApplication.hpp"
 
 
@@ -44,6 +45,7 @@ static AManagedTaskEx *s_pxPushButtonObj = NULL;
 static AManagedTaskEx *s_pxGuiTaskObj = NULL;
 static AManagedTaskEx *s_pxTscTaskObj = NULL;
 static AManagedTaskEx *s_pxHostComChannelTask = NULL;
+static AManagedTaskEx *s_pxShortcutsDTask = NULL;
 
 
 extern "C"
@@ -57,6 +59,7 @@ sys_error_code_t SysLoadApplicationContext(ApplicationContext *pAppContext) {
   s_pxGuiTaskObj = GuiTaskAlloc();
   s_pxTscTaskObj = TscTaskAlloc();
   s_pxHostComChannelTask = HostComChannelTaskAlloc();
+  s_pxShortcutsDTask = ShortcutsDemonTaskAlloc();
 
   // Add the task object to the context.
   xRes = ACAddTask(pAppContext, s_pxHelloWorldObj);
@@ -64,6 +67,7 @@ sys_error_code_t SysLoadApplicationContext(ApplicationContext *pAppContext) {
   xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxTscTaskObj);
   xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxGuiTaskObj);
   xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxHostComChannelTask);
+  xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxShortcutsDTask);
 
   return xRes;
 }
