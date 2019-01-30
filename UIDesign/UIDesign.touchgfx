@@ -319,14 +319,59 @@
                     "Pressed": "__designer\\dark_buttons_round_edge_icon_button_pressed.png",
                     "Released": "__designer\\dark_buttons_round_edge_icon_button.png",
                     "Alpha": 255,
-                    "IconPressed": "__designer\\dark_icons_expand_48.png",
-                    "IconReleased": "__designer\\dark_icons_expand_48.png",
-                    "IconX": 7,
-                    "IconY": 7,
-                    "IconHeight": 46,
-                    "IconWidth": 46,
+                    "IconPressed": "cursor_32.png",
+                    "IconReleased": "cursor_32.png",
+                    "IconX": 14,
+                    "IconY": 14,
+                    "IconHeight": 32,
+                    "IconWidth": 32,
                     "ButtonStyle": "Style1",
-                    "IconStyle": "Icon20",
+                    "Name": "buttonCursor",
+                    "X": 0,
+                    "Y": 67,
+                    "Width": 60,
+                    "Height": 60,
+                    "Type": "ButtonWithIcon",
+                    "Visible": true,
+                    "Draggable": false,
+                    "Clickable": false,
+                    "Fadeable": false,
+                    "Moveable": false
+                  },
+                  {
+                    "Pressed": "__designer\\dark_buttons_round_edge_icon_button_pressed.png",
+                    "Released": "__designer\\dark_buttons_round_edge_icon_button.png",
+                    "Alpha": 255,
+                    "IconPressed": "edit-paste_32.png",
+                    "IconReleased": "edit-paste_32.png",
+                    "IconX": 14,
+                    "IconY": 14,
+                    "IconHeight": 32,
+                    "IconWidth": 32,
+                    "ButtonStyle": "Style1",
+                    "Name": "buttonPaste",
+                    "X": 120,
+                    "Y": -1,
+                    "Width": 60,
+                    "Height": 60,
+                    "Type": "ButtonWithIcon",
+                    "Visible": true,
+                    "Draggable": false,
+                    "Clickable": false,
+                    "Fadeable": false,
+                    "Moveable": false
+                  },
+                  {
+                    "Pressed": "__designer\\dark_buttons_round_edge_icon_button_pressed.png",
+                    "Released": "__designer\\dark_buttons_round_edge_icon_button.png",
+                    "Alpha": 255,
+                    "IconPressed": "edit-cut_32.png",
+                    "IconReleased": "edit-cut_32.png",
+                    "IconX": 14,
+                    "IconY": 14,
+                    "IconHeight": 32,
+                    "IconWidth": 32,
+                    "ButtonStyle": "Style1",
                     "Name": "buttonCut",
                     "X": 0,
                     "Y": -1,
@@ -390,7 +435,7 @@
                     "IconWidth": 32,
                     "ButtonStyle": "Style1",
                     "IconStyle": "Icon11",
-                    "Name": "buttonPaste",
+                    "Name": "buttonPaste_2",
                     "X": 117,
                     "Y": 7,
                     "Width": 60,
@@ -523,6 +568,30 @@
             },
             "Action": {
               "FunctionName": "OnButtonCutClicked",
+              "Type": "ActionCustom"
+            }
+          },
+          {
+            "InteractionName": "Interaction4",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "TriggerComponent": "buttonPaste",
+              "Type": "TriggerClicked"
+            },
+            "Action": {
+              "FunctionName": "OnButtonPasteClicked",
+              "Type": "ActionCustom"
+            }
+          },
+          {
+            "InteractionName": "Interaction5",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "TriggerComponent": "buttonCursor",
+              "Type": "TriggerClicked"
+            },
+            "Action": {
+              "FunctionName": "OnButtonMouseClicked",
               "Type": "ActionCustom"
             }
           }

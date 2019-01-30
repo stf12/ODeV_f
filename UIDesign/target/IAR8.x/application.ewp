@@ -1133,9 +1133,6 @@
             <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_done_32.cpp</name>
           </file>
           <file>
-            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_expand_48.cpp</name>
-          </file>
-          <file>
             <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_go_back_32.cpp</name>
           </file>
           <file>
@@ -1150,6 +1147,15 @@
         </group>
         <file>
           <name>$PROJ_DIR$\..\..\generated\images\src\BitmapDatabase.cpp</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\generated\images\src\cursor_32.cpp</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\generated\images\src\edit-cut_32.cpp</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\generated\images\src\edit-paste_32.cpp</name>
         </file>
         <file>
           <name>$PROJ_DIR$\..\..\generated\images\src\left_arrow_small.cpp</name>

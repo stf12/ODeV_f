@@ -33,6 +33,16 @@ public:
         // Override and implement this function in ShortcutsScreenView
     }
 
+    virtual void OnButtonPasteClicked()
+    {
+        // Override and implement this function in ShortcutsScreenView
+    }
+
+    virtual void OnButtonMouseClicked()
+    {
+        // Override and implement this function in ShortcutsScreenView
+    }
+
 protected:
     FrontendApplication& application() {
         return *static_cast<FrontendApplication*>(Application::getInstance());
@@ -44,11 +54,13 @@ protected:
     touchgfx::Box Background;
     touchgfx::SwipeContainer swipeContainer1;
     touchgfx::Container swipeContainer1Page1;
+    touchgfx::ButtonWithIcon buttonCursor;
+    touchgfx::ButtonWithIcon buttonPaste;
     touchgfx::ButtonWithIcon buttonCut;
     touchgfx::ButtonWithIcon buttonCopy;
 
     touchgfx::Container swipeContainer1Page2;
-    touchgfx::ButtonWithIcon buttonPaste;
+    touchgfx::ButtonWithIcon buttonPaste_2;
     touchgfx::ButtonWithIcon buttonPaste_1;
 
     touchgfx::ButtonWithIcon buttonBack;

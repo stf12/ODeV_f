@@ -5,6 +5,7 @@
 #ifdef ODEV_F
 #include "FreeRTOS.h"
 #include "queue.h"
+#include "ShortcutsDemonTask.h"
 #endif
 
 class ModelListener;
@@ -53,9 +54,12 @@ public:
     void incrementCounter(uint8_t nIncrement);
 
 #ifdef ODEV_F
-    void sendChar();
+    void sendCopyShortcut();
+    void sendCutShotcut();
+    void sendPasteShortcut();
     void moveCursor();
     void SetOutputQueue(QueueHandle_t xQueue);
+    void SetShortcutsDemonTask(ShortcutsDemonTask *pxTask);
 #endif
 
 protected:
@@ -71,6 +75,7 @@ private:
 #ifdef ODEV_F
     QueueHandle_t m_xInputQueue;
     QueueHandle_t m_xOutputQueue; ///< to send HID report to the host via USB.
+    ShortcutsDemonTask *m_pxShortcutsTask; ///< to send shortcuts.
 #endif
 };
 

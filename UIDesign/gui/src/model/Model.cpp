@@ -4,6 +4,9 @@
 #include "syserror.h"
 #include "hid_report_parser.h"
 #include "string.h"
+#include <CShortcutCopy.h>
+#include <CShortcutCut.h>
+#include <CShortcutPaste.h>
 #endif
 
 Model::Model() : modelListener(0)
@@ -11,6 +14,7 @@ Model::Model() : modelListener(0)
   m_nCounter = 0;
 
 #ifdef ODEV_F
+  m_pxShortcutsTask = NULL;
   m_xOutputQueue = NULL;
   m_xInputQueue = xQueueCreate(10, 1);
   if (m_xInputQueue == NULL) {
@@ -48,18 +52,27 @@ void Model::incrementCounter(uint8_t nIncrement) {
 
 #ifdef ODEV_F
 
-void Model::sendChar() {
-  static HIDReport xReport10;
+void Model::sendCopyShortcut() {
+  static odev::CShortcutCopy s_xShortcut;
 
-  if (m_xOutputQueue != NULL) {
-    memset(&xReport10, 0, sizeof(HIDReport));
+  if (m_pxShortcutsTask != NULL) {
+    ShortcutsDemonTaskPostShortcuts(m_pxShortcutsTask, &s_xShortcut);
+  }
+}
 
-    xReport10.reportID = HID_REPORT_ID_KEYBOARD;
-    xReport10.inputReport10.nKeyCodeArray[0] = 0x16; // s for STF :)
-    xQueueSendToBack(m_xOutputQueue, &xReport10, pdMS_TO_TICKS(50));
+void Model::sendCutShotcut() {
+  static odev::CShortcutCut s_xShortcut;
 
-    xReport10.inputReport10.nKeyCodeArray[0] = 0; // s for STF :)
-    xQueueSendToBack(m_xOutputQueue, &xReport10, pdMS_TO_TICKS(50));
+  if (m_pxShortcutsTask != NULL) {
+    ShortcutsDemonTaskPostShortcuts(m_pxShortcutsTask, &s_xShortcut);
+  }
+}
+
+void Model::sendPasteShortcut() {
+  static odev::CShortcutPaste s_xShortcut;
+
+  if (m_pxShortcutsTask != NULL) {
+    ShortcutsDemonTaskPostShortcuts(m_pxShortcutsTask, &s_xShortcut);
   }
 }
 
@@ -78,6 +91,10 @@ void Model::moveCursor() {
 
 void Model::SetOutputQueue(QueueHandle_t xQueue) {
   m_xOutputQueue = xQueue;
+}
+
+void Model::SetShortcutsDemonTask(ShortcutsDemonTask *pxTask) {
+  m_pxShortcutsTask = pxTask;
 }
 
 #endif

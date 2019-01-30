@@ -14,6 +14,9 @@ public:
 
     virtual void OnButtonCopyClicked();
     virtual void OnButtonCutClicked();
+    virtual void OnButtonPasteClicked();
+    virtual void OnButtonMouseClicked();
+
 protected:
 };
 

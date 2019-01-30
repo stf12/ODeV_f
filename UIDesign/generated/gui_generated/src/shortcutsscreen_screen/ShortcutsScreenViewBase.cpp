@@ -15,9 +15,21 @@ ShortcutsScreenViewBase::ShortcutsScreenViewBase() :
 
     swipeContainer1Page1.setPosition(0, 0, 480, 135);
 
+    buttonCursor.setXY(0, 67);
+    buttonCursor.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_PRESSED_ID), Bitmap(BITMAP_CURSOR_32_ID), Bitmap(BITMAP_CURSOR_32_ID));
+    buttonCursor.setIconXY(14, 14);
+    buttonCursor.setAction(buttonCallback);
+    swipeContainer1Page1.add(buttonCursor);
+
+    buttonPaste.setXY(120, -1);
+    buttonPaste.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_PRESSED_ID), Bitmap(BITMAP_EDIT_PASTE_32_ID), Bitmap(BITMAP_EDIT_PASTE_32_ID));
+    buttonPaste.setIconXY(14, 14);
+    buttonPaste.setAction(buttonCallback);
+    swipeContainer1Page1.add(buttonPaste);
+
     buttonCut.setXY(0, -1);
-    buttonCut.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_PRESSED_ID), Bitmap(BITMAP_DARK_ICONS_EXPAND_48_ID), Bitmap(BITMAP_DARK_ICONS_EXPAND_48_ID));
-    buttonCut.setIconXY(7, 7);
+    buttonCut.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_PRESSED_ID), Bitmap(BITMAP_EDIT_CUT_32_ID), Bitmap(BITMAP_EDIT_CUT_32_ID));
+    buttonCut.setIconXY(14, 14);
     buttonCut.setAction(buttonCallback);
     swipeContainer1Page1.add(buttonCut);
 
@@ -30,10 +42,10 @@ ShortcutsScreenViewBase::ShortcutsScreenViewBase() :
 
     swipeContainer1Page2.setPosition(0, 0, 480, 135);
 
-    buttonPaste.setXY(117, 7);
-    buttonPaste.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_PRESSED_ID), Bitmap(BITMAP_DARK_ICONS_DONE_32_ID), Bitmap(BITMAP_DARK_ICONS_DONE_32_ID));
-    buttonPaste.setIconXY(14, 14);
-    swipeContainer1Page2.add(buttonPaste);
+    buttonPaste_2.setXY(117, 7);
+    buttonPaste_2.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_PRESSED_ID), Bitmap(BITMAP_DARK_ICONS_DONE_32_ID), Bitmap(BITMAP_DARK_ICONS_DONE_32_ID));
+    buttonPaste_2.setIconXY(14, 14);
+    swipeContainer1Page2.add(buttonPaste_2);
 
     buttonPaste_1.setXY(191, 7);
     buttonPaste_1.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_PRESSED_ID), Bitmap(BITMAP_DARK_ICONS_DONE_32_ID), Bitmap(BITMAP_DARK_ICONS_DONE_32_ID));
@@ -64,7 +76,21 @@ void ShortcutsScreenViewBase::setupScreen()
 
 void ShortcutsScreenViewBase::buttonCallbackHandler(const touchgfx::AbstractButton& src)
 {
-    if (&src == &buttonCut)
+    if (&src == &buttonCursor)
+    {
+        //Interaction5
+        //When buttonCursor clicked call virtual function
+        //Call OnButtonMouseClicked
+        OnButtonMouseClicked();
+    }
+    else if (&src == &buttonPaste)
+    {
+        //Interaction4
+        //When buttonPaste clicked call virtual function
+        //Call OnButtonPasteClicked
+        OnButtonPasteClicked();
+    }
+    else if (&src == &buttonCut)
     {
         //Interaction3
         //When buttonCut clicked call virtual function
@@ -78,7 +104,7 @@ void ShortcutsScreenViewBase::buttonCallbackHandler(const touchgfx::AbstractButt
         //Call OnButtonCopyClicked
         OnButtonCopyClicked();
     }
-    else if (&src == &buttonPaste)
+    else if (&src == &buttonPaste_2)
     {
 
     }

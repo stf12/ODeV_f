@@ -31,6 +31,10 @@ public:
 
     void OnButtonCutClicked();
 
+    void OnButtonPasteClicked();
+
+    void OnButtonCursorClicked();
+
 private:
     ShortcutsScreenPresenter();
 

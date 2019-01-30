@@ -22,3 +22,11 @@ void ShortcutsScreenView::OnButtonCopyClicked() {
 void ShortcutsScreenView::OnButtonCutClicked() {
   presenter->OnButtonCutClicked();
 }
+
+void ShortcutsScreenView::OnButtonPasteClicked() {
+  presenter->OnButtonPasteClicked();
+}
+
+void ShortcutsScreenView::OnButtonMouseClicked() {
+  presenter->OnButtonCursorClicked();
+}
