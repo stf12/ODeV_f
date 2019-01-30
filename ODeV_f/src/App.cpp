@@ -84,8 +84,11 @@ sys_error_code_t SysOnStartApplication(ApplicationContext *pAppContext) {
 
   FrontendApplication* guiApp = static_cast<FrontendApplication*>(FrontendApplication::getInstance());
   guiApp->getModel().SetOutputQueue(xQueue);
+  ShortcutsDemontaskSetOutputQueue((ShortcutsDemonTask*)s_pxShortcutsDTask, xQueue);
 
   PushButtonTaskSetOutputQueue((PushButtonTask*)s_pxPushButtonObj, xQueue);
+
+  guiApp->getModel().SetShortcutsDemonTask((ShortcutsDemonTask*)s_pxShortcutsDTask);
 
   return SYS_NO_ERROR_CODE;
 }

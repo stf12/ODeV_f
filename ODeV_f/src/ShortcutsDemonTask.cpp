@@ -5,7 +5,7 @@
  * @version 1.0.0
  * @date    Jan 28, 2019
  *
- * @brief   
+ * @brief
  *
  * <DESCRIPTIOM>
  *
@@ -32,10 +32,11 @@
 #include "ShortcutsDemonTask.h"
 #include "ShortcutsDemonTask_vtbl.h"
 #include "sysdebug.h"
+#include "hid_report_parser.h"
 
 
 #ifndef SCD_TASK_CFG_STACK_DEPTH
-#define SCD_TASK_CFG_STACK_DEPTH              120
+#define SCD_TASK_CFG_STACK_DEPTH              240
 #endif
 
 #ifndef SCD_TASK_CFG_PRIORITY
@@ -47,6 +48,7 @@
 #endif
 
 #define SCD_TASK_CFG_IN_QUEUE_ITEM_SIZE       sizeof(odev::AShortcut*)
+#define SCD_TASK_CFG_KEY_DELAY_MS             10
 
 #define SYS_DEBUGF(level, message)      SYS_DEBUGF3(SYS_DBG_SCD, level, message)
 
@@ -82,9 +84,20 @@ static sys_error_code_t ShortcutsDemonTaskExecuteStepRun(ShortcutsDemonTask *_th
 /**
  * Task control function.
  *
- * @param pParams .
+ * @param pParams [IN] specifies a pointer to the task object.
  */
 static void ShortcutsDemonTaskRun(void *pParams);
+
+/**
+ * If the key code is a modifier, then it set the value of the modifier in the report and return `TRUE`.
+ *
+ * @param _this [IN] specifies a pointer to the task object.
+ * @param nKeyCode [IN] specifies a key code.
+ * @param pxReport [IN] specifies the ::HIDReport to modify.
+ * @param bSet [IN] specifies the value of the modifier key.
+ * @return `TRUE` if the key code is modifier key, `FALSE` otherwise.
+ */
+static boolean_t ShortcutsDemonTaskCheckModifierKey(ShortcutsDemonTask *_this, uint8_t nKeyCode, HIDReport *pxReport, boolean_t bVal);
 
 
 // Inline function forward declaration
@@ -127,6 +140,7 @@ sys_error_code_t ShortcutsDemonTask_vtblOnCreateTask(AManagedTask *_this, TaskFu
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   ShortcutsDemonTask *pObj = (ShortcutsDemonTask*)_this;
 
+  pObj->m_xOutputQueue = NULL;
   pObj->m_xShortcutsInQueue = xQueueCreate(SCD_TASK_CFG_IN_QUEUE_LENGTH, SCD_TASK_CFG_IN_QUEUE_ITEM_SIZE);
   if (pObj->m_xShortcutsInQueue == NULL) {
     xRes = SYS_TASK_HEAP_OUT_OF_MEMORY_ERROR_CODE;
@@ -181,10 +195,21 @@ sys_error_code_t ShortcutsDemonTaskPostShortcuts(ShortcutsDemonTask *_this, odev
     xRes = SYS_INVALID_FUNC_CALL_ERROR_CODE;
   }
   else {
-
+    if (pdTRUE != xQueueSendToBack(_this->m_xShortcutsInQueue, &pxShortcut, pdMS_TO_TICKS(100))) {
+      xRes = SYS_TASK_QUEUE_FULL_ERROR_CODE;
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(xRes);
+    }
   }
 
   return xRes;
+}
+
+sys_error_code_t ShortcutsDemontaskSetOutputQueue(ShortcutsDemonTask *_this, QueueHandle_t xQueue) {
+  assert_param(_this);
+
+  _this->m_xOutputQueue = xQueue;
+
+  return SYS_NO_ERROR_CODE;
 }
 
 // Private function definition
@@ -193,6 +218,40 @@ sys_error_code_t ShortcutsDemonTaskPostShortcuts(ShortcutsDemonTask *_this, odev
 static sys_error_code_t ShortcutsDemonTaskExecuteStepRun(ShortcutsDemonTask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  odev::AShortcut *pxShortcut = NULL;
+  HIDReport xReport = {0};
+  xReport.reportID = HID_REPORT_ID_KEYBOARD;
+
+  AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
+  if (pdTRUE == xQueueReceive(_this->m_xShortcutsInQueue, &pxShortcut, portMAX_DELAY)) {
+    AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
+
+    //send the key report one by one every SCD_TASK_CFG_KEY_DELAY_MS ms.
+
+    // send the key pressed event.
+    if (_this->m_xOutputQueue != NULL) {
+      uint8_t nKeyCount = pxShortcut->GetKeyCount();
+      for (int i=0; i<nKeyCount; i++) {
+        if (!ShortcutsDemonTaskCheckModifierKey(_this, (*pxShortcut)[i], &xReport, TRUE)) {
+          xReport.inputReport10.nKeyCodeArray[i] = (*pxShortcut)[i];
+        }
+        xQueueSendToBack(_this->m_xOutputQueue, &xReport, pdMS_TO_TICKS(100));
+        vTaskDelay(SCD_TASK_CFG_KEY_DELAY_MS);
+      }
+
+      // send teh key release event
+      for (int i=nKeyCount; i>0; i--) {
+        if (!ShortcutsDemonTaskCheckModifierKey(_this, (*pxShortcut)[i-1], &xReport, FALSE)) {
+          xReport.inputReport10.nKeyCodeArray[i-1] = 0;
+        }
+        xQueueSendToBack(_this->m_xOutputQueue, &xReport, pdMS_TO_TICKS(100));
+        vTaskDelay(SCD_TASK_CFG_KEY_DELAY_MS);
+      }
+    }
+  }
+  else {
+    AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
+  }
 
   return xRes;
 }
@@ -243,4 +302,43 @@ static void ShortcutsDemonTaskRun(void *pParams) {
     }
 #endif
   }
+}
+
+static boolean_t ShortcutsDemonTaskCheckModifierKey(ShortcutsDemonTask *_this, uint8_t nKeyCode, HIDReport *pxReport, boolean_t bVal) {
+  assert_param(_this);
+  assert_param(pxReport);
+  boolean_t bRes = TRUE;
+
+  switch (nKeyCode) {
+  case KC_LEFT_GUI:
+    pxReport->inputReport10.nLeftGUI = bVal;
+  break;
+  case KC_LEFT_SHIFT:
+    pxReport->inputReport10.nLeftShift = bVal;
+  break;
+  case KC_LEFT_CTRL:
+    pxReport->inputReport10.nLeftCtrl = bVal;
+  break;
+  case KC_LEFT_ALT:
+    pxReport->inputReport10.nLeftAlt = bVal;
+  break;
+  case KC_RIGHT_GUI:
+    pxReport->inputReport10.nRightGUI = bVal;
+  break;
+  case KC_RIGHT_SHIFT:
+    pxReport->inputReport10.nRightShift = bVal;
+   break;
+  case KC_RIGHT_ALT:
+    pxReport->inputReport10.nRightAlt = bVal;
+   break;
+  case KC_RIGHT_CTRL:
+    pxReport->inputReport10.nRightCtrl = bVal;
+    break;
+  default:
+    // the key code is not a modifier.
+    bRes = FALSE;
+    break;
+  }
+
+  return bRes;
 }

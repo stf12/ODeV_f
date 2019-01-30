@@ -62,6 +62,12 @@ struct _ShortcutsDemonTask {
    * This queue receives the shortcuts to be sent to the host.
    */
   QueueHandle_t m_xShortcutsInQueue;
+
+  /**
+   * This queue is used to deliver the keys report sequences to the host communication channel task.
+   * N.B. when there is the key scanner, then the key must delivered as a key event to the keyboard task.
+   */
+  QueueHandle_t m_xOutputQueue;
 };
 
 
@@ -85,6 +91,15 @@ AManagedTaskEx *ShortcutsDemonTaskAlloc();
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
 sys_error_code_t ShortcutsDemonTaskPostShortcuts(ShortcutsDemonTask *_this, odev::AShortcut *pxShortcut);
+
+/**
+ * Set the queue used by the task to deliver the key report sequences to the host communication task.
+ *
+ * @param _this  [IN] specifies a pointer to a task object.
+ * @param xQueue [IN] specifies a queue.
+ * @return SYS_NO_ERROR_CODE.
+ */
+sys_error_code_t ShortcutsDemontaskSetOutputQueue(ShortcutsDemonTask *_this, QueueHandle_t xQueue);
 
 
 // Inline functions definition
