@@ -407,6 +407,29 @@
                     "Clickable": false,
                     "Fadeable": false,
                     "Moveable": false
+                  },
+                  {
+                    "Pressed": "__designer\\dark_buttons_round_edge_icon_button_pressed.png",
+                    "Released": "__designer\\dark_buttons_round_edge_icon_button.png",
+                    "Alpha": 255,
+                    "IconPressed": "snipping-tool_32.png",
+                    "IconReleased": "snipping-tool_32.png",
+                    "IconX": 14,
+                    "IconY": 14,
+                    "IconHeight": 32,
+                    "IconWidth": 32,
+                    "ButtonStyle": "Style1",
+                    "Name": "buttonSnip",
+                    "X": 180,
+                    "Y": -1,
+                    "Width": 60,
+                    "Height": 60,
+                    "Type": "ButtonWithIcon",
+                    "Visible": true,
+                    "Draggable": false,
+                    "Clickable": false,
+                    "Fadeable": false,
+                    "Moveable": false
                   }
                 ],
                 "Name": "swipeContainer1Page1",
@@ -493,7 +516,7 @@
             "IndicatorImageNormal": "__designer\\dark_pageindicator_dot_indicator_small_normal.png",
             "IndicatorImageHighlight": "__designer\\dark_pageindicator_dot_indicator_small_highlight.png",
             "EndSwipeElasticWidth": 50,
-            "SelectedPage": "swipeContainer1Page2",
+            "SelectedPage": "swipeContainer1Page1",
             "Style": "Style1",
             "Name": "swipeContainer1",
             "X": 0,
@@ -592,6 +615,18 @@
             },
             "Action": {
               "FunctionName": "OnButtonMouseClicked",
+              "Type": "ActionCustom"
+            }
+          },
+          {
+            "InteractionName": "Interaction6",
+            "HasCompletedTrigger": false,
+            "Trigger": {
+              "TriggerComponent": "buttonSnip",
+              "Type": "TriggerClicked"
+            },
+            "Action": {
+              "FunctionName": "OnButtonSnipClicked",
               "Type": "ActionCustom"
             }
           }

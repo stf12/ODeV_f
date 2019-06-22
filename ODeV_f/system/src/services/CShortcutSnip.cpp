@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    CShortcutCut.cpp
+ * @file    CShortcutSnip.cpp
  * @author  STMicroelectronics - ST-Korea - MCD Team
  * @version 1.0.0
- * @date    Jan 30, 2019
+ * @date    Feb 20, 2019
  *
  * @brief
  *
@@ -28,23 +28,23 @@
  *
  ******************************************************************************
  */
-#include <CShortcutCut.h>
+#include <CShortcutSnip.h>
 
 namespace odev {
 
-const uint8_t CShortcutCut::s_nKeys[] = {KC_058, KC_047};
+const uint8_t CShortcutSnip::s_nKeys[] = { KC_127, KC_044, KC_032 };
 
-CShortcutCut::CShortcutCut() {
+CShortcutSnip::CShortcutSnip() {
   // TODO Auto-generated constructor stub
 
 }
 
-CShortcutCut::~CShortcutCut() {
+CShortcutSnip::~CShortcutSnip() {
   // TODO Auto-generated destructor stub
 }
 
-uint8_t CShortcutCut::operator [](uint8_t nIndex) const {
-   return nIndex < 2 ? s_nKeys[nIndex] : KC_NUL;
+uint8_t CShortcutSnip::operator [](uint8_t nIndex) const {
+   return nIndex < 3 ? s_nKeys[nIndex] : KC_NUL;
 }
 
 } /* namespace odev */

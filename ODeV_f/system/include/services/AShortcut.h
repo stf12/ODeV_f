@@ -3,7 +3,7 @@
  * @file    AShortcut.h
  * @author  STMicroelectronics - ST-Korea - MCD Team
  * @version 1.0.0
- * @date    Jan 28, 2019
+ * @date    Feb 19, 2019
  *
  * @brief
  *
@@ -31,34 +31,16 @@
 #ifndef INCLUDE_SERVICES_ASHORTCUT_H_
 #define INCLUDE_SERVICES_ASHORTCUT_H_
 
-#include "KeyboardKeyCodesMap.h"
+#include <IShortcut.h>
 
 namespace odev {
 
-/**
- * @class AShortcut
- *
- * A shortcut is ...
- */
-class AShortcut {
+class AShortcut: public IShortcut {
 public:
   AShortcut();
   virtual ~AShortcut();
 
-  /**
-   * Get the number of keys represented by the shortcuts.
-   *
-   * @return the number of keys represented by the shortcuts.
-   */
-  virtual const uint8_t GetKeyCount() const =0;
-
-  /**
-   *
-   *
-   * @param nIndex
-   * @return
-   */
-  virtual uint8_t operator[](uint8_t nIndex) const =0;
+  virtual bool operator==(const IShortcut &xOther);
 };
 
 } /* namespace odev */

@@ -34,8 +34,18 @@ void ShortcutsScreenPresenter::OnButtonPasteClicked() {
 #endif
 }
 
+void ShortcutsScreenPresenter::OnButtonSnipClicked() {
+#ifdef ODEV_F
+  model->sendSnipShortcut();
+#endif
+}
+
 void ShortcutsScreenPresenter::OnButtonCursorClicked() {
 #ifdef ODEV_F
   model->moveCursor();
 #endif
+}
+
+void ShortcutsScreenPresenter::onShortcutsPageChanged(uint8_t nSelectedPage) {
+  view.SetPage(nSelectedPage);
 }

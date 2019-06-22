@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    CShortcutCut.cpp
+ * @file    AShortcut.h
  * @author  STMicroelectronics - ST-Korea - MCD Team
  * @version 1.0.0
- * @date    Jan 30, 2019
+ * @date    Jan 28, 2019
  *
  * @brief
  *
@@ -28,23 +28,40 @@
  *
  ******************************************************************************
  */
-#include <CShortcutCut.h>
+#ifndef INCLUDE_SERVICES_ISHORTCUT_H_
+#define INCLUDE_SERVICES_ISHORTCUT_H_
+
+#include "systp.h"
+#include "KeyboardKeyCodesMap.h"
 
 namespace odev {
 
-const uint8_t CShortcutCut::s_nKeys[] = {KC_058, KC_047};
+/**
+ * @class AShortcut
+ *
+ * A shortcut is ...
+ */
+class IShortcut {
+public:
 
-CShortcutCut::CShortcutCut() {
-  // TODO Auto-generated constructor stub
+  /**
+   * Get the number of keys represented by the shortcuts.
+   *
+   * @return the number of keys represented by the shortcuts.
+   */
+  virtual const uint8_t GetKeyCount() const =0;
 
-}
+  /**
+   *
+   *
+   * @param nIndex
+   * @return
+   */
+  virtual uint8_t operator[](uint8_t nIndex) const =0;
 
-CShortcutCut::~CShortcutCut() {
-  // TODO Auto-generated destructor stub
-}
-
-uint8_t CShortcutCut::operator [](uint8_t nIndex) const {
-   return nIndex < 2 ? s_nKeys[nIndex] : KC_NUL;
-}
+  virtual bool operator==(const IShortcut &xOther) =0;
+};
 
 } /* namespace odev */
+
+#endif /* INCLUDE_SERVICES_ISHORTCUT_H_ */

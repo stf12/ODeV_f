@@ -21,6 +21,7 @@ const uint16_t BITMAP_EDIT_CUT_32_ID = 11; // Size: 32x32 pixels
 const uint16_t BITMAP_EDIT_PASTE_32_ID = 12; // Size: 32x32 pixels
 const uint16_t BITMAP_LEFT_ARROW_SMALL_ID = 13; // Size: 53x42 pixels
 const uint16_t BITMAP_ODEV_F_LOGO_ID = 14; // Size: 266x147 pixels
+const uint16_t BITMAP_SNIPPING_TOOL_32_ID = 15; // Size: 32x32 pixels
 
 namespace BitmapDatabase
 {

@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    AShortcut.cpp
+ * @file    CShortchut.cpp
  * @author  STMicroelectronics - ST-Korea - MCD Team
  * @version 1.0.0
- * @date    Feb 19, 2019
+ * @date    Feb 20, 2019
  *
  * @brief
  *
@@ -28,32 +28,55 @@
  *
  ******************************************************************************
  */
-#include <AShortcut.h>
+#include <CShortchut.h>
+#include "FreeRTOS.h"
 
 namespace odev {
 
-AShortcut::AShortcut() {
-  // TODO Auto-generated constructor stub
-
+CShortchut::CShortchut() {
+  m_nKeysNumber = 0;
+  m_pnKeyCode = NULL;
 }
 
-AShortcut::~AShortcut() {
+CShortchut::CShortchut(uint8_t nKeysNumber, uint8_t *pnKeyKode) {
+  m_nKeysNumber = 0;
+  m_pnKeyCode = NULL;
+
+  Init(nKeysNumber, pnKeyKode);
+}
+
+CShortchut::~CShortchut() {
   // TODO Auto-generated destructor stub
 }
 
-bool AShortcut::operator==(const IShortcut &xOther) {
-  uint8_t nKeyCount = xOther.GetKeyCount();
-  if (GetKeyCount() != nKeyCount) {
-    return false;
-  }
+sys_error_code_t CShortchut::Init(uint8_t nKeysNumber, uint8_t *pnKeyCode) {
+  assert_param(pnKeyCode);
+  assert_param(nKeysNumber);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
-  for (uint8_t i=0; i< nKeyCount; ++i) {
-    if (xOther[i] != (*this)[i]) {
-      return false;
+  if (m_nKeysNumber != 0) {
+    // the shortcut has been already initialized. You cannot initialize it twice, because
+    // the memory from the FreeRTOS heap (heap_1.c) cannot be released.
+    xRes = SYS_INVALID_FUNC_CALL_ERROR_CODE;
+    SYS_SET_SERVICE_LEVEL_ERROR_CODE(xRes);
+  }
+  else {
+    m_pnKeyCode = (uint8_t*)pvPortMalloc(nKeysNumber);
+    if (m_pnKeyCode == NULL) {
+      xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(xRes);
+    }
+    else {
+      m_nKeysNumber = nKeysNumber;
+      for (int i=0; i<nKeysNumber; ++i) {
+        m_pnKeyCode[i] = pnKeyCode[i];
+      }
     }
   }
 
-  return true;
+  return xRes;
 }
 
 } /* namespace odev */
+
+

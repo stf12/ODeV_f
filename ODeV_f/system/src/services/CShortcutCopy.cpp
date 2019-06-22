@@ -32,7 +32,9 @@
 
 namespace odev {
 
-CShortcutCopy::CShortcutCopy(): m_nKeys{KC_058, KC_048}
+const uint8_t CShortcutCopy::s_nKeys[] = {KC_058, KC_048};
+
+CShortcutCopy::CShortcutCopy()
 {
   // TODO Auto-generated constructor stub
 }
@@ -42,7 +44,7 @@ CShortcutCopy::~CShortcutCopy() {
 }
 
 uint8_t CShortcutCopy::operator [](uint8_t nIndex) const {
-   return nIndex < 2 ? m_nKeys[nIndex] : KC_NUL;
+   return nIndex < 2 ? s_nKeys[nIndex] : KC_NUL;
 }
 
 } /* namespace odev */

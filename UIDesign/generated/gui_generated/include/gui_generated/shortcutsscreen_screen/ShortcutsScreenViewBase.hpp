@@ -43,6 +43,11 @@ public:
         // Override and implement this function in ShortcutsScreenView
     }
 
+    virtual void OnButtonSnipClicked()
+    {
+        // Override and implement this function in ShortcutsScreenView
+    }
+
 protected:
     FrontendApplication& application() {
         return *static_cast<FrontendApplication*>(Application::getInstance());
@@ -58,6 +63,7 @@ protected:
     touchgfx::ButtonWithIcon buttonPaste;
     touchgfx::ButtonWithIcon buttonCut;
     touchgfx::ButtonWithIcon buttonCopy;
+    touchgfx::ButtonWithIcon buttonSnip;
 
     touchgfx::Container swipeContainer1Page2;
     touchgfx::ButtonWithIcon buttonPaste_2;

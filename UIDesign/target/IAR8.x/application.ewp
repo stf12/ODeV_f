@@ -1163,6 +1163,9 @@
         <file>
           <name>$PROJ_DIR$\..\..\generated\images\src\odev_f_logo.cpp</name>
         </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\generated\images\src\snipping-tool_32.cpp</name>
+        </file>
       </group>
       <group>
         <name>texts</name>

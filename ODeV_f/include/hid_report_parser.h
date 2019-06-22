@@ -53,6 +53,7 @@ extern "C" {
 #define HID_REPORT_ID_LEDS                0x11
 #define HID_REPORT_ID_FN_KEYS_1           0x12
 #define HID_REPORT_ID_FN_KEYS_2           0x14
+#define HID_REPORT_ID_SHORTCUTS           0x17
 #define HID_REPORT_ID_FORCE_STEP          0xFE  /// Special ID used by the INIT task to force the execution of ManagedTaskEx step.
 
 typedef union _HIDReport {
@@ -157,6 +158,19 @@ typedef union _HIDReport {
     uint8_t  : 1;                                      // Pad
     uint8_t  : 1;                                      // Pad
   } outputRepor11;
+
+
+  //--------------------------------------------------------------------------------
+  // Generic Desktop Page outputReport 17 (Device <-- Host)
+  //--------------------------------------------------------------------------------
+
+  struct outputReport17_t
+  {
+    uint8_t  reportId;                                 // Report ID = 0x17 (23)
+                                                       // Collection: Undefined
+    uint8_t  nShortcutsPageId : 1;                     // Usage 0x00010000: Undefined, Value = 0 to 1
+    uint8_t  nReserved : 7;                            // Pad
+  } outputReport17;
 
 
   //--------------------------------------------------------------------------------

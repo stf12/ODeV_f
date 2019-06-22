@@ -41,7 +41,7 @@ extern "C" {
 #include "AManagedTaskEx.h"
 #include "AManagedTaskEx_vtbl.h"
 #include "queue.h"
-#include "AShortcut.h"
+#include <IShortcut.h>
 
 
 /**
@@ -90,7 +90,7 @@ AManagedTaskEx *ShortcutsDemonTaskAlloc();
  *        it is a pointer the caller must guarantee that the shortcut object persist.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
-sys_error_code_t ShortcutsDemonTaskPostShortcuts(ShortcutsDemonTask *_this, odev::AShortcut *pxShortcut);
+sys_error_code_t ShortcutsDemonTaskPostShortcuts(ShortcutsDemonTask *_this, odev::IShortcut *pxShortcut);
 
 /**
  * Set the queue used by the task to deliver the key report sequences to the host communication task.

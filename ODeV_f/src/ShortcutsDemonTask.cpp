@@ -47,7 +47,7 @@
 #define SCD_TASK_CFG_IN_QUEUE_LENGTH          10
 #endif
 
-#define SCD_TASK_CFG_IN_QUEUE_ITEM_SIZE       sizeof(odev::AShortcut*)
+#define SCD_TASK_CFG_IN_QUEUE_ITEM_SIZE       sizeof(odev::IShortcut*)
 #define SCD_TASK_CFG_KEY_DELAY_MS             10
 
 #define SYS_DEBUGF(level, message)      SYS_DEBUGF3(SYS_DBG_SCD, level, message)
@@ -186,7 +186,7 @@ sys_error_code_t ShortcutsDemonTask_vtblForceExecuteStep(AManagedTaskEx *_this, 
   return xRes;
 }
 
-sys_error_code_t ShortcutsDemonTaskPostShortcuts(ShortcutsDemonTask *_this, odev::AShortcut *pxShortcut) {
+sys_error_code_t ShortcutsDemonTaskPostShortcuts(ShortcutsDemonTask *_this, odev::IShortcut *pxShortcut) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
@@ -218,7 +218,7 @@ sys_error_code_t ShortcutsDemontaskSetOutputQueue(ShortcutsDemonTask *_this, Que
 static sys_error_code_t ShortcutsDemonTaskExecuteStepRun(ShortcutsDemonTask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  odev::AShortcut *pxShortcut = NULL;
+  odev::IShortcut *pxShortcut = NULL;
   HIDReport xReport = {0};
   xReport.reportID = HID_REPORT_ID_KEYBOARD;
 

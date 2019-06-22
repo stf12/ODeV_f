@@ -10,6 +10,17 @@
 
 class ModelListener;
 
+typedef enum EModelEventID_t {
+  E_SET_COUNTER = 0,
+  E_SET_PAGE =    1
+}EModelEventID;
+
+typedef struct ModelEvent_t {
+  EModelEventID id;
+  uint16_t nParam;
+  uint8_t reserved;
+} ModelEvent;
+
 /**
  * The Model class defines the data model in the model-view-presenter paradigm.
  * The Model is a singular object used across all presenters. The currently active
@@ -53,10 +64,13 @@ public:
      */
     void incrementCounter(uint8_t nIncrement);
 
+    void ShortcutsPage(uint8_t nShortcutsPage);
+
 #ifdef ODEV_F
     void sendCopyShortcut();
     void sendCutShotcut();
     void sendPasteShortcut();
+    void sendSnipShortcut();
     void moveCursor();
     void SetOutputQueue(QueueHandle_t xQueue);
     void SetShortcutsDemonTask(ShortcutsDemonTask *pxTask);
@@ -72,6 +86,7 @@ protected:
 
 private:
     uint8_t m_nCounter;
+    uint8_t m_nShortcutPage;
 #ifdef ODEV_F
     QueueHandle_t m_xInputQueue;
     QueueHandle_t m_xOutputQueue; ///< to send HID report to the host via USB.

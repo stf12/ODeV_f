@@ -45,7 +45,7 @@ public:
   virtual uint8_t operator[](uint8_t nIndex) const;
 
 private:
-  const uint8_t m_nKeys[2];
+  static const uint8_t s_nKeys[2];
 };
 
 } /* namespace odev */

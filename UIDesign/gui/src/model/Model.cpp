@@ -7,7 +7,9 @@
 #include <CShortcutCopy.h>
 #include <CShortcutCut.h>
 #include <CShortcutPaste.h>
+#include <CShortcutSnip.h>
 #endif
+
 
 Model::Model() : modelListener(0)
 {
@@ -36,6 +38,10 @@ void Model::tick()
   if (xQueueReceive(m_xInputQueue, &nIncrement, 0) == pdTRUE) {
     m_nCounter = (m_nCounter + nIncrement) % 100;
     modelListener->onCounterChanged(m_nCounter);
+
+    static uint8_t nPage = 0;
+    nPage = (nPage + 1) % 2;
+    modelListener->onShortcutsPageChanged(nPage);
   }
 #endif
 }
@@ -70,6 +76,14 @@ void Model::sendCutShotcut() {
 
 void Model::sendPasteShortcut() {
   static odev::CShortcutPaste s_xShortcut;
+
+  if (m_pxShortcutsTask != NULL) {
+    ShortcutsDemonTaskPostShortcuts(m_pxShortcutsTask, &s_xShortcut);
+  }
+}
+
+void Model::sendSnipShortcut() {
+  static odev::CShortcutSnip s_xShortcut;
 
   if (m_pxShortcutsTask != NULL) {
     ShortcutsDemonTaskPostShortcuts(m_pxShortcutsTask, &s_xShortcut);

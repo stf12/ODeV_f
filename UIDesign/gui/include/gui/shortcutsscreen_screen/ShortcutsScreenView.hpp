@@ -16,6 +16,9 @@ public:
     virtual void OnButtonCutClicked();
     virtual void OnButtonPasteClicked();
     virtual void OnButtonMouseClicked();
+    virtual void OnButtonSnipClicked();
+
+    void SetPage(uint8_t nPages);
 
 protected:
 };

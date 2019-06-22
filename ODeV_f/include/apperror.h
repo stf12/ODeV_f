@@ -50,11 +50,14 @@ extern "C" {
 // Service Level error code
 // ************************
 
+#define SYS_BASE_SC_ERROR_CODE                               APP_BASE_ERROR_CODE
+#define SYS_SC_ALREADY_REGISTERED_ERROR_CODE                 SYS_BASE_SC_ERROR_CODE + 1
+#define SYS_SC_SET_FULL                                      SYS_BASE_SC_ERROR_CODE + 2
 
 // Task Level error code
 // *********************
 
-#define SYS_BASE_HCC_BASE_ERROR_CODE                          APP_BASE_ERROR_CODE
+#define SYS_BASE_HCC_BASE_ERROR_CODE                          SYS_BASE_SC_ERROR_CODE + SYS_GROUP_ERROR_COUNT
 #define SYS_HCC_TASK_REPORT_LOST_ERROR_CODE                   SYS_BASE_HCC_BASE_ERROR_CODE + 1
 
 

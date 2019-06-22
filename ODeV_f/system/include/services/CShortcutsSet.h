@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file    CShortcutCut.cpp
+ * @file    CShortcutsSet.h
  * @author  STMicroelectronics - ST-Korea - MCD Team
  * @version 1.0.0
- * @date    Jan 30, 2019
+ * @date    Feb 19, 2019
  *
  * @brief
  *
@@ -28,23 +28,31 @@
  *
  ******************************************************************************
  */
-#include <CShortcutCut.h>
+#ifndef INCLUDE_SERVICES_CSHORTCUTSSET_H_
+#define INCLUDE_SERVICES_CSHORTCUTSSET_H_
+
+#include <IShortcut.h>
+#include "syserror.h"
+
+#ifndef SC_CFG_SET_SIZE
+#define SC_CFG_SET_SIZE    100 ///< Specifies the maximum number of shortcuts managed by the Shortcuts Set
+#endif
 
 namespace odev {
 
-const uint8_t CShortcutCut::s_nKeys[] = {KC_058, KC_047};
+class CShortcutsSet {
+public:
+  CShortcutsSet();
+  virtual ~CShortcutsSet();
 
-CShortcutCut::CShortcutCut() {
-  // TODO Auto-generated constructor stub
+  sys_error_code_t RegisterShortcut(IShortcut *pxShortcut, uint16_t &nShortcutID);
 
-}
+  IShortcut *GetShortcut(uint16_t nShortcutID) const;
 
-CShortcutCut::~CShortcutCut() {
-  // TODO Auto-generated destructor stub
-}
-
-uint8_t CShortcutCut::operator [](uint8_t nIndex) const {
-   return nIndex < 2 ? s_nKeys[nIndex] : KC_NUL;
-}
+private:
+  IShortcut *m_pSet[SC_CFG_SET_SIZE];
+};
 
 } /* namespace odev */
+
+#endif /* INCLUDE_SERVICES_CSHORTCUTSSET_H_ */

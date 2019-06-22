@@ -33,7 +33,11 @@ public:
 
     void OnButtonPasteClicked();
 
+    void OnButtonSnipClicked();
+
     void OnButtonCursorClicked();
+
+    virtual void onShortcutsPageChanged(uint8_t nSelectedPage);
 
 private:
     ShortcutsScreenPresenter();
