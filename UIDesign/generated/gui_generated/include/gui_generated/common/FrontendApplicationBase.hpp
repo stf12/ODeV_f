@@ -15,16 +15,12 @@ public:
     FrontendApplicationBase(Model& m, FrontendHeap& heap);
     virtual ~FrontendApplicationBase() { }
 
-    // splashScreen
-    void gotosplashScreenScreenNoTransition();
-
-    void gotosplashScreenScreenSlideTransitionWest();
+    // SplashScreen
+    void gotoSplashScreenScreenNoTransition();
 
 
-    // main
-    void gotomainScreenSlideTransitionEast();
-
-    void gotomainScreenSlideTransitionWest();
+    // InfoScreen
+    void gotoInfoScreenScreenSlideTransitionEast();
 
 
     // ShortcutsScreen
@@ -35,16 +31,12 @@ protected:
     FrontendHeap& frontendHeap;
     Model& model;
 
-    // splashScreen
-    void gotosplashScreenScreenNoTransitionImpl();
-
-    void gotosplashScreenScreenSlideTransitionWestImpl();
+    // SplashScreen
+    void gotoSplashScreenScreenNoTransitionImpl();
 
 
-    // main
-    void gotomainScreenSlideTransitionEastImpl();
-
-    void gotomainScreenSlideTransitionWestImpl();
+    // InfoScreen
+    void gotoInfoScreenScreenSlideTransitionEastImpl();
 
 
     // ShortcutsScreen

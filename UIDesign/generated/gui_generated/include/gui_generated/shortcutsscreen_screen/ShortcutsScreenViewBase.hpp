@@ -12,6 +12,7 @@
 #include <touchgfx/containers/Container.hpp>
 #include <touchgfx/widgets/ButtonWithIcon.hpp>
 
+#include <touchgfx/mixins/Draggable.hpp>
 class ShortcutsScreenViewBase : public touchgfx::View<ShortcutsScreenPresenter>
 {
 public:
@@ -57,6 +58,7 @@ protected:
      * Member Declarations
      */
     touchgfx::Box Background;
+    touchgfx::Draggable< touchgfx::Box > boxTrackpad;
     touchgfx::SwipeContainer swipeContainer1;
     touchgfx::Container swipeContainer1Page1;
     touchgfx::ButtonWithIcon buttonCursor;
@@ -69,7 +71,6 @@ protected:
     touchgfx::ButtonWithIcon buttonPaste_2;
     touchgfx::ButtonWithIcon buttonPaste_1;
 
-    touchgfx::ButtonWithIcon buttonBack;
 
 private:
 

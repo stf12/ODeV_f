@@ -10,16 +10,14 @@
 #include <touchgfx/transitions/NoTransition.hpp>
 #include <touchgfx/transitions/SlideTransition.hpp>
 #include <touchgfx/transitions/SlideTransition.hpp>
-#include <touchgfx/transitions/SlideTransition.hpp>
-#include <touchgfx/transitions/SlideTransition.hpp>
 
 #include <gui/common/FrontendApplication.hpp>
 #include <gui/model/Model.hpp>
 
-#include <gui/splashscreen_screen/splashScreenView.hpp>
-#include <gui/splashscreen_screen/splashScreenPresenter.hpp>
-#include <gui/main_screen/mainView.hpp>
-#include <gui/main_screen/mainPresenter.hpp>
+#include <gui/splashscreen_screen/SplashScreenView.hpp>
+#include <gui/splashscreen_screen/SplashScreenPresenter.hpp>
+#include <gui/infoscreen_screen/InfoScreenView.hpp>
+#include <gui/infoscreen_screen/InfoScreenPresenter.hpp>
 #include <gui/shortcutsscreen_screen/ShortcutsScreenView.hpp>
 #include <gui/shortcutsscreen_screen/ShortcutsScreenPresenter.hpp>
 
@@ -44,8 +42,8 @@ public:
      * A list of all view types. Must end with meta::Nil.
      * @note All view types used in the application MUST be added to this list!
      */
-    typedef meta::TypeList< splashScreenView,
-            meta::TypeList< mainView,
+    typedef meta::TypeList< SplashScreenView,
+            meta::TypeList< InfoScreenView,
             meta::TypeList< ShortcutsScreenView,
             meta::Nil > >
             > GeneratedViewTypes;
@@ -59,8 +57,8 @@ public:
      * A list of all presenter types. Must end with meta::Nil.
      * @note All presenter types used in the application MUST be added to this list!
      */
-    typedef meta::TypeList< splashScreenPresenter,
-            meta::TypeList< mainPresenter,
+    typedef meta::TypeList< SplashScreenPresenter,
+            meta::TypeList< InfoScreenPresenter,
             meta::TypeList< ShortcutsScreenPresenter,
             meta::Nil > >
             > GeneratedPresenterTypes;
@@ -76,8 +74,7 @@ public:
      */
     typedef meta::TypeList< NoTransition,
             meta::TypeList< SlideTransition<EAST>,
-            meta::TypeList< SlideTransition<WEST>,
-            meta::Nil > >
+            meta::Nil >
             > GeneratedTransitionTypes;
 
     /**
@@ -87,7 +84,7 @@ public:
 
     virtual void gotoStartScreen(FrontendApplication& app)
     {
-        app.gotosplashScreenScreenNoTransition();
+        app.gotoSplashScreenScreenNoTransition();
     }
 protected:
     FrontendHeapBase(AbstractPartition& presenters, AbstractPartition& views, AbstractPartition& transitions, FrontendApplication& app)

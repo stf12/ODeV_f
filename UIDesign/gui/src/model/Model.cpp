@@ -13,8 +13,6 @@
 
 Model::Model() : modelListener(0)
 {
-  m_nCounter = 0;
-
 #ifdef ODEV_F
   m_pxShortcutsTask = NULL;
   m_xOutputQueue = NULL;
@@ -36,23 +34,10 @@ void Model::tick()
   uint8_t nIncrement = 0;
 
   if (xQueueReceive(m_xInputQueue, &nIncrement, 0) == pdTRUE) {
-    m_nCounter = (m_nCounter + nIncrement) % 100;
-    modelListener->onCounterChanged(m_nCounter);
-
     static uint8_t nPage = 0;
     nPage = (nPage + 1) % 2;
     modelListener->onShortcutsPageChanged(nPage);
   }
-#endif
-}
-
-void Model::setCounter(uint8_t nNewCounter) {
-  m_nCounter = nNewCounter % 100;
-}
-
-void Model::incrementCounter(uint8_t nIncrement) {
-#ifdef ODEV_F
-  xQueueSendToBack(m_xInputQueue, &nIncrement, pdMS_TO_TICKS(50));
 #endif
 }
 

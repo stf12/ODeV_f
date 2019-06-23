@@ -54,16 +54,6 @@ public:
      */
     void tick();
 
-    uint8_t getCounter() const { return m_nCounter; }
-    void setCounter(uint8_t nNewCounter);
-
-    /**
-     * Asynchronous increment of the counter. This function is task safe.
-     *
-     * @param nIncrement [IN] specifies the value to add to the counter.
-     */
-    void incrementCounter(uint8_t nIncrement);
-
     void ShortcutsPage(uint8_t nShortcutsPage);
 
 #ifdef ODEV_F
@@ -85,7 +75,6 @@ protected:
 
 
 private:
-    uint8_t m_nCounter;
     uint8_t m_nShortcutPage;
 #ifdef ODEV_F
     QueueHandle_t m_xInputQueue;

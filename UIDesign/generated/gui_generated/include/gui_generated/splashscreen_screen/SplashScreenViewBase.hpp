@@ -6,18 +6,18 @@
 
 #include <gui/common/FrontendApplication.hpp>
 #include <mvp/View.hpp>
-#include <gui/splashscreen_screen/splashScreenPresenter.hpp>
+#include <gui/splashscreen_screen/SplashScreenPresenter.hpp>
 #include <touchgfx/widgets/Box.hpp>
 #include <touchgfx/widgets/Image.hpp>
 #include <touchgfx/widgets/ButtonWithLabel.hpp>
 #include <touchgfx/EasingEquations.hpp>
 #include <touchgfx/mixins/FadeAnimator.hpp>
 
-class splashScreenViewBase : public touchgfx::View<splashScreenPresenter>
+class SplashScreenViewBase : public touchgfx::View<SplashScreenPresenter>
 {
 public:
-    splashScreenViewBase();
-    virtual ~splashScreenViewBase() {}
+    SplashScreenViewBase();
+    virtual ~SplashScreenViewBase() {}
 
     virtual void setupScreen();
     virtual void afterTransition();
@@ -44,7 +44,7 @@ private:
     /*
      * Callback Declarations
      */
-    touchgfx::Callback<splashScreenViewBase, const touchgfx::AbstractButton&> buttonCallback;
+    touchgfx::Callback<SplashScreenViewBase, const touchgfx::AbstractButton&> buttonCallback;
 
 };
 

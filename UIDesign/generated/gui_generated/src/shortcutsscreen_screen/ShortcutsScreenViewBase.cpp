@@ -11,35 +11,38 @@ ShortcutsScreenViewBase::ShortcutsScreenViewBase() :
     Background.setPosition(0, 0, 480, 272);
     Background.setColor(touchgfx::Color::getColorFrom24BitRGB(255, 255, 255));
 
-    swipeContainer1.setXY(0, 137);
+    boxTrackpad.setPosition(0, 136, 480, 136);
+    boxTrackpad.setColor(touchgfx::Color::getColorFrom24BitRGB(255, 255, 255));
+
+    swipeContainer1.setXY(0, 0);
 
     swipeContainer1Page1.setPosition(0, 0, 480, 135);
 
-    buttonCursor.setXY(0, 67);
+    buttonCursor.setXY(0, 61);
     buttonCursor.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_PRESSED_ID), Bitmap(BITMAP_CURSOR_32_ID), Bitmap(BITMAP_CURSOR_32_ID));
     buttonCursor.setIconXY(14, 14);
     buttonCursor.setAction(buttonCallback);
     swipeContainer1Page1.add(buttonCursor);
 
-    buttonPaste.setXY(120, -1);
+    buttonPaste.setXY(120, 0);
     buttonPaste.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_PRESSED_ID), Bitmap(BITMAP_EDIT_PASTE_32_ID), Bitmap(BITMAP_EDIT_PASTE_32_ID));
     buttonPaste.setIconXY(14, 14);
     buttonPaste.setAction(buttonCallback);
     swipeContainer1Page1.add(buttonPaste);
 
-    buttonCut.setXY(0, -1);
+    buttonCut.setXY(0, 0);
     buttonCut.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_PRESSED_ID), Bitmap(BITMAP_EDIT_CUT_32_ID), Bitmap(BITMAP_EDIT_CUT_32_ID));
     buttonCut.setIconXY(14, 14);
     buttonCut.setAction(buttonCallback);
     swipeContainer1Page1.add(buttonCut);
 
-    buttonCopy.setXY(60, -1);
+    buttonCopy.setXY(60, 0);
     buttonCopy.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_PRESSED_ID), Bitmap(BITMAP_DARK_ICONS_DOCUMENT_32_ID), Bitmap(BITMAP_DARK_ICONS_DOCUMENT_32_ID));
     buttonCopy.setIconXY(16, 14);
     buttonCopy.setAction(buttonCallback);
     swipeContainer1Page1.add(buttonCopy);
 
-    buttonSnip.setXY(180, -1);
+    buttonSnip.setXY(180, 0);
     buttonSnip.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_ICON_BUTTON_PRESSED_ID), Bitmap(BITMAP_SNIPPING_TOOL_32_ID), Bitmap(BITMAP_SNIPPING_TOOL_32_ID));
     buttonSnip.setIconXY(14, 14);
     buttonSnip.setAction(buttonCallback);
@@ -65,14 +68,9 @@ ShortcutsScreenViewBase::ShortcutsScreenViewBase() :
     swipeContainer1.setEndSwipeElasticWidth(50);
     swipeContainer1.setSelectedPage(0);
 
-    buttonBack.setXY(39, 32);
-    buttonBack.setBitmaps(Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_SMALL_ID), Bitmap(BITMAP_DARK_BUTTONS_ROUND_EDGE_SMALL_PRESSED_ID), Bitmap(BITMAP_DARK_ICONS_GO_BACK_32_ID), Bitmap(BITMAP_DARK_ICONS_GO_BACK_32_ID));
-    buttonBack.setIconXY(69, 15);
-    buttonBack.setAction(buttonCallback);
-
     add(Background);
+    add(boxTrackpad);
     add(swipeContainer1);
-    add(buttonBack);
 }
 
 void ShortcutsScreenViewBase::setupScreen()
@@ -124,12 +122,5 @@ void ShortcutsScreenViewBase::buttonCallbackHandler(const touchgfx::AbstractButt
     else if (&src == &buttonPaste_1)
     {
 
-    }
-    else if (&src == &buttonBack)
-    {
-        //Interaction1
-        //When buttonBack clicked change screen to main
-        //Go to main with screen transition towards West
-        application().gotomainScreenSlideTransitionWest();
     }
 }

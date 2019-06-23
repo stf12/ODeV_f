@@ -1,17 +1,17 @@
-#ifndef SPLASHSCREEN_PRESENTER_HPP
-#define SPLASHSCREEN_PRESENTER_HPP
+#ifndef INFOSCREEN_PRESENTER_HPP
+#define INFOSCREEN_PRESENTER_HPP
 
 #include <gui/model/ModelListener.hpp>
 #include <mvp/Presenter.hpp>
 
 using namespace touchgfx;
 
-class splashScreenView;
+class InfoScreenView;
 
-class splashScreenPresenter : public Presenter, public ModelListener
+class InfoScreenPresenter : public Presenter, public ModelListener
 {
 public:
-    splashScreenPresenter(splashScreenView& v);
+    InfoScreenPresenter(InfoScreenView& v);
 
     /**
      * The activate function is called automatically when this screen is "switched in"
@@ -25,13 +25,13 @@ public:
      */
     virtual void deactivate();
 
-    virtual ~splashScreenPresenter() {};
+    virtual ~InfoScreenPresenter() {};
 
 private:
-    splashScreenPresenter();
+    InfoScreenPresenter();
 
-    splashScreenView& view;
+    InfoScreenView& view;
 };
 
 
-#endif // SPLASHSCREEN_PRESENTER_HPP
+#endif // INFOSCREEN_PRESENTER_HPP

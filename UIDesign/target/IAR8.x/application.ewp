@@ -1092,9 +1092,9 @@
           </file>
         </group>
         <group>
-          <name>main_screen</name>
+          <name>infoscreen_screen</name>
           <file>
-            <name>$PROJ_DIR$\..\..\generated\gui_generated\src\main_screen\mainViewBase.cpp</name>
+            <name>$PROJ_DIR$\..\..\generated\gui_generated\src\infoscreen_screen\InfoScreenViewBase.cpp</name>
           </file>
         </group>
         <group>
@@ -1106,7 +1106,7 @@
         <group>
           <name>splashscreen_screen</name>
           <file>
-            <name>$PROJ_DIR$\..\..\generated\gui_generated\src\splashscreen_screen\splashScreenViewBase.cpp</name>
+            <name>$PROJ_DIR$\..\..\generated\gui_generated\src\splashscreen_screen\SplashScreenViewBase.cpp</name>
           </file>
         </group>
       </group>
@@ -1131,12 +1131,6 @@
           </file>
           <file>
             <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_done_32.cpp</name>
-          </file>
-          <file>
-            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_go_back_32.cpp</name>
-          </file>
-          <file>
-            <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_icons_go_next_32.cpp</name>
           </file>
           <file>
             <name>$PROJ_DIR$\..\..\generated\images\src\__designer\dark_pageindicator_dot_indicator_small_highlight.cpp</name>
@@ -1166,6 +1160,9 @@
         <file>
           <name>$PROJ_DIR$\..\..\generated\images\src\snipping-tool_32.cpp</name>
         </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\generated\images\src\visual_shortcuts_splash.cpp</name>
+        </file>
       </group>
       <group>
         <name>texts</name>
@@ -1189,12 +1186,12 @@
         </file>
       </group>
       <group>
-        <name>main_screen</name>
+        <name>infoscreen_screen</name>
         <file>
-          <name>$PROJ_DIR$\..\..\gui\src\main_screen\mainPresenter.cpp</name>
+          <name>$PROJ_DIR$\..\..\gui\src\infoscreen_screen\InfoScreenPresenter.cpp</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\gui\src\main_screen\mainView.cpp</name>
+          <name>$PROJ_DIR$\..\..\gui\src\infoscreen_screen\InfoScreenView.cpp</name>
         </file>
       </group>
       <group>
@@ -1215,10 +1212,10 @@
       <group>
         <name>splashscreen_screen</name>
         <file>
-          <name>$PROJ_DIR$\..\..\gui\src\splashscreen_screen\splashScreenPresenter.cpp</name>
+          <name>$PROJ_DIR$\..\..\gui\src\splashscreen_screen\SplashScreenPresenter.cpp</name>
         </file>
         <file>
-          <name>$PROJ_DIR$\..\..\gui\src\splashscreen_screen\splashScreenView.cpp</name>
+          <name>$PROJ_DIR$\..\..\gui\src\splashscreen_screen\SplashScreenView.cpp</name>
         </file>
       </group>
     </group>

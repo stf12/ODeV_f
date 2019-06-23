@@ -151,30 +151,6 @@
     <Filter Include="Header Files\generated\gui_generated\common">
       <UniqueIdentifier>55E7DCFE-80E4-4FF3-89C6-313EDAD68483</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\gui\main_screen">
-      <UniqueIdentifier>8E07560D-0147-4490-B594-10ECB84E97CC</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\gui\main_screen">
-      <UniqueIdentifier>E867D004-EEEB-4846-A9E1-C3FFD85551E9</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\generated\gui_generated\main_screen">
-      <UniqueIdentifier>9B6EED27-0CCF-4712-A730-818EDCA50D82</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\generated\gui_generated\main_screen">
-      <UniqueIdentifier>4976E9F9-7B17-4325-B969-00BBA739FDE9</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\gui\splashscreen_screen">
-      <UniqueIdentifier>E658FC73-4E0C-4A3D-ADCD-61CC45EFAE8C</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\gui\splashscreen_screen">
-      <UniqueIdentifier>D1A9B97C-01DB-42A1-8203-6585B6E9E9C2</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\generated\gui_generated\splashscreen_screen">
-      <UniqueIdentifier>49942945-604B-428C-BE6F-5F1FFFC55C47</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\generated\gui_generated\splashscreen_screen">
-      <UniqueIdentifier>BB95473C-4CB7-43F2-812D-23CE1C494248</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\gui\shortcutsscreen_screen">
       <UniqueIdentifier>89735621-4486-44CC-A943-E12983A63AFF</UniqueIdentifier>
     </Filter>
@@ -186,6 +162,30 @@
     </Filter>
     <Filter Include="Source Files\generated\gui_generated\shortcutsscreen_screen">
       <UniqueIdentifier>474EF3C9-26DB-4276-8406-9FCB2AD9BF27</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui\splashscreen_screen">
+      <UniqueIdentifier>8CADAB01-48B0-4709-B9E1-E97D41A4C809</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gui\splashscreen_screen">
+      <UniqueIdentifier>1412E243-F152-42EC-BED1-4541E4E9E774</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\generated\gui_generated\splashscreen_screen">
+      <UniqueIdentifier>2B82C964-2D60-4464-AAF0-3A8B340D3EB8</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\generated\gui_generated\splashscreen_screen">
+      <UniqueIdentifier>D98A478D-3C05-4CF1-9358-78C2BFA6E6F6</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\gui\infoscreen_screen">
+      <UniqueIdentifier>F350C2BF-D83D-48FC-9F45-91A85E3064EB</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\gui\infoscreen_screen">
+      <UniqueIdentifier>5239A6BC-8DE6-49C5-B375-5905CB990EE7</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\generated\gui_generated\infoscreen_screen">
+      <UniqueIdentifier>D1CF1B1F-9993-4E79-8838-447C885B83E8</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\generated\gui_generated\infoscreen_screen">
+      <UniqueIdentifier>47C8CFF9-98C0-486F-9EC5-2BAA795E5940</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -213,24 +213,6 @@
     <ClCompile Include="..\..\gui\src\model\Model.cpp">
       <Filter>Source Files\gui\model</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\gui\src\main_screen\mainPresenter.cpp">
-      <Filter>Source Files\gui\main_screen</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\gui\src\main_screen\mainView.cpp">
-      <Filter>Source Files\gui\main_screen</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\generated\gui_generated\src\main_screen\mainViewBase.cpp">
-      <Filter>Source Files\generated\gui_generated\main_screen</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\gui\src\splashscreen_screen\splashScreenPresenter.cpp">
-      <Filter>Source Files\gui\splashscreen_screen</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\gui\src\splashscreen_screen\splashScreenView.cpp">
-      <Filter>Source Files\gui\splashscreen_screen</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\generated\gui_generated\src\splashscreen_screen\splashScreenViewBase.cpp">
-      <Filter>Source Files\generated\gui_generated\splashscreen_screen</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\gui\src\shortcutsscreen_screen\ShortcutsScreenPresenter.cpp">
       <Filter>Source Files\gui\shortcutsscreen_screen</Filter>
     </ClCompile>
@@ -239,6 +221,24 @@
     </ClCompile>
     <ClCompile Include="..\..\generated\gui_generated\src\shortcutsscreen_screen\ShortcutsScreenViewBase.cpp">
       <Filter>Source Files\generated\gui_generated\shortcutsscreen_screen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\src\splashscreen_screen\SplashScreenPresenter.cpp">
+      <Filter>Source Files\gui\splashscreen_screen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\src\splashscreen_screen\SplashScreenView.cpp">
+      <Filter>Source Files\gui\splashscreen_screen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\generated\gui_generated\src\splashscreen_screen\SplashScreenViewBase.cpp">
+      <Filter>Source Files\generated\gui_generated\splashscreen_screen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\src\infoscreen_screen\InfoScreenPresenter.cpp">
+      <Filter>Source Files\gui\infoscreen_screen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\src\infoscreen_screen\InfoScreenView.cpp">
+      <Filter>Source Files\gui\infoscreen_screen</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\generated\gui_generated\src\infoscreen_screen\InfoScreenViewBase.cpp">
+      <Filter>Source Files\generated\gui_generated\infoscreen_screen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -670,24 +670,6 @@
     <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\common\SimConstants.hpp">
       <Filter>Header Files\generated\gui_generated\common</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\gui\include\gui\main_screen\mainPresenter.hpp">
-      <Filter>Header Files\gui\main_screen</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\gui\include\gui\main_screen\mainView.hpp">
-      <Filter>Header Files\gui\main_screen</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\main_screen\mainViewBase.hpp">
-      <Filter>Header Files\generated\gui_generated\main_screen</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\gui\include\gui\splashscreen_screen\splashScreenPresenter.hpp">
-      <Filter>Header Files\gui\splashscreen_screen</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\gui\include\gui\splashscreen_screen\splashScreenView.hpp">
-      <Filter>Header Files\gui\splashscreen_screen</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\splashscreen_screen\splashScreenViewBase.hpp">
-      <Filter>Header Files\generated\gui_generated\splashscreen_screen</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\gui\include\gui\shortcutsscreen_screen\ShortcutsScreenPresenter.hpp">
       <Filter>Header Files\gui\shortcutsscreen_screen</Filter>
     </ClInclude>
@@ -696,6 +678,24 @@
     </ClInclude>
     <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\shortcutsscreen_screen\ShortcutsScreenViewBase.hpp">
       <Filter>Header Files\generated\gui_generated\shortcutsscreen_screen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\include\gui\splashscreen_screen\SplashScreenPresenter.hpp">
+      <Filter>Header Files\gui\splashscreen_screen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\include\gui\splashscreen_screen\SplashScreenView.hpp">
+      <Filter>Header Files\gui\splashscreen_screen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\splashscreen_screen\SplashScreenViewBase.hpp">
+      <Filter>Header Files\generated\gui_generated\splashscreen_screen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\include\gui\infoscreen_screen\InfoScreenPresenter.hpp">
+      <Filter>Header Files\gui\infoscreen_screen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\include\gui\infoscreen_screen\InfoScreenView.hpp">
+      <Filter>Header Files\gui\infoscreen_screen</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\infoscreen_screen\InfoScreenViewBase.hpp">
+      <Filter>Header Files\generated\gui_generated\infoscreen_screen</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

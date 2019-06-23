@@ -28,8 +28,6 @@ public:
         model = m;
     }
 
-    virtual void onCounterChanged(uint8_t nNewCounter) {}
-
     virtual void onShortcutsPageChanged(uint8_t nSelectedPage) {}
 protected:
     Model* model;

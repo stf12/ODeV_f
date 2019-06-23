@@ -19,15 +19,15 @@
     <ClCompile Include="..\..\gui\src\common\FrontendApplication.cpp"/>
     <ClCompile Include="..\..\generated\gui_generated\src\common\FrontendApplicationBase.cpp"/>
     <ClCompile Include="..\..\gui\src\model\Model.cpp"/>
-    <ClCompile Include="..\..\gui\src\main_screen\mainPresenter.cpp"/>
-    <ClCompile Include="..\..\gui\src\main_screen\mainView.cpp"/>
-    <ClCompile Include="..\..\generated\gui_generated\src\main_screen\mainViewBase.cpp"/>
-    <ClCompile Include="..\..\gui\src\splashscreen_screen\splashScreenPresenter.cpp"/>
-    <ClCompile Include="..\..\gui\src\splashscreen_screen\splashScreenView.cpp"/>
-    <ClCompile Include="..\..\generated\gui_generated\src\splashscreen_screen\splashScreenViewBase.cpp"/>
     <ClCompile Include="..\..\gui\src\shortcutsscreen_screen\ShortcutsScreenPresenter.cpp"/>
     <ClCompile Include="..\..\gui\src\shortcutsscreen_screen\ShortcutsScreenView.cpp"/>
     <ClCompile Include="..\..\generated\gui_generated\src\shortcutsscreen_screen\ShortcutsScreenViewBase.cpp"/>
+    <ClCompile Include="..\..\gui\src\splashscreen_screen\SplashScreenPresenter.cpp"/>
+    <ClCompile Include="..\..\gui\src\splashscreen_screen\SplashScreenView.cpp"/>
+    <ClCompile Include="..\..\generated\gui_generated\src\splashscreen_screen\SplashScreenViewBase.cpp"/>
+    <ClCompile Include="..\..\gui\src\infoscreen_screen\InfoScreenPresenter.cpp"/>
+    <ClCompile Include="..\..\gui\src\infoscreen_screen\InfoScreenView.cpp"/>
+    <ClCompile Include="..\..\generated\gui_generated\src\infoscreen_screen\InfoScreenViewBase.cpp"/>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\assets\texts\texts.xlsx"/>
@@ -174,15 +174,15 @@
     <ClInclude Include="..\..\gui\include\gui\model\Model.hpp"/>
     <ClInclude Include="..\..\gui\include\gui\model\ModelListener.hpp"/>
     <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\common\SimConstants.hpp"/>
-    <ClInclude Include="..\..\gui\include\gui\main_screen\mainPresenter.hpp"/>
-    <ClInclude Include="..\..\gui\include\gui\main_screen\mainView.hpp"/>
-    <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\main_screen\mainViewBase.hpp"/>
-    <ClInclude Include="..\..\gui\include\gui\splashscreen_screen\splashScreenPresenter.hpp"/>
-    <ClInclude Include="..\..\gui\include\gui\splashscreen_screen\splashScreenView.hpp"/>
-    <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\splashscreen_screen\splashScreenViewBase.hpp"/>
     <ClInclude Include="..\..\gui\include\gui\shortcutsscreen_screen\ShortcutsScreenPresenter.hpp"/>
     <ClInclude Include="..\..\gui\include\gui\shortcutsscreen_screen\ShortcutsScreenView.hpp"/>
     <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\shortcutsscreen_screen\ShortcutsScreenViewBase.hpp"/>
+    <ClInclude Include="..\..\gui\include\gui\splashscreen_screen\SplashScreenPresenter.hpp"/>
+    <ClInclude Include="..\..\gui\include\gui\splashscreen_screen\SplashScreenView.hpp"/>
+    <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\splashscreen_screen\SplashScreenViewBase.hpp"/>
+    <ClInclude Include="..\..\gui\include\gui\infoscreen_screen\InfoScreenPresenter.hpp"/>
+    <ClInclude Include="..\..\gui\include\gui\infoscreen_screen\InfoScreenView.hpp"/>
+    <ClInclude Include="..\..\generated\gui_generated\include\gui_generated\infoscreen_screen\InfoScreenViewBase.hpp"/>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\touchgfx.rc"/>

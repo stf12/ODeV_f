@@ -93,150 +93,26 @@
             "Action": {
               "ScreenTransitionType": "ScreenTransitionSlide",
               "ScreenTransitionDirection": "East",
-              "ActionComponent": "main",
+              "ActionComponent": "InfoScreen",
               "Type": "ActionGotoScreen"
             }
           }
         ],
-        "Name": "splashScreen",
+        "Name": "SplashScreen",
         "OverrideDefaultBufferSize": false,
         "CanvasBufferSize": 0
       },
       {
         "Components": [
           {
-            "Color": {
-              "Red": 0,
-              "Green": 0,
-              "Blue": 0
-            },
+            "RelativeFilename": "visual_shortcuts_splash.png",
             "Alpha": 255,
-            "Name": "background",
+            "Name": "splashImage",
             "X": 0,
             "Y": 0,
             "Width": 480,
             "Height": 272,
-            "Type": "Box",
-            "Visible": true,
-            "Draggable": false,
-            "Clickable": false,
-            "Fadeable": false,
-            "Moveable": false
-          },
-          {
-            "RelativeFilename": "left_arrow_small.png",
-            "Alpha": 255,
-            "Name": "imageBack",
-            "X": 304,
-            "Y": 205,
-            "Width": 53,
-            "Height": 42,
             "Type": "Image",
-            "Visible": true,
-            "Draggable": false,
-            "Clickable": true,
-            "Fadeable": false,
-            "Moveable": false
-          },
-          {
-            "Pressed": "__designer\\dark_buttons_round_edge_small_pressed.png",
-            "Released": "__designer\\dark_buttons_round_edge_small.png",
-            "Alpha": 255,
-            "IconPressed": "__designer\\dark_icons_go_back_32.png",
-            "IconReleased": "__designer\\dark_icons_go_back_32.png",
-            "IconX": 69,
-            "IconY": 15,
-            "IconHeight": 30,
-            "IconWidth": 32,
-            "ButtonStyle": "Style4",
-            "IconStyle": "Icon23",
-            "Name": "buttonBack",
-            "X": 39,
-            "Y": 32,
-            "Width": 170,
-            "Height": 60,
-            "Type": "ButtonWithIcon",
-            "Visible": true,
-            "Draggable": false,
-            "Clickable": false,
-            "Fadeable": false,
-            "Moveable": false
-          },
-          {
-            "Pressed": "__designer\\dark_buttons_round_edge_small_pressed.png",
-            "Released": "__designer\\dark_buttons_round_edge_small.png",
-            "Alpha": 255,
-            "TextId": "SingleUseId3",
-            "ReleasedColor": {
-              "Red": 255,
-              "Green": 255,
-              "Blue": 255
-            },
-            "PressedColor": {
-              "Red": 255,
-              "Green": 255,
-              "Blue": 255
-            },
-            "TextRotation": "0",
-            "Style": "Style4",
-            "Name": "buttonCount",
-            "X": 155,
-            "Y": 128,
-            "Width": 170,
-            "Height": 60,
-            "Type": "ButtonWithLabel",
-            "Visible": true,
-            "Draggable": false,
-            "Clickable": false,
-            "Fadeable": false,
-            "Moveable": false
-          },
-          {
-            "TextId": "SingleUseId2",
-            "TextRotation": "0",
-            "Color": {
-              "Red": 255,
-              "Green": 255,
-              "Blue": 255
-            },
-            "Alpha": 255,
-            "AutoSize": true,
-            "LineSpacing": 0,
-            "Wildcard1": {
-              "TextId": "SingleUseId4",
-              "UseBuffer": true,
-              "BufferSize": 3
-            },
-            "Name": "textArea1",
-            "X": 124,
-            "Y": 214,
-            "Width": 121,
-            "Height": 25,
-            "Type": "TextArea",
-            "Visible": true,
-            "Draggable": false,
-            "Clickable": false,
-            "Fadeable": false,
-            "Moveable": false
-          },
-          {
-            "Pressed": "__designer\\dark_buttons_round_edge_small_pressed.png",
-            "Released": "__designer\\dark_buttons_round_edge_small.png",
-            "Alpha": 255,
-            "IconPressed": "__designer\\dark_icons_go_next_32.png",
-            "IconReleased": "__designer\\dark_icons_go_next_32.png",
-            "IconX": 69,
-            "IconY": 15,
-            "IconHeight": 30,
-            "IconWidth": 32,
-            "ButtonStyle": "Style4",
-            "IconStyle": "Icon25",
-            "Name": "buttonNext",
-            "X": 272,
-            "Y": 32,
-            "Width": 170,
-            "Height": 60,
-            "Type": "ButtonWithIcon",
             "Visible": true,
             "Draggable": false,
             "Clickable": false,
@@ -246,37 +122,22 @@
         ],
         "Interactions": [
           {
-            "InteractionName": "InteractionGoToSplashScreen",
-            "HasCompletedTrigger": false,
+            "InteractionName": "waitAndGo",
+            "HasCompletedTrigger": true,
             "Trigger": {
-              "TriggerComponent": "buttonBack",
-              "Type": "TriggerClicked"
+              "Type": "TriggerScreenEntered"
             },
             "Action": {
-              "ScreenTransitionType": "ScreenTransitionSlide",
-              "ScreenTransitionDirection": "West",
-              "ActionComponent": "splashScreen",
-              "Type": "ActionGotoScreen"
+              "Duration": 2000,
+              "Type": "ActionDelay"
             }
           },
           {
-            "InteractionName": "Interaction1",
+            "InteractionName": "Interaction2",
             "HasCompletedTrigger": false,
             "Trigger": {
-              "TriggerComponent": "buttonCount",
-              "Type": "TriggerClicked"
-            },
-            "Action": {
-              "FunctionName": "OnButtonCountClicked",
-              "Type": "ActionCustom"
-            }
-          },
-          {
-            "InteractionName": "InteractionGoToTextScreen",
-            "HasCompletedTrigger": false,
-            "Trigger": {
-              "TriggerComponent": "buttonNext",
-              "Type": "TriggerClicked"
+              "InteractionToTriggerOn": "waitAndGo",
+              "Type": "TriggerInteractionCompleted"
             },
             "Action": {
               "ScreenTransitionType": "ScreenTransitionSlide",
@@ -286,7 +147,7 @@
             }
           }
         ],
-        "Name": "main",
+        "Name": "InfoScreen",
         "OverrideDefaultBufferSize": false,
         "CanvasBufferSize": 0
       },
@@ -312,6 +173,25 @@
             "Moveable": false
           },
           {
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "Alpha": 255,
+            "Name": "boxTrackpad",
+            "X": 0,
+            "Y": 136,
+            "Width": 480,
+            "Height": 136,
+            "Type": "Box",
+            "Visible": true,
+            "Draggable": true,
+            "Clickable": false,
+            "Fadeable": false,
+            "Moveable": false
+          },
+          {
             "Components": [
               {
                 "Components": [
@@ -328,7 +208,7 @@
                     "ButtonStyle": "Style1",
                     "Name": "buttonCursor",
                     "X": 0,
-                    "Y": 67,
+                    "Y": 61,
                     "Width": 60,
                     "Height": 60,
                     "Type": "ButtonWithIcon",
@@ -351,7 +231,7 @@
                     "ButtonStyle": "Style1",
                     "Name": "buttonPaste",
                     "X": 120,
-                    "Y": -1,
+                    "Y": 0,
                     "Width": 60,
                     "Height": 60,
                     "Type": "ButtonWithIcon",
@@ -374,7 +254,7 @@
                     "ButtonStyle": "Style1",
                     "Name": "buttonCut",
                     "X": 0,
-                    "Y": -1,
+                    "Y": 0,
                     "Width": 60,
                     "Height": 60,
                     "Type": "ButtonWithIcon",
@@ -398,7 +278,7 @@
                     "IconStyle": "Icon9",
                     "Name": "buttonCopy",
                     "X": 60,
-                    "Y": -1,
+                    "Y": 0,
                     "Width": 60,
                     "Height": 60,
                     "Type": "ButtonWithIcon",
@@ -421,7 +301,7 @@
                     "ButtonStyle": "Style1",
                     "Name": "buttonSnip",
                     "X": 180,
-                    "Y": -1,
+                    "Y": 0,
                     "Width": 60,
                     "Height": 60,
                     "Type": "ButtonWithIcon",
@@ -520,7 +400,7 @@
             "Style": "Style1",
             "Name": "swipeContainer1",
             "X": 0,
-            "Y": 137,
+            "Y": 0,
             "Width": 480,
             "Height": 135,
             "Type": "SwipeContainer",
@@ -529,47 +409,9 @@
             "Clickable": false,
             "Fadeable": false,
             "Moveable": false
-          },
-          {
-            "Pressed": "__designer\\dark_buttons_round_edge_small_pressed.png",
-            "Released": "__designer\\dark_buttons_round_edge_small.png",
-            "Alpha": 255,
-            "IconPressed": "__designer\\dark_icons_go_back_32.png",
-            "IconReleased": "__designer\\dark_icons_go_back_32.png",
-            "IconX": 69,
-            "IconY": 15,
-            "IconHeight": 30,
-            "IconWidth": 32,
-            "ButtonStyle": "Style4",
-            "IconStyle": "Icon23",
-            "Name": "buttonBack",
-            "X": 39,
-            "Y": 32,
-            "Width": 170,
-            "Height": 60,
-            "Type": "ButtonWithIcon",
-            "Visible": true,
-            "Draggable": false,
-            "Clickable": false,
-            "Fadeable": false,
-            "Moveable": false
           }
         ],
         "Interactions": [
-          {
-            "InteractionName": "Interaction1",
-            "HasCompletedTrigger": false,
-            "Trigger": {
-              "TriggerComponent": "buttonBack",
-              "Type": "TriggerClicked"
-            },
-            "Action": {
-              "ScreenTransitionType": "ScreenTransitionSlide",
-              "ScreenTransitionDirection": "West",
-              "ActionComponent": "main",
-              "Type": "ActionGotoScreen"
-            }
-          },
           {
             "InteractionName": "Interaction2",
             "HasCompletedTrigger": false,
@@ -641,18 +483,6 @@
       {
         "TextEntryId": "SingleUseId1",
         "IsResource": false
-      },
-      {
-        "TextEntryId": "SingleUseId2",
-        "IsResource": false
-      },
-      {
-        "TextEntryId": "SingleUseId3",
-        "IsResource": false
-      },
-      {
-        "TextEntryId": "SingleUseId4",
-        "IsResource": false
       }
     ],
     "Name": "UIDesign",
@@ -661,7 +491,7 @@
       "Height": 272
     },
     "SelectedColorDepth": 16,
-    "StartupScreenName": "splashScreen",
+    "StartupScreenName": "SplashScreen",
     "SelectedStartupLanguage": "GB",
     "Skin": "Dark",
     "TouchGfxPath": "touchgfx",
