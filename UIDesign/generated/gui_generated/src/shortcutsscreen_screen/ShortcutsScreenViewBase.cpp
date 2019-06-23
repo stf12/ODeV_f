@@ -11,9 +11,6 @@ ShortcutsScreenViewBase::ShortcutsScreenViewBase() :
     Background.setPosition(0, 0, 480, 272);
     Background.setColor(touchgfx::Color::getColorFrom24BitRGB(255, 255, 255));
 
-    boxTrackpad.setPosition(0, 136, 480, 136);
-    boxTrackpad.setColor(touchgfx::Color::getColorFrom24BitRGB(255, 255, 255));
-
     swipeContainer1.setXY(0, 0);
 
     swipeContainer1Page1.setPosition(0, 0, 480, 135);
@@ -68,9 +65,12 @@ ShortcutsScreenViewBase::ShortcutsScreenViewBase() :
     swipeContainer1.setEndSwipeElasticWidth(50);
     swipeContainer1.setSelectedPage(0);
 
+    imageMouse.setXY(223, 174);
+    imageMouse.setBitmap(Bitmap(BITMAP_CURSOR_32_ID));
+
     add(Background);
-    add(boxTrackpad);
     add(swipeContainer1);
+    add(imageMouse);
 }
 
 void ShortcutsScreenViewBase::setupScreen()

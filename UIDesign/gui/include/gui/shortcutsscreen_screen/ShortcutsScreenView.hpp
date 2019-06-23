@@ -18,9 +18,21 @@ public:
     virtual void OnButtonMouseClicked();
     virtual void OnButtonSnipClicked();
 
+    // Declaring callback handler for imageMouse
+     void MouseClickHandler(const Image& b, const ClickEvent& e);
+
+     virtual void handleDragEvent(const DragEvent& evt);
+
     void SetPage(uint8_t nPages);
 
 protected:
+
+    // Declaring callback type of box and clickEvent
+    Callback<ShortcutsScreenView, const Image&, const ClickEvent&> MouseClickedCallback;
+
+private:
+
+    int16_t m_StartX;
 };
 
 #endif // SHORTCUTSSCREEN_VIEW_HPP
