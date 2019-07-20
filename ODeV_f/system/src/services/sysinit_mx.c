@@ -58,19 +58,15 @@ static system_clock_t system_clock;
 void SystemClock_Config(void) {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
-
-  //Configure the main internal regulator output voltage
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+//  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   //Initializes the CPU, AHB and APB busses clocks
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLLMUL_4;
-  RCC_OscInitStruct.PLL.PLLDIV = RCC_PLLDIV_2;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
+  RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     sys_error_handler();
@@ -78,22 +74,21 @@ void SystemClock_Config(void) {
 
   //Initializes the CPU, AHB and APB busses clocks
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+                              |RCC_CLOCKTYPE_PCLK1;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
   {
     sys_error_handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2;
-  PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_HSI;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-  {
-    sys_error_handler();
-  }
+//  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2;
+//  PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_HSI;
+//  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+//  {
+//    sys_error_handler();
+//  }
 }
 
 void SystemClock_Backup(void)
@@ -119,8 +114,6 @@ void SystemClock_Restore(void)
    *   Do not change or update the base-clock source (e.g. MSI and LSE)
    */
 
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-
   if (__HAL_RCC_GET_SYSCLK_SOURCE() != RCC_CFGR_SWS_PLL) {
     if (HAL_RCC_OscConfig(&(system_clock.osc)) != HAL_OK) {
       sys_error_handler();
@@ -134,7 +127,7 @@ void SystemClock_Restore(void)
 
 void SysPowerConfig() {
   // Select HSI as system clock source after Wake Up from Stop mode
-  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_HSI);
+//  __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_HSI);
 
 
   // This function is called in the early step of the system initialization.
@@ -148,7 +141,7 @@ void SysPowerConfig() {
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOH_CLK_ENABLE();
+//  __HAL_RCC_GPIOF_CLK_ENABLE();
 
   // Configure GPIO pins : PA0 PA1 PA2 PA3 PA4 PA5
   //                       PA6 PA7 PA8 PA9 PA10
@@ -183,16 +176,16 @@ void SysPowerConfig() {
   GPIO_InitStruct.Pin = GPIO_PIN_2;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  // Configure GPIO pin : PH0 PH1
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1;
-  HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
+  // Configure GPIO pin : PF0 PF1
+//  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1;
+//  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
   // Disable GPIOs clock
   __HAL_RCC_GPIOA_CLK_DISABLE();
   __HAL_RCC_GPIOB_CLK_DISABLE();
   __HAL_RCC_GPIOC_CLK_DISABLE();
   __HAL_RCC_GPIOD_CLK_DISABLE();
-  __HAL_RCC_GPIOH_CLK_DISABLE();
+//  __HAL_RCC_GPIOF_CLK_DISABLE();
 }
 
 /**

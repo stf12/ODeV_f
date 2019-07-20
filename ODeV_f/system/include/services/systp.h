@@ -2,12 +2,16 @@
  ******************************************************************************
  * @file    systp.h
  * @author  STMicroelectronics - ST-Korea - MCD Team
- * @version 1.2.0
- * @date    Mar 22, 2017
+ * @version 1.3.0
+ * @date    July 20, 2019
  * @brief   Target platform definition.
  *
  * This file include definitions depending on the target platform.
  * A target platform is a tuple Hardware + Compiler.
+ * It support the following MCU family:
+ * - STM32L4
+ * - STM32L0
+ * - STM32F0
  *
  ******************************************************************************
  * @attention
@@ -38,6 +42,8 @@
 #include "stm32l4xx.h"
 #elif defined (SYS_TP_MCU_STM32L0)
 #include "stm32l0xx.h"
+#elif defined (SYS_TP_MCU_STM32F0)
+#include "stm32f0xx.h"
 #endif
 
 // Compiler specific define

@@ -65,9 +65,9 @@ extern "C" {
 // ****************************
 
 // PINs used as Test Point
-#define SYS_DBG_TP1_PORT                GPIOH
+#define SYS_DBG_TP1_PORT                GPIOB
 #define SYS_DBG_TP1_PIN                 GPIO_PIN_1
-#define SYS_DBG_TP2_PORT                GPIOH
+#define SYS_DBG_TP2_PORT                GPIOB
 #define SYS_DBG_TP2_PIN                 GPIO_PIN_0
 
 

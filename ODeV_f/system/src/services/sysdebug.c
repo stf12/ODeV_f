@@ -152,12 +152,13 @@ __attribute__((weak))
 #endif
 int SysDebugHardwareInit() {
 
+  __HAL_RCC_DBGMCU_CLK_ENABLE();
   MX_USART2_UART_Init(&s_xUartHandle);
 
 #ifdef DEBUG
   // Debug TP1 and TP2 configuration
   GPIO_InitTypeDef GPIO_InitStruct;
-  __HAL_RCC_GPIOH_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   HAL_GPIO_WritePin(SYS_DBG_TP1_PORT, SYS_DBG_TP1_PIN|SYS_DBG_TP2_PIN, GPIO_PIN_RESET);
   GPIO_InitStruct.Pin = SYS_DBG_TP1_PIN|SYS_DBG_TP2_PIN;
@@ -177,7 +178,7 @@ void SysDebugSetupRunTimeStatsTimer() {
 }
 
 void SysDebugStartRunTimeStatsTimer() {
-  HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
+  HAL_NVIC_EnableIRQ(TIM6_IRQn);
   HAL_TIM_Base_Start_IT(&s_xTim6Handle);
 }
 
@@ -194,7 +195,7 @@ int SysDebugLowLevelPutchar(int x) {
 // CubeMx integration
 // ******************
 
-void TIM6_DAC_IRQHandler(void) {
+void TIM6_IRQHandler(void) {
     // TIM Update event
   if(__HAL_TIM_GET_FLAG(&s_xTim6Handle, TIM_FLAG_UPDATE) != RESET) {
     if(__HAL_TIM_GET_IT_SOURCE(&s_xTim6Handle, TIM_IT_UPDATE) != RESET) {
