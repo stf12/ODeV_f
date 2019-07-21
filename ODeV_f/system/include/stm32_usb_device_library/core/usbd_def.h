@@ -2,28 +2,46 @@
   ******************************************************************************
   * @file    usbd_def.h
   * @author  MCD Application Team
-  * @version V2.4.2
-  * @date    11-December-2015
-  * @brief   General defines for the usb device library 
+  * @brief   General defines for the usb device library
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics International N.V.
+  * All rights reserved.</center></h2>
   *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
+  * Redistribution and use in source and binary forms, with or without
+  * modification, are permitted, provided that the following conditions are met:
   *
-  *        http://www.st.com/software_license_agreement_liberty_v2
+  * 1. Redistribution of source code must retain the above copyright notice,
+  *    this list of conditions and the following disclaimer.
+  * 2. Redistributions in binary form must reproduce the above copyright notice,
+  *    this list of conditions and the following disclaimer in the documentation
+  *    and/or other materials provided with the distribution.
+  * 3. Neither the name of STMicroelectronics nor the names of other
+  *    contributors to this software may be used to endorse or promote products
+  *    derived from this software without specific written permission.
+  * 4. This software, including modifications and/or derivative works of this
+  *    software, must execute solely and exclusively on microcontroller or
+  *    microprocessor devices manufactured by or for STMicroelectronics.
+  * 5. Redistribution and use of this software other than as permitted under
+  *    this license is void and will automatically terminate your rights under
+  *    this license.
   *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
+  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT
+  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
+  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT
+  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __USBD_DEF_H
@@ -39,160 +57,233 @@
 /** @addtogroup STM32_USBD_DEVICE_LIBRARY
   * @{
   */
-  
+
 /** @defgroup USB_DEF
   * @brief general defines for the usb device library file
   * @{
-  */ 
+  */
 
 /** @defgroup USB_DEF_Exported_Defines
   * @{
-  */ 
+  */
 
 #ifndef NULL
-#define NULL  0
-#endif
+#define NULL                                            0U
+#endif /* NULL */
 
+#ifndef USBD_MAX_NUM_INTERFACES
+#define USBD_MAX_NUM_INTERFACES                         1U
+#endif /* USBD_MAX_NUM_CONFIGURATION */
 
-#define  USB_LEN_DEV_QUALIFIER_DESC                     0x0A
-#define  USB_LEN_DEV_DESC                               0x12
-#define  USB_LEN_CFG_DESC                               0x09
-#define  USB_LEN_IF_DESC                                0x09
-#define  USB_LEN_EP_DESC                                0x07
-#define  USB_LEN_OTG_DESC                               0x03
-#define  USB_LEN_LANGID_STR_DESC                        0x04
-#define  USB_LEN_OTHER_SPEED_DESC_SIZ                   0x09
+#ifndef USBD_MAX_NUM_CONFIGURATION
+#define USBD_MAX_NUM_CONFIGURATION                      1U
+#endif /* USBD_MAX_NUM_CONFIGURATION */
 
-#define  USBD_IDX_LANGID_STR                            0x00 
-#define  USBD_IDX_MFC_STR                               0x01 
-#define  USBD_IDX_PRODUCT_STR                           0x02
-#define  USBD_IDX_SERIAL_STR                            0x03 
-#define  USBD_IDX_CONFIG_STR                            0x04 
-#define  USBD_IDX_INTERFACE_STR                         0x05 
+#ifndef USBD_LPM_ENABLED
+#define USBD_LPM_ENABLED                                0U
+#endif /* USBD_LPM_ENABLED */
 
-#define  USB_REQ_TYPE_STANDARD                          0x00
-#define  USB_REQ_TYPE_CLASS                             0x20
-#define  USB_REQ_TYPE_VENDOR                            0x40
-#define  USB_REQ_TYPE_MASK                              0x60
+#ifndef USBD_SELF_POWERED
+#define USBD_SELF_POWERED                               1U
+#endif /*USBD_SELF_POWERED */
 
-#define  USB_REQ_RECIPIENT_DEVICE                       0x00
-#define  USB_REQ_RECIPIENT_INTERFACE                    0x01
-#define  USB_REQ_RECIPIENT_ENDPOINT                     0x02
-#define  USB_REQ_RECIPIENT_MASK                         0x03
+#ifndef USBD_SUPPORT_USER_STRING
+#define USBD_SUPPORT_USER_STRING                        0U
+#endif /* USBD_SUPPORT_USER_STRING */
 
-#define  USB_REQ_GET_STATUS                             0x00
-#define  USB_REQ_CLEAR_FEATURE                          0x01
-#define  USB_REQ_SET_FEATURE                            0x03
-#define  USB_REQ_SET_ADDRESS                            0x05
-#define  USB_REQ_GET_DESCRIPTOR                         0x06
-#define  USB_REQ_SET_DESCRIPTOR                         0x07
-#define  USB_REQ_GET_CONFIGURATION                      0x08
-#define  USB_REQ_SET_CONFIGURATION                      0x09
-#define  USB_REQ_GET_INTERFACE                          0x0A
-#define  USB_REQ_SET_INTERFACE                          0x0B
-#define  USB_REQ_SYNCH_FRAME                            0x0C
+#define  USB_LEN_DEV_QUALIFIER_DESC                     0x0AU
+#define  USB_LEN_DEV_DESC                               0x12U
+#define  USB_LEN_CFG_DESC                               0x09U
+#define  USB_LEN_IF_DESC                                0x09U
+#define  USB_LEN_EP_DESC                                0x07U
+#define  USB_LEN_OTG_DESC                               0x03U
+#define  USB_LEN_LANGID_STR_DESC                        0x04U
+#define  USB_LEN_OTHER_SPEED_DESC_SIZ                   0x09U
 
-#define  USB_DESC_TYPE_DEVICE                              1
-#define  USB_DESC_TYPE_CONFIGURATION                       2
-#define  USB_DESC_TYPE_STRING                              3
-#define  USB_DESC_TYPE_INTERFACE                           4
-#define  USB_DESC_TYPE_ENDPOINT                            5
-#define  USB_DESC_TYPE_DEVICE_QUALIFIER                    6
-#define  USB_DESC_TYPE_OTHER_SPEED_CONFIGURATION           7
-#define  USB_DESC_TYPE_BOS                                 0x0F
+#define  USBD_IDX_LANGID_STR                            0x00U
+#define  USBD_IDX_MFC_STR                               0x01U
+#define  USBD_IDX_PRODUCT_STR                           0x02U
+#define  USBD_IDX_SERIAL_STR                            0x03U
+#define  USBD_IDX_CONFIG_STR                            0x04U
+#define  USBD_IDX_INTERFACE_STR                         0x05U
 
-#define USB_CONFIG_REMOTE_WAKEUP                           2
-#define USB_CONFIG_SELF_POWERED                            1
+#define  USB_REQ_TYPE_STANDARD                          0x00U
+#define  USB_REQ_TYPE_CLASS                             0x20U
+#define  USB_REQ_TYPE_VENDOR                            0x40U
+#define  USB_REQ_TYPE_MASK                              0x60U
 
-#define USB_FEATURE_EP_HALT                                0
-#define USB_FEATURE_REMOTE_WAKEUP                          1
-#define USB_FEATURE_TEST_MODE                              2
+#define  USB_REQ_RECIPIENT_DEVICE                       0x00U
+#define  USB_REQ_RECIPIENT_INTERFACE                    0x01U
+#define  USB_REQ_RECIPIENT_ENDPOINT                     0x02U
+#define  USB_REQ_RECIPIENT_MASK                         0x03U
 
-#define USB_DEVICE_CAPABITY_TYPE                           0x10
+#define  USB_REQ_GET_STATUS                             0x00U
+#define  USB_REQ_CLEAR_FEATURE                          0x01U
+#define  USB_REQ_SET_FEATURE                            0x03U
+#define  USB_REQ_SET_ADDRESS                            0x05U
+#define  USB_REQ_GET_DESCRIPTOR                         0x06U
+#define  USB_REQ_SET_DESCRIPTOR                         0x07U
+#define  USB_REQ_GET_CONFIGURATION                      0x08U
+#define  USB_REQ_SET_CONFIGURATION                      0x09U
+#define  USB_REQ_GET_INTERFACE                          0x0AU
+#define  USB_REQ_SET_INTERFACE                          0x0BU
+#define  USB_REQ_SYNCH_FRAME                            0x0CU
+
+#define  USB_DESC_TYPE_DEVICE                              1U
+#define  USB_DESC_TYPE_CONFIGURATION                       2U
+#define  USB_DESC_TYPE_STRING                              3U
+#define  USB_DESC_TYPE_INTERFACE                           4U
+#define  USB_DESC_TYPE_ENDPOINT                            5U
+#define  USB_DESC_TYPE_DEVICE_QUALIFIER                    6U
+#define  USB_DESC_TYPE_OTHER_SPEED_CONFIGURATION           7U
+#define  USB_DESC_TYPE_BOS                                 0x0FU
+
+#define USB_CONFIG_REMOTE_WAKEUP                           2U
+#define USB_CONFIG_SELF_POWERED                            1U
+
+#define USB_FEATURE_EP_HALT                                0U
+#define USB_FEATURE_REMOTE_WAKEUP                          1U
+#define USB_FEATURE_TEST_MODE                              2U
+
+#define USB_DEVICE_CAPABITY_TYPE                           0x10U
 
 #define USB_HS_MAX_PACKET_SIZE                            512
 #define USB_FS_MAX_PACKET_SIZE                            64
-#define USB_MAX_EP0_SIZE                                  64
+#define USB_MAX_EP0_SIZE                                  64U
 
 /*  Device Status */
-#define USBD_STATE_DEFAULT                                1
-#define USBD_STATE_ADDRESSED                              2
-#define USBD_STATE_CONFIGURED                             3
-#define USBD_STATE_SUSPENDED                              4
+#define USBD_STATE_DEFAULT                                1U
+#define USBD_STATE_ADDRESSED                              2U
+#define USBD_STATE_CONFIGURED                             3U
+#define USBD_STATE_SUSPENDED                              4U
 
 
-/*  EP0 State */    
-#define USBD_EP0_IDLE                                     0
-#define USBD_EP0_SETUP                                    1
-#define USBD_EP0_DATA_IN                                  2
-#define USBD_EP0_DATA_OUT                                 3
-#define USBD_EP0_STATUS_IN                                4
-#define USBD_EP0_STATUS_OUT                               5
-#define USBD_EP0_STALL                                    6    
+/*  EP0 State */
+#define USBD_EP0_IDLE                                     0U
+#define USBD_EP0_SETUP                                    1U
+#define USBD_EP0_DATA_IN                                  2U
+#define USBD_EP0_DATA_OUT                                 3U
+#define USBD_EP0_STATUS_IN                                4U
+#define USBD_EP0_STATUS_OUT                               5U
+#define USBD_EP0_STALL                                    6U
 
-#define USBD_EP_TYPE_CTRL                                 0
-#define USBD_EP_TYPE_ISOC                                 1
-#define USBD_EP_TYPE_BULK                                 2
-#define USBD_EP_TYPE_INTR                                 3
+#define USBD_EP_TYPE_CTRL                                 0U
+#define USBD_EP_TYPE_ISOC                                 1U
+#define USBD_EP_TYPE_BULK                                 2U
+#define USBD_EP_TYPE_INTR                                 3U
 
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V1_0 == 1) || (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1))
+#define  WINDOWS_VERSION_8_1                            0x06030000
+// GET_MS_DESCRIPTOR_FEATURE - This value is up to customer (bMS_VendorCode)
+#define  GET_MS_DESCRIPTOR_FEATURE                      0x04
+#define  MS_PROPERTY_TYPE_REG_SZ                        0x01
+#define  MS_PROPERTY_TYPE_EG_EXPAND_SZ                  0x02
+#define  MS_PROPERTY_TYPE_REG_BINARY                    0x03
+#define  MS_PROPERTY_TYPE_REG_DWORD_LITTLE_ENDIAN       0x04
+#define  MS_PROPERTY_TYPE_REG_DWORD_BIG_ENDIAN          0x05
+#define  MS_PROPERTY_TYPE_REG_LINK                      0x06
+#define  MS_PROPERTY_TYPE_REG_MULTI_SZ                  0x07
+#endif
+
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V1_0 == 1)
+#define  USBD_IDX_MS_OS_STR_V1_0                        0xEE
+#define  MS_FEATURE_DESC_GENRE                          0x0001
+#define  MS_FEATURE_DESC_EXTENDED_COMPAT_ID             0x0004
+#define  MS_FEATURE_DESC_EXTENDED_PROPERTIES            0x0005
+#endif
+
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1)
+#define  USBD_IDX_MS_OS_STR_V2_0                        0x07
+#define  MS_OS_20_SET_HEADER_DESCRIPTOR                 0x00
+#define  MS_OS_20_SUBSET_HEADER_CONFIGURATION           0x01
+#define  MS_OS_20_SUBSET_HEADER_FUNCTION                0x02
+#define  MS_OS_20_FEATURE_COMPATBLE_ID                  0x03
+#define  MS_OS_20_FEATURE_REG_PROPERTY                  0x04
+#define  MS_OS_20_FEATURE_MIN_RESUME_TIME               0x05
+#define  MS_OS_20_FEATURE_MODEL_ID                      0x06
+#define  MS_OS_20_FEATURE_CCGP_DEVICE                   0x07
+#endif
+
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1) || (USBD_LPM_ENABLED == 1))
+#define BOS_CAPABILITY_WIRELESS_USB                     0x01
+#define BOS_CAPABILITY_USB20_EXTENSION                  0x02
+#define BOS_CAPABILITY_SUPERSPEED_USB                   0x03
+#define BOS_CAPABILITY_CONTAINER_ID                     0x04
+#define BOS_CAPABILITY_PLATFORM                         0x05
+#define BOS_CAPABILITY_POWER_DELIVERY                   0x06
+#define BOS_CAPABILITY_BATTERY_INFO                     0x07
+#define BOS_CAPABILITY_POWER_DELIVERY_CONSUMER_PORT     0x08
+#define BOS_CAPABILITY_POWER_DELIVERY_PROVIDER_PORT     0x09
+#define BOS_CAPABILITY_SUPERSPEED_PLUS                  0x0A
+#define BOS_CAPABILITY_PRECISION_TIME_MEASUREMENT       0x0B
+#define BOS_CAPABILITY_WIRELESS_USB_EXT                 0x0C
+#define BOS_CAPABILITY_BILLBOARD                        0x0D
+#endif
 
 /**
   * @}
-  */ 
+  */
 
 
 /** @defgroup USBD_DEF_Exported_TypesDefinitions
   * @{
   */
 
-typedef  struct  usb_setup_req 
+typedef  struct  usb_setup_req
 {
-    
-    uint8_t   bmRequest;                      
-    uint8_t   bRequest;                           
-    uint16_t  wValue;                             
-    uint16_t  wIndex;                             
-    uint16_t  wLength;                            
+
+    uint8_t   bmRequest;
+    uint8_t   bRequest;
+    uint16_t  wValue;
+    uint16_t  wIndex;
+    uint16_t  wLength;
 }USBD_SetupReqTypedef;
 
 struct _USBD_HandleTypeDef;
-    
+
 typedef struct _Device_cb
 {
   uint8_t  (*Init)             (struct _USBD_HandleTypeDef *pdev , uint8_t cfgidx);
   uint8_t  (*DeInit)           (struct _USBD_HandleTypeDef *pdev , uint8_t cfgidx);
  /* Control Endpoints*/
-  uint8_t  (*Setup)            (struct _USBD_HandleTypeDef *pdev , USBD_SetupReqTypedef  *req);  
-  uint8_t  (*EP0_TxSent)       (struct _USBD_HandleTypeDef *pdev );    
-  uint8_t  (*EP0_RxReady)      (struct _USBD_HandleTypeDef *pdev );  
+  uint8_t  (*Setup)            (struct _USBD_HandleTypeDef *pdev , USBD_SetupReqTypedef  *req);
+  uint8_t  (*EP0_TxSent)       (struct _USBD_HandleTypeDef *pdev );
+  uint8_t  (*EP0_RxReady)      (struct _USBD_HandleTypeDef *pdev );
   /* Class Specific Endpoints*/
-  uint8_t  (*DataIn)           (struct _USBD_HandleTypeDef *pdev , uint8_t epnum);   
-  uint8_t  (*DataOut)          (struct _USBD_HandleTypeDef *pdev , uint8_t epnum); 
-  uint8_t  (*SOF)              (struct _USBD_HandleTypeDef *pdev); 
-  uint8_t  (*IsoINIncomplete)  (struct _USBD_HandleTypeDef *pdev , uint8_t epnum); 
-  uint8_t  (*IsoOUTIncomplete) (struct _USBD_HandleTypeDef *pdev , uint8_t epnum);   
+  uint8_t  (*DataIn)           (struct _USBD_HandleTypeDef *pdev , uint8_t epnum);
+  uint8_t  (*DataOut)          (struct _USBD_HandleTypeDef *pdev , uint8_t epnum);
+  uint8_t  (*SOF)              (struct _USBD_HandleTypeDef *pdev);
+  uint8_t  (*IsoINIncomplete)  (struct _USBD_HandleTypeDef *pdev , uint8_t epnum);
+  uint8_t  (*IsoOUTIncomplete) (struct _USBD_HandleTypeDef *pdev , uint8_t epnum);
 
-  uint8_t  *(*GetHSConfigDescriptor)(uint16_t *length); 
-  uint8_t  *(*GetFSConfigDescriptor)(uint16_t *length);   
+  uint8_t  *(*GetHSConfigDescriptor)(uint16_t *length);
+  uint8_t  *(*GetFSConfigDescriptor)(uint16_t *length);
   uint8_t  *(*GetOtherSpeedConfigDescriptor)(uint16_t *length);
   uint8_t  *(*GetDeviceQualifierDescriptor)(uint16_t *length);
-#if (USBD_SUPPORT_USER_STRING == 1)
-  uint8_t  *(*GetUsrStrDescriptor)(struct _USBD_HandleTypeDef *pdev ,uint8_t index,  uint16_t *length);   
-#endif  
-  
+#if (USBD_SUPPORT_USER_STRING == 1U)
+  uint8_t  *(*GetUsrStrDescriptor)(struct _USBD_HandleTypeDef *pdev ,uint8_t index,  uint16_t *length);
+#endif
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V1_0 == 1)
+  uint8_t  *(*GetOsStrDescriptor_V1_0)(struct _USBD_HandleTypeDef *pdev, uint16_t wValue, uint16_t *length);
+  uint8_t  *(*GetOsExtCompatIdDescriptor)(struct _USBD_HandleTypeDef *pdev, uint16_t wValue, uint16_t *length);
+  uint8_t  *(*GetOsExtPropDescriptor)(struct _USBD_HandleTypeDef *pdev, uint16_t wValue, uint16_t *length);
+#endif
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1)
+  uint8_t  *(*GetOsStrDescriptor_V2_0)(struct _USBD_HandleTypeDef *pdev, uint16_t wValue, uint16_t *length);
+#endif
 } USBD_ClassTypeDef;
 
 /* Following USB Device Speed */
-typedef enum 
+typedef enum
 {
-  USBD_SPEED_HIGH  = 0,
-  USBD_SPEED_FULL  = 1,
-  USBD_SPEED_LOW   = 2,  
+  USBD_SPEED_HIGH  = 0U,
+  USBD_SPEED_FULL  = 1U,
+  USBD_SPEED_LOW   = 2U,
 }USBD_SpeedTypeDef;
 
 /* Following USB Device status */
 typedef enum {
-  USBD_OK   = 0,
+  USBD_OK   = 0U,
   USBD_BUSY,
   USBD_FAIL,
 }USBD_StatusTypeDef;
@@ -200,25 +291,26 @@ typedef enum {
 /* USB Device descriptors structure */
 typedef struct
 {
-  uint8_t  *(*GetDeviceDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);  
-  uint8_t  *(*GetLangIDStrDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length); 
-  uint8_t  *(*GetManufacturerStrDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);  
-  uint8_t  *(*GetProductStrDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);  
-  uint8_t  *(*GetSerialStrDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);  
-  uint8_t  *(*GetConfigurationStrDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);  
-  uint8_t  *(*GetInterfaceStrDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length); 
-#if (USBD_LPM_ENABLED == 1)
-  uint8_t  *(*GetBOSDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length); 
-#endif  
+  uint8_t  *(*GetDeviceDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);
+  uint8_t  *(*GetLangIDStrDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);
+  uint8_t  *(*GetManufacturerStrDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);
+  uint8_t  *(*GetProductStrDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);
+  uint8_t  *(*GetSerialStrDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);
+  uint8_t  *(*GetConfigurationStrDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);
+  uint8_t  *(*GetInterfaceStrDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1) || (USBD_LPM_ENABLED == 1))
+  uint8_t  *(*GetBOSDescriptor)( USBD_SpeedTypeDef speed , uint16_t *length);
+#endif
 } USBD_DescriptorsTypeDef;
 
 /* USB Device handle structure */
 typedef struct
-{ 
+{
   uint32_t                status;
-  uint32_t                total_length;    
-  uint32_t                rem_length; 
-  uint32_t                maxpacket;   
+  uint32_t                is_used;
+  uint32_t                total_length;
+  uint32_t                rem_length;
+  uint32_t                maxpacket;
 } USBD_EndpointTypeDef;
 
 /* USB Device handle structure */
@@ -227,41 +319,41 @@ typedef struct _USBD_HandleTypeDef
   uint8_t                 id;
   uint32_t                dev_config;
   uint32_t                dev_default_config;
-  uint32_t                dev_config_status; 
-  USBD_SpeedTypeDef       dev_speed; 
+  uint32_t                dev_config_status;
+  USBD_SpeedTypeDef       dev_speed;
   USBD_EndpointTypeDef    ep_in[15];
-  USBD_EndpointTypeDef    ep_out[15];  
-  uint32_t                ep0_state;  
-  uint32_t                ep0_data_len;     
+  USBD_EndpointTypeDef    ep_out[15];
+  uint32_t                ep0_state;
+  uint32_t                ep0_data_len;
   uint8_t                 dev_state;
   uint8_t                 dev_old_state;
   uint8_t                 dev_address;
-  uint8_t                 dev_connection_status;  
+  uint8_t                 dev_connection_status;
   uint8_t                 dev_test_mode;
   uint32_t                dev_remote_wakeup;
 
   USBD_SetupReqTypedef    request;
   USBD_DescriptorsTypeDef *pDesc;
   USBD_ClassTypeDef       *pClass;
-  void                    *pClassData;  
-  void                    *pUserData;    
-  void                    *pData;    
+  void                    *pClassData;
+  void                    *pUserData;
+  void                    *pData;
 } USBD_HandleTypeDef;
 
 /**
   * @}
-  */ 
+  */
 
 
 
 /** @defgroup USBD_DEF_Exported_Macros
   * @{
-  */ 
+  */
 #define  SWAPBYTE(addr)        (((uint16_t)(*((uint8_t *)(addr)))) + \
-                               (((uint16_t)(*(((uint8_t *)(addr)) + 1))) << 8))
+                               (((uint16_t)(*(((uint8_t *)(addr)) + 1U))) << 8U))
 
-#define LOBYTE(x)  ((uint8_t)(x & 0x00FF))
-#define HIBYTE(x)  ((uint8_t)((x & 0xFF00) >>8))
+#define LOBYTE(x)  ((uint8_t)(x & 0x00FFU))
+#define HIBYTE(x)  ((uint8_t)((x & 0xFF00U) >> 8U))
 #define MIN(a, b)  (((a) < (b)) ? (a) : (b))
 #define MAX(a, b)  (((a) > (b)) ? (a) : (b))
 
@@ -277,42 +369,225 @@ typedef struct _USBD_HandleTypeDef
 
 
 /* In HS mode and when the DMA is used, all variables and data structures dealing
-   with the DMA during the transaction process should be 4-bytes aligned */    
+   with the DMA during the transaction process should be 4-bytes aligned */
 
 #if defined   (__GNUC__)        /* GNU Compiler */
   #define __ALIGN_END    __attribute__ ((aligned (4)))
-  #define __ALIGN_BEGIN         
-#else                           
+  #define __ALIGN_BEGIN
+#else
   #define __ALIGN_END
   #if defined   (__CC_ARM)      /* ARM Compiler */
-    #define __ALIGN_BEGIN    __align(4)  
+    #define __ALIGN_BEGIN    __align(4)
   #elif defined (__ICCARM__)    /* IAR Compiler */
-    #define __ALIGN_BEGIN 
+    #define __ALIGN_BEGIN
   #elif defined  (__TASKING__)  /* TASKING Compiler */
-    #define __ALIGN_BEGIN    __align(4) 
-  #endif /* __CC_ARM */  
-#endif /* __GNUC__ */ 
-  
+    #define __ALIGN_BEGIN    __align(4)
+  #endif /* __CC_ARM */
+#endif /* __GNUC__ */
+
 
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup USBD_DEF_Exported_Variables
   * @{
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup USBD_DEF_Exported_FunctionsPrototype
   * @{
-  */ 
+  */
+
+#pragma pack(1)
+
+
+// how many interfaces? 
+#define MAX_USB_FUNC_NUM                      3
+#define MAX_USB_PROPERTY_NUM                  1
+
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V1_0 == 1)
+
+typedef struct _MS_OS_STR_DESC_V1_0
+{
+  uint8_t bLength;
+  uint8_t bDscType;
+  uint16_t string[7];
+  uint8_t vendorCode;
+  uint8_t bPad;
+} MS_OS_STR_DESC_V1_0;
+
+typedef struct _MS_COMPAT_ID_FUNC_DESC_V1_0
+{
+  uint8_t bFirstInterfaceNumber;
+  uint8_t reserved_1;
+  uint8_t compatID[8];
+  uint8_t subCompatID[8];
+  uint8_t reserved_2[6];
+} MS_COMPAT_ID_FUNC_DESC_V1_0;
+
+typedef struct _MS_COMPAT_ID_FEATURE_DESC_V1_0
+{
+  //header
+  uint32_t dwLength;
+  uint16_t bcdVersion;
+  uint16_t wIndex;
+  uint8_t bCount;
+  uint8_t reserved[7];
+  //function
+  MS_COMPAT_ID_FUNC_DESC_V1_0 func[MAX_USB_FUNC_NUM];
+} MS_COMPAT_ID_FEATURE_DESC_V1_0;
+
+typedef struct MS_PROPERTY_SELECTIVE_SUSPEND
+{
+  uint32_t dwSize;
+  uint32_t dwPropertyDataType;
+  uint16_t wPropertyNameLength;
+  uint16_t bPropertyName[24];
+  uint32_t dwPropertyDataLength;
+  uint32_t bPropertyData;
+} MS_PROPERTY_SELECTIVE_SUSPEND;
+
+typedef struct _MS_PROPERTY_FEATURE_DESC
+{
+  //header
+  uint32_t dwLength;
+  uint16_t bcdVersion;
+  uint16_t wIndex;
+  uint16_t wCount;
+  //preperties
+  MS_PROPERTY_SELECTIVE_SUSPEND prop[MAX_USB_PROPERTY_NUM];
+} MS_PROPERTY_FEATURE_DESC;
+
+#endif
+
+
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1)
+typedef struct _MS_OS_DESC_SET_HEADER_V2_0
+{
+  uint16_t wLength;
+  uint16_t wDescriptorType;
+  uint32_t dwWindowsVersion;
+  uint16_t wTotalLength;
+} MS_OS_DESC_SET_HEADER_V2_0;
+
+typedef struct _MS_OS_CONFIG_HEADER_V2_0
+{
+  uint16_t wLength;
+  uint16_t wDescriptorType;
+  uint8_t bConfigurationValue;
+  uint8_t bReserved;
+  uint16_t wTotalLength;
+} MS_OS_CONFIG_HEADER_V2_0;
+
+typedef struct _MS_OS_FUNC_HEADER_V2_0
+{
+  uint16_t wLength;
+  uint16_t wDescriptorType;
+  uint8_t bFirstInterface;
+  uint8_t bReserved;
+  uint16_t wSubsetLength;
+} MS_OS_FUNC_HEADER_V2_0;
+
+typedef struct _MS_OS_FEATURE_COMPAT_ID_V2_0
+{
+  uint16_t wLength;
+  uint16_t wDescriptorType;
+  uint8_t CompatibleID[8];
+  uint8_t SubCompatibleID[8];
+} MS_OS_FEATURE_COMPAT_ID_V2_0;
+
+typedef struct _MS_OS_FEATURE_REG_SELECTIVE_SUSPEND_V2_0
+{
+  uint16_t wLength;
+  uint16_t wDescriptorType;
+  uint16_t wPropertyDataType;
+  uint16_t wPropertyNameLength;
+  uint16_t bPropertyName[24];
+  uint16_t wPropertyDataLength;
+  uint32_t PropertyData;
+} MS_OS_FEATURE_REG_SELECTIVE_SUSPEND_V2_0;
+
+typedef struct _MS_OS_FUNC_SUBSET_V2_0
+{
+  MS_OS_FUNC_HEADER_V2_0 hdr;
+  MS_OS_FEATURE_REG_SELECTIVE_SUSPEND_V2_0 reg;
+} MS_OS_FUNC_SUBSET_V2_0;
+
+
+typedef struct _MS_OS_CONFIG_SUBSET_V2_0
+{
+  MS_OS_CONFIG_HEADER_V2_0 hdr;
+  MS_OS_FUNC_SUBSET_V2_0 funcs[MAX_USB_FUNC_NUM];
+} MS_OS_CONFIG_SUBSET_V2_0;
+
+typedef struct _MS_OS_STR_DESC_V2_0
+{
+  MS_OS_DESC_SET_HEADER_V2_0 hdr;
+  MS_OS_FEATURE_REG_SELECTIVE_SUSPEND_V2_0 reg1;
+#if 1
+  MS_OS_CONFIG_SUBSET_V2_0 conf;
+#endif
+} MS_OS_STR_DESC_V2_0;
+
+#endif
+
+
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1) || (USBD_LPM_ENABLED == 1))
+
+typedef struct _BOS_DESC_HEADER
+{
+  uint8_t bLength;
+  uint8_t bDescriptorType;
+  uint16_t wTotalLengh;
+  uint8_t bNumDeviceCaps;
+} BOS_DESC_HEADER;
+
+typedef struct _BOS_CAPABILITY_LPM
+{
+  uint8_t bLength;
+  uint8_t bDescriptorType;
+  uint8_t bDevCapabilityType;
+  uint32_t bmAttributes;
+} BOS_CAPABILITY_LPM;
+
+typedef struct _BOS_CAPABILITY_MS_OS_V2_0
+{
+  //header
+  uint8_t bLength;
+  uint8_t bDescriptorType;
+  uint8_t bDevCapabilityType;
+  uint8_t bReserved;
+  uint8_t PlatformCapabilityUUID[16];
+  //set information
+  uint32_t dwWindowsVersion;
+  uint16_t wMSOSDescriptorSetTotalLength;
+  uint8_t bMS_VendorCode;
+  uint8_t bAltEnumCode;
+} BOS_CAPABILITY_MS_OS_V2_0;
+
+
+typedef struct _BOS_DESCRIPTOR
+{
+  BOS_DESC_HEADER hdr;
+#if (USBD_LPM_ENABLED == 1)
+  BOS_CAPABILITY_LPM lpm;
+#endif
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1)
+  BOS_CAPABILITY_MS_OS_V2_0 ms_os;
+#endif
+} BOS_DESCRIPTOR;
+
+#endif
+
+#pragma pack()
 
 /**
   * @}
-  */ 
+  */
 
 #ifdef __cplusplus
 }
@@ -322,9 +597,9 @@ typedef struct _USBD_HandleTypeDef
 
 /**
   * @}
-  */ 
+  */
 
 /**
 * @}
-*/ 
+*/
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
