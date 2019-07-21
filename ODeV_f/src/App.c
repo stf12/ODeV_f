@@ -32,6 +32,7 @@
 
 #include "sysdebug.h"
 #include "ApplicationContext.h"
+#include "HostComChannelTask.h"
 #include "HelloWorldTask.h"
 #include "PushButtonTask.h"
 
@@ -45,6 +46,11 @@ static AManagedTask *s_pxHelloWorldObj = NULL;
  */
 static AManagedTaskEx *s_pxPushButtonObj = NULL;
 
+/**
+ * Application managed task.
+ */
+static AManagedTaskEx *s_pxHostComChannelTask = NULL;
+
 
 sys_error_code_t SysLoadApplicationContext(ApplicationContext *pAppContext) {
   assert_param(pAppContext);
@@ -54,11 +60,12 @@ sys_error_code_t SysLoadApplicationContext(ApplicationContext *pAppContext) {
   // Allocate the task objects
   s_pxHelloWorldObj = HelloWorldTaskAlloc();
   s_pxPushButtonObj = PushButtonTaskAlloc();
+  s_pxHostComChannelTask = HostComChannelTaskAlloc();
 
   // Add the task object to the context.
   xRes = ACAddTask(pAppContext, s_pxHelloWorldObj);
   xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxPushButtonObj);
-
+  xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxHostComChannelTask);
 
   return xRes;
 }
@@ -68,6 +75,9 @@ sys_error_code_t SysOnStartApplication(ApplicationContext *pAppContext) {
 
   IDriver *pxNucleoDriver = HelloWorldTaskGetDriver((HelloWorldTask*)s_pxHelloWorldObj);
   PushButtonTaskSetDriver((PushButtonTask*)s_pxPushButtonObj, pxNucleoDriver);
+
+  // Set the output delivery queue.
+//  QueueHandle_t xQueue = HostComChannelGetInputReportQueue(s_pxHostComChannelTask);
 
   return SYS_NO_ERROR_CODE;
 }

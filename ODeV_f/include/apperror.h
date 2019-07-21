@@ -46,14 +46,25 @@ extern "C" {
 // IP error
 //#define SYS_BASE_XX_ERROR_CODE                               APP_BASE_ERROR_CODE
 
+// KeyMatrix Driver error
+#define SYS_BASE_KMDRV_ERROR_CODE                             APP_BASE_ERROR_CODE
+#define SYS_KMDRV_INVALID_CONFIG_ERROR_CODE                   SYS_BASE_KMDRV_ERROR_CODE + 1
+
+
 
 // Service Level error code
 // ************************
+
+// KeyScanner error
+#define SYS_BASE_KS_ERROR_CODE                                SYS_BASE_KMDRV_ERROR_CODE + SYS_GROUP_ERROR_COUNT
+#define SYS_KS_TIMEOUT_ERROR_CODE                             SYS_BASE_KS_ERROR_CODE + 1
 
 
 // Task Level error code
 // *********************
 
+#define SYS_BASE_HCC_BASE_ERROR_CODE                          SYS_BASE_KS_ERROR_CODE + SYS_GROUP_ERROR_COUNT
+#define SYS_HCC_TASK_REPORT_LOST_ERROR_CODE                   SYS_BASE_HCC_BASE_ERROR_CODE + 1
 
 
 #ifdef __cplusplus

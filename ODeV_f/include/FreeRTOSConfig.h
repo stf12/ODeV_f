@@ -96,12 +96,8 @@
 #define configUSE_16_BIT_TICKS                   0
 #define configIDLE_SHOULD_YIELD                  1
 #define configUSE_TASK_NOTIFICATIONS             0
-#if defined(DEBUG) || defined(SYS_DEBUG)
 #define configUSE_MUTEXES                        1
-#else
-#define configUSE_MUTEXES                        0
-#endif
-#define configUSE_RECURSIVE_MUTEXES              0
+#define configUSE_RECURSIVE_MUTEXES              1
 #define configUSE_COUNTING_SEMAPHORES            0
 #define configQUEUE_REGISTRY_SIZE                7
 #define configUSE_QUEUE_SETS                     0
@@ -112,9 +108,9 @@
 #define configSUPPORT_STATIC_ALLOCATION          0
 #define configSUPPORT_DYNAMIC_ALLOCATION         1
 #if defined(DEBUG) || (SYS_DBG_ENABLE_TA4>=1)
-#define configTOTAL_HEAP_SIZE                    ((size_t)4000)
+#define configTOTAL_HEAP_SIZE                    ((size_t)5000)
 #else
-#define configTOTAL_HEAP_SIZE                    ((size_t)3000)
+#define configTOTAL_HEAP_SIZE                    ((size_t)5000)
 #endif
 #define configAPPLICATION_ALLOCATED_HEAP         1
 

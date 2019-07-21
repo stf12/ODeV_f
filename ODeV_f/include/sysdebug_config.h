@@ -47,6 +47,9 @@ extern "C" {
 #define SYS_DBG_APMH                       SYS_DBG_ON                 ///< Application Power Mode Helper debug control byte
 #define SYS_DBG_HW                         SYS_DBG_OFF                ///< Hello World task debug control byte
 #define SYS_DBG_PB                         SYS_DBG_ON                 ///< Push button task debug control byte
+#define SYS_DBG_HID_USB_DEVICE_SERVICES    SYS_DBG_OFF                ///< USB debug control byte
+#define SYS_DBG_HCC_TASK                   SYS_DBG_OFF                ///< Host Communication Channel task debug control byte
+
 
 
 #ifdef __cplusplus

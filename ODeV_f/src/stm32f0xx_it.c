@@ -33,6 +33,7 @@ extern void xPortSysTickHandler(void);
 // External variables
 // ******************
 
+extern PCD_HandleTypeDef g_hpcd;
 
 /******************************************************************************/
 /*           Cortex-M0 Processor Interruption and Exception Handlers          */
@@ -76,4 +77,11 @@ void SysTick_Handler(void)
 /* please refer to the startup file (startup_stm32f0xx.s).                    */
 /******************************************************************************/
 
+/**
+  * @brief This function handles USB global interrupt / USB wake-up interrupt through EXTI line 18.
+  */
+void USB_IRQHandler(void)
+{
+  HAL_PCD_IRQHandler(&g_hpcd);
+}
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

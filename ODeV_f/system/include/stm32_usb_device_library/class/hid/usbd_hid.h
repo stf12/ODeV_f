@@ -2,25 +2,43 @@
   ******************************************************************************
   * @file    usbd_hid.h
   * @author  MCD Application Team
-  * @version V2.4.2
-  * @date    11-December-2015
   * @brief   Header file for the usbd_hid_core.c file.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics International N.V.
+  * All rights reserved.</center></h2>
   *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
+  * Redistribution and use in source and binary forms, with or without
+  * modification, are permitted, provided that the following conditions are met:
   *
-  *        http://www.st.com/software_license_agreement_liberty_v2
+  * 1. Redistribution of source code must retain the above copyright notice,
+  *    this list of conditions and the following disclaimer.
+  * 2. Redistributions in binary form must reproduce the above copyright notice,
+  *    this list of conditions and the following disclaimer in the documentation
+  *    and/or other materials provided with the distribution.
+  * 3. Neither the name of STMicroelectronics nor the names of other
+  *    contributors to this software may be used to endorse or promote products
+  *    derived from this software without specific written permission.
+  * 4. This software, including modifications and/or derivative works of this
+  *    software, must execute solely and exclusively on microcontroller or
+  *    microprocessor devices manufactured by or for STMicroelectronics.
+  * 5. Redistribution and use of this software other than as permitted under
+  *    this license is void and will automatically terminate your rights under
+  *    this license.
   *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
+  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT
+  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
+  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT
+  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
   */
@@ -34,46 +52,72 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include  <usbd_ioreq.h>
+#include "usbd_ioreq.h"
+#include "HID-USBHelper.h"
+#include "hid_report_parser.h"
 
 /** @addtogroup STM32_USB_DEVICE_LIBRARY
   * @{
   */
-  
+
 /** @defgroup USBD_HID
   * @brief This file is the Header file for usbd_hid.c
   * @{
-  */ 
+  */
 
 
 /** @defgroup USBD_HID_Exported_Defines
   * @{
-  */ 
-#define HID_EPIN_ADDR                 0x81
-#define HID_EPIN_SIZE                 0x04
+  */
+#define HID_MOUSE_EPIN_ADDR                  0x81U
+#define HID_MOUSE_EPIN_SIZE                  0x04U
 
-#define USB_HID_CONFIG_DESC_SIZ       34
-#define USB_HID_DESC_SIZ              9
-#define HID_MOUSE_REPORT_DESC_SIZE    74
+#define HID_KEYBOARD_EPIN_ADDR               0x82U
+#define HID_KEYBOARD_EPIN_SIZE               0x08U
 
-#define HID_DESCRIPTOR_TYPE           0x21
-#define HID_REPORT_DESC               0x22
+#define HID_CUSTOM_EPIN_ADDR                 0x83U
+#define HID_CUSTOM_EPIN_SIZE                 0x08U
 
-#define HID_HS_BINTERVAL               0x07
-#define HID_FS_BINTERVAL               0x0A
-#define HID_POLLING_INTERVAL           0x0A
+#define HID_CUSTOM_EPOUT_ADDR                0x03U
+#define HID_CUSTOM_EPOUT_SIZE                0x08U
 
-#define HID_REQ_SET_PROTOCOL          0x0B
-#define HID_REQ_GET_PROTOCOL          0x03
+#define USB_HID_CONFIG_DESC_SIZ              91U
+#define USB_HID_DESC_SIZ                     9U
+#define HID_MOUSE_REPORT_DESC_SIZE           50U
+#define HID_MOUSE_REPORT_DESC_SIZE_MBS       0U
+#define HID_MOUSE_REPORT_DESC_SIZE_LBS       50U
+#define HID_KEYBOARD_REPORT_DESC_SIZE        59U
+#define HID_CUSTOM_REPORT_DESC_SIZE          85U
+#define HID_MOUSE_IF_IDX                     0U
+#define HID_KEYBOARD_IF_IDX                  1U
+#define HID_CUSTOM_IF_IDX                    2U
 
-#define HID_REQ_SET_IDLE              0x0A
-#define HID_REQ_GET_IDLE              0x02
+#define HID_DESCRIPTOR_TYPE                  0x21U
+#define HID_REPORT_DESC                      0x22U
 
-#define HID_REQ_SET_REPORT            0x09
-#define HID_REQ_GET_REPORT            0x01
+#ifndef HID_HS_BINTERVAL
+  #define HID_HS_BINTERVAL                   0x07U
+#endif /* HID_HS_BINTERVAL */
+
+#ifndef HID_FS_BINTERVAL
+  #define HID_FS_BINTERVAL                   0x0AU
+#endif /* HID_FS_BINTERVAL */
+
+#define HID_REQ_SET_PROTOCOL                 0x0BU
+#define HID_REQ_GET_PROTOCOL                 0x03U
+
+#define HID_REQ_SET_IDLE                     0x0AU
+#define HID_REQ_GET_IDLE                     0x02U
+
+#define HID_REQ_SET_REPORT                   0x09U
+#define HID_REQ_GET_REPORT                   0x01U
+
+#define HID_MOUSE_INTERFACE                  0x00U
+#define HID_KEYBOARD_INTERFACE               0x01U
+#define HID_CUSTOM_INTERFACE                 0x02U
 /**
   * @}
-  */ 
+  */
 
 
 /** @defgroup USBD_CORE_Exported_TypesDefinitions
@@ -84,53 +128,74 @@ typedef enum
   HID_IDLE = 0,
   HID_BUSY,
 }
-HID_StateTypeDef; 
+HID_StateTypeDef;
 
+/**
+ * A convenient way to operate the device report.
+ */
+typedef union _HIDReportBuffU {
+  HIDReport xReport;
+  uint8_t pcReportBuffer[sizeof(HIDReport)];
+} HIDReportBuffU;
 
 typedef struct
 {
-  uint32_t             Protocol;   
-  uint32_t             IdleState;  
+  HIDReportBuffU       Report;
+  uint8_t              Interface;          ///< 1 when the output report is for the USB IF 1 (Keyboard)
+  uint32_t             IsReportAvailable;
+  uint32_t             Protocol;
+  uint32_t             IdleState;
   uint32_t             AltSetting;
-  HID_StateTypeDef     state;  
+  HID_StateTypeDef     state[USBD_MAX_NUM_INTERFACES];
 }
-USBD_HID_HandleTypeDef; 
+USBD_HID_HandleTypeDef;
 /**
   * @}
-  */ 
+  */
 
 
 
 /** @defgroup USBD_CORE_Exported_Macros
   * @{
-  */ 
+  */
 
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup USBD_CORE_Exported_Variables
   * @{
-  */ 
+  */
 
-extern USBD_ClassTypeDef  USBD_HID;
+extern const USBD_ClassTypeDef  USBD_HID;
 #define USBD_HID_CLASS    &USBD_HID
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup USB_CORE_Exported_Functions
   * @{
-  */ 
-uint8_t USBD_HID_SendReport (USBD_HandleTypeDef *pdev, 
-                                 uint8_t *report,
-                                 uint16_t len);
+  */
+uint8_t USBD_HID_MouseSendReport(USBD_HandleTypeDef *pdev, uint8_t *report, uint16_t len);
+
+uint8_t USBD_HID_KeyboardSendReport(USBD_HandleTypeDef *pdev, uint8_t *report, uint16_t len);
+
+uint8_t USBD_HID_CustomSendReport(USBD_HandleTypeDef *pdev, uint8_t *report, uint16_t len);
 
 uint32_t USBD_HID_GetPollingInterval (USBD_HandleTypeDef *pdev);
 
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V1_0 == 1) || (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1))
+USBD_StatusTypeDef USBD_VendorRequest(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef  *req);
+#endif
+
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1)
+extern const MS_OS_STR_DESC_V2_0 MsOsStrDescriptor_V2_0;
+#endif
+
+
 /**
   * @}
-  */ 
+  */
 
 #ifdef __cplusplus
 }
@@ -139,10 +204,10 @@ uint32_t USBD_HID_GetPollingInterval (USBD_HandleTypeDef *pdev);
 #endif  /* __USB_HID_H */
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}
-  */ 
-  
+  */
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

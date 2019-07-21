@@ -1,343 +1,298 @@
-/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file           : usbd_desc.c
-  * @version        : v2.0_Cube
-  * @brief          : This file implements the USB device descriptors.
+  * @file    USB_Device/HID_Standalone/Src/usbd_desc.c
+  * @author  MCD Application Team
+  * @brief   This file provides the USBD descriptors and string formating method.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
+  * <h2><center>&copy; Copyright(c) 2017 STMicroelectronics International N.V.
   * All rights reserved.</center></h2>
   *
-  * This software component is licensed by ST under Ultimate Liberty license
-  * SLA0044, the "License"; You may not use this file except in compliance with
-  * the License. You may obtain a copy of the License at:
-  *                             www.st.com/SLA0044
+  * Redistribution and use in source and binary forms, with or without
+  * modification, are permitted, provided that the following conditions are met:
+  *
+  * 1. Redistribution of source code must retain the above copyright notice,
+  *    this list of conditions and the following disclaimer.
+  * 2. Redistributions in binary form must reproduce the above copyright notice,
+  *    this list of conditions and the following disclaimer in the documentation
+  *    and/or other materials provided with the distribution.
+  * 3. Neither the name of STMicroelectronics nor the names of other
+  *    contributors to this software may be used to endorse or promote products
+  *    derived from this software without specific written permission.
+  * 4. This software, including modifications and/or derivative works of this
+  *    software, must execute solely and exclusively on microcontroller or
+  *    microprocessor devices manufactured by or for STMicroelectronics.
+  * 5. Redistribution and use of this software other than as permitted under
+  *    this license is void and will automatically terminate your rights under
+  *    this license.
+  *
+  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT
+  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
+  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT
+  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
   */
-/* USER CODE END Header */
 
-/* Includes ------------------------------------------------------------------*/
+/* Includes ------------------------------------------------------------------ */
 #include "usbd_core.h"
 #include "usbd_desc.h"
 #include "usbd_conf.h"
 
-/* USER CODE BEGIN INCLUDE */
+/* Private typedef ----------------------------------------------------------- */
+/* Private define ------------------------------------------------------------ */
+#define USBD_VID                          0x0483 // ST VID:0x0483
+#define USBD_PID                          0x5712 // ST PID:0x5712
+#define USBD_LANGID_STRING                0x409
+#define USBD_MANUFACTURER_STRING          "STF12 Demo"
+#define USBD_PRODUCT_FS_STRING            "STF12.1_V000.000.000.000"
+#define USBD_PRODUCT_FS_FW_VERSION_IDX    0x9  ///< Specifies the start index of the fw version in the USBD_PRODUCT_FS_STRING
+#define USBD_CONFIGURATION_FS_STRING      "STF12 HID Config"
+#define USBD_INTERFACE_FS_STRING          "STF12 HID Interface"
 
-/* USER CODE END INCLUDE */
+/* Private macro ------------------------------------------------------------- */
+/* Private function prototypes ----------------------------------------------- */
+uint8_t *USBD_HID_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t * length);
+uint8_t *USBD_HID_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * length);
+uint8_t *USBD_HID_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * length);
+uint8_t *USBD_HID_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * length);
+uint8_t *USBD_HID_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * length);
+uint8_t *USBD_HID_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * length);
+uint8_t *USBD_HID_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * length);
+#ifdef USB_SUPPORT_USER_STRING_DESC
+uint8_t *USBD_HID_USRStringDesc(USBD_SpeedTypeDef speed, uint8_t idx,uint16_t * length);
+#endif                          /* USB_SUPPORT_USER_STRING_DESC */
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-
-/* USER CODE BEGIN PV */
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE END PV */
-
-/** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
-  * @{
-  */
-
-/** @addtogroup USBD_DESC
-  * @{
-  */
-
-/** @defgroup USBD_DESC_Private_TypesDefinitions USBD_DESC_Private_TypesDefinitions
-  * @brief Private types.
-  * @{
-  */
-
-/* USER CODE BEGIN PRIVATE_TYPES */
-
-/* USER CODE END PRIVATE_TYPES */
-
-/**
-  * @}
-  */
-
-/** @defgroup USBD_DESC_Private_Defines USBD_DESC_Private_Defines
-  * @brief Private defines.
-  * @{
-  */
-
-#define USBD_VID     1155
-#define USBD_LANGID_STRING     1033
-#define USBD_MANUFACTURER_STRING     "STMicroelectronics"
-#define USBD_PID_FS     22315
-#define USBD_PRODUCT_STRING_FS     "STM32 Human interface"
-#define USBD_CONFIGURATION_STRING_FS     "HID Config"
-#define USBD_INTERFACE_STRING_FS     "HID Interface"
-
-/* USER CODE BEGIN PRIVATE_DEFINES */
-
-/* USER CODE END PRIVATE_DEFINES */
-
-/**
-  * @}
-  */
-
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
-/** @defgroup USBD_DESC_Private_Macros USBD_DESC_Private_Macros
-  * @brief Private macros.
-  * @{
-  */
-
-/* USER CODE BEGIN PRIVATE_MACRO */
-
-/* USER CODE END PRIVATE_MACRO */
-
-/**
-  * @}
-  */
-  
-/** @defgroup USBD_DESC_Private_FunctionPrototypes USBD_DESC_Private_FunctionPrototypes
-  * @brief Private functions declaration.
-  * @{
-  */
-  
-static void Get_SerialNum(void);
-static void IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len);
-  
-/**
-  * @}
-  */  
-  
-
-/** @defgroup USBD_DESC_Private_FunctionPrototypes USBD_DESC_Private_FunctionPrototypes
-  * @brief Private functions declaration for FS.
-  * @{
-  */
-
-uint8_t * USBD_FS_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
-uint8_t * USBD_FS_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
-uint8_t * USBD_FS_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
-uint8_t * USBD_FS_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
-uint8_t * USBD_FS_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
-uint8_t * USBD_FS_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
-uint8_t * USBD_FS_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
-
-#ifdef USBD_SUPPORT_USER_STRING_DESC
-uint8_t * USBD_FS_USRStringDesc(USBD_SpeedTypeDef speed, uint8_t idx, uint16_t *length);
-#endif /* USBD_SUPPORT_USER_STRING_DESC */
-
-/**
-  * @}
-  */
-
-/** @defgroup USBD_DESC_Private_Variables USBD_DESC_Private_Variables
-  * @brief Private variables.
-  * @{
-  */
-
-USBD_DescriptorsTypeDef FS_Desc =
-{
-  USBD_FS_DeviceDescriptor
-, USBD_FS_LangIDStrDescriptor
-, USBD_FS_ManufacturerStrDescriptor
-, USBD_FS_ProductStrDescriptor
-, USBD_FS_SerialStrDescriptor
-, USBD_FS_ConfigStrDescriptor
-, USBD_FS_InterfaceStrDescriptor
-};
-
-#if defined ( __ICCARM__ ) /* IAR Compiler */
-  #pragma data_alignment=4
-#endif /* defined ( __ICCARM__ ) */
-/** USB standard device descriptor. */
-__ALIGN_BEGIN uint8_t USBD_FS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
-{
-  0x12,                       /*bLength */
-  USB_DESC_TYPE_DEVICE,       /*bDescriptorType*/
-  0x00,                       /*bcdUSB */
-  0x02,
-  0x00,                       /*bDeviceClass*/
-  0x00,                       /*bDeviceSubClass*/
-  0x00,                       /*bDeviceProtocol*/
-  USB_MAX_EP0_SIZE,           /*bMaxPacketSize*/
-  LOBYTE(USBD_VID),           /*idVendor*/
-  HIBYTE(USBD_VID),           /*idVendor*/
-  LOBYTE(USBD_PID_FS),        /*idProduct*/
-  HIBYTE(USBD_PID_FS),        /*idProduct*/
-  0x00,                       /*bcdDevice rel. 2.00*/
-  0x02,
-  USBD_IDX_MFC_STR,           /*Index of manufacturer  string*/
-  USBD_IDX_PRODUCT_STR,       /*Index of product string*/
-  USBD_IDX_SERIAL_STR,        /*Index of serial number string*/
-  USBD_MAX_NUM_CONFIGURATION  /*bNumConfigurations*/
-};
-
-/* USB_DeviceDescriptor */
-
-/**
-  * @}
-  */
-
-/** @defgroup USBD_DESC_Private_Variables USBD_DESC_Private_Variables
-  * @brief Private variables.
-  * @{
-  */
-
-#if defined ( __ICCARM__ ) /* IAR Compiler */
-  #pragma data_alignment=4
-#endif /* defined ( __ICCARM__ ) */
-
-/** USB lang indentifier descriptor. */
-__ALIGN_BEGIN uint8_t USBD_LangIDDesc[USB_LEN_LANGID_STR_DESC] __ALIGN_END =
-{
-     USB_LEN_LANGID_STR_DESC,
-     USB_DESC_TYPE_STRING,
-     LOBYTE(USBD_LANGID_STRING),
-     HIBYTE(USBD_LANGID_STRING)
-};
-
-#if defined ( __ICCARM__ ) /* IAR Compiler */
-  #pragma data_alignment=4
-#endif /* defined ( __ICCARM__ ) */
-/* Internal string descriptor. */
-__ALIGN_BEGIN uint8_t USBD_StrDesc[USBD_MAX_STR_DESC_SIZ] __ALIGN_END;
-
-#if defined ( __ICCARM__ ) /*!< IAR Compiler */
-  #pragma data_alignment=4   
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1) || (USBD_LPM_ENABLED == 1))
+uint8_t *USBD_USR_BOSDescriptor(USBD_SpeedTypeDef speed , uint16_t *length);
 #endif
-__ALIGN_BEGIN uint8_t USBD_StringSerial[USB_SIZ_STRING_SERIAL] __ALIGN_END = {
+
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1)
+#include "usbd_hid.h"
+#endif
+
+/* Private variables --------------------------------------------------------- */
+USBD_DescriptorsTypeDef g_xHidDesc = {
+  USBD_HID_DeviceDescriptor,
+  USBD_HID_LangIDStrDescriptor,
+  USBD_HID_ManufacturerStrDescriptor,
+  USBD_HID_ProductStrDescriptor,
+  USBD_HID_SerialStrDescriptor,
+  USBD_HID_ConfigStrDescriptor,
+  USBD_HID_InterfaceStrDescriptor,
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1) || (USBD_LPM_ENABLED == 1))
+  USBD_USR_BOSDescriptor,
+#endif
+};
+
+/* USB Standard Device Descriptor */
+#if defined ( __ICCARM__ )      /* !< IAR Compiler */
+#pragma data_alignment=4
+#endif
+__ALIGN_BEGIN uint8_t USBD_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END = {
+  0x12,                         /* bLength */
+  USB_DESC_TYPE_DEVICE,         /* bDescriptorType */
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1) || (USBD_LPM_ENABLED == 1))
+  0x01,                       /*bcdUSB */     /* changed to USB version 2.01
+  in order to support LPM L1 suspend
+  resume test of USBCV3.0*/
+#else
+  0x00,                         /* bcdUSB */
+#endif
+  0x02,
+  0x00,                         /* bDeviceClass */
+  0x00,                         /* bDeviceSubClass */
+  0x00,                         /* bDeviceProtocol */
+  USB_MAX_EP0_SIZE,             /* bMaxPacketSize */
+  LOBYTE(USBD_VID),             /* idVendor */
+  HIBYTE(USBD_VID),             /* idVendor */
+  LOBYTE(USBD_PID),             /* idVendor */
+  HIBYTE(USBD_PID),             /* idVendor */
+  0x00,                         /* bcdDevice rel. 2.00 */
+  0x02,
+  USBD_IDX_MFC_STR,             /* Index of manufacturer string */
+  USBD_IDX_PRODUCT_STR,         /* Index of product string */
+  USBD_IDX_SERIAL_STR,          /* Index of serial number string */
+  USBD_MAX_NUM_CONFIGURATION    /* bNumConfigurations */
+};                              /* USB_DeviceDescriptor */
+
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1) || (USBD_LPM_ENABLED == 1))
+BOS_DESCRIPTOR USBD_BOSDesc = {
+  .hdr.bLength = sizeof(USBD_BOSDesc.hdr),
+  .hdr.bDescriptorType = USB_DESC_TYPE_BOS,
+  .hdr.wTotalLengh = sizeof(USBD_BOSDesc),
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1) && (USBD_LPM_ENABLED == 1))
+  .hdr.bNumDeviceCaps = 2,
+#else
+  .hdr.bNumDeviceCaps = 1,
+#endif
+#if (USBD_LPM_ENABLED == 1)
+  .lpm.bLength = sizeof(USBD_BOSDesc.lpm),
+  .lpm.bDescriptorType = USB_DEVICE_CAPABITY_TYPE,
+  .lpm.bDevCapabilityType = BOS_CAPABILITY_USB20_EXTENSION,
+  .lpm.bmAttributes = 0x00000002,
+#endif
+#if (USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1)
+  .ms_os.bLength = sizeof(USBD_BOSDesc.ms_os),
+  .ms_os.bDescriptorType = USB_DEVICE_CAPABITY_TYPE,
+  .ms_os.bDevCapabilityType = BOS_CAPABILITY_PLATFORM,
+  .ms_os.bReserved = 0,
+  .ms_os.PlatformCapabilityUUID = {0xDF, 0x60, 0xDD, 0xD8, 0x89, 0x45, 0xC7, 0x4C, 0x9C, 0xD2, 0x65, 0x9D, 0x9E, 0x64, 0x8A, 0x9F},
+  .ms_os.dwWindowsVersion = WINDOWS_VERSION_8_1,
+  .ms_os.wMSOSDescriptorSetTotalLength = sizeof(MsOsStrDescriptor_V2_0),
+  .ms_os.bMS_VendorCode = GET_MS_DESCRIPTOR_FEATURE,
+  .ms_os.bAltEnumCode = 0,
+#endif
+
+};
+#endif
+
+
+/* USB Standard Device Descriptor */
+#if defined ( __ICCARM__ )      /* !< IAR Compiler */
+#pragma data_alignment=4
+#endif
+__ALIGN_BEGIN uint8_t USBD_LangIDDesc[USB_LEN_LANGID_STR_DESC] __ALIGN_END = {
+  USB_LEN_LANGID_STR_DESC,
+  USB_DESC_TYPE_STRING,
+  LOBYTE(USBD_LANGID_STRING),
+  HIBYTE(USBD_LANGID_STRING),
+};
+
+uint8_t USBD_StringSerial[USB_SIZ_STRING_SERIAL] = {
   USB_SIZ_STRING_SERIAL,
   USB_DESC_TYPE_STRING,
 };
 
-/**
-  * @}
-  */
+#if defined ( __ICCARM__ )      /* !< IAR Compiler */
+#pragma data_alignment=4
+#endif
+__ALIGN_BEGIN uint8_t USBD_StrDesc[USBD_MAX_STR_DESC_SIZ] __ALIGN_END;
 
-/** @defgroup USBD_DESC_Private_Functions USBD_DESC_Private_Functions
-  * @brief Private functions.
-  * @{
-  */
+/* Private functions --------------------------------------------------------- */
+static void IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len);
+static void Get_SerialNum(void);
 
 /**
-  * @brief  Return the device descriptor
-  * @param  speed : Current device speed
-  * @param  length : Pointer to data length variable
+ * Read the four byte firmware version from the AppNVData.
+ */
+static uint32_t GetFwVersion(void);
+
+/**
+ * Write the firmware version `nFwVersion` in the string `str` starting from the position `nStartIdx`
+ *
+ * @param str [IN] specifies a string pointer
+ * @param nStartIdx [IN] specifies a the starting position in the string where to write the fw version
+ * @param nFwVersion [IN] specifies the fw version
+ */
+static void WriteFwVersion(char *str, uint8_t nStartIdx, uint32_t nFwVersion);
+
+/**
+  * @brief  Returns the device descriptor.
+  * @param  speed: Current device speed
+  * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
   */
-uint8_t * USBD_FS_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t *USBD_HID_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t * length)
 {
-  UNUSED(speed);
-  *length = sizeof(USBD_FS_DeviceDesc);
-  return USBD_FS_DeviceDesc;
+  *length = sizeof(USBD_DeviceDesc);
+  return (uint8_t *) USBD_DeviceDesc;
 }
 
 /**
-  * @brief  Return the LangID string descriptor
-  * @param  speed : Current device speed
-  * @param  length : Pointer to data length variable
+  * @brief  Returns the LangID string descriptor.
+  * @param  speed: Current device speed
+  * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
   */
-uint8_t * USBD_FS_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t *USBD_HID_LangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * length)
 {
-  UNUSED(speed);
   *length = sizeof(USBD_LangIDDesc);
-  return USBD_LangIDDesc;
+  return (uint8_t *) USBD_LangIDDesc;
 }
 
 /**
-  * @brief  Return the product string descriptor
-  * @param  speed : Current device speed
-  * @param  length : Pointer to data length variable
+  * @brief  Returns the product string descriptor.
+  * @param  speed: Current device speed
+  * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
   */
-uint8_t * USBD_FS_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t *USBD_HID_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * length)
 {
-  if(speed == 0)
-  {
-    USBD_GetString((uint8_t *)USBD_PRODUCT_STRING_FS, USBD_StrDesc, length);
-  }
-  else
-  {
-    USBD_GetString((uint8_t *)USBD_PRODUCT_STRING_FS, USBD_StrDesc, length);
-  }
+  char str[sizeof(USBD_PRODUCT_FS_STRING)];
+  strcpy(str, USBD_PRODUCT_FS_STRING);
+  uint32_t nFwVersion = GetFwVersion();
+  WriteFwVersion(str, USBD_PRODUCT_FS_FW_VERSION_IDX, nFwVersion);
+
+  USBD_GetString((uint8_t *)str, USBD_StrDesc, length);
   return USBD_StrDesc;
 }
 
 /**
-  * @brief  Return the manufacturer string descriptor
-  * @param  speed : Current device speed
-  * @param  length : Pointer to data length variable
+  * @brief  Returns the manufacturer string descriptor.
+  * @param  speed: Current device speed
+  * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
   */
-uint8_t * USBD_FS_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t *USBD_HID_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * length)
 {
-  UNUSED(speed);
-  USBD_GetString((uint8_t *)USBD_MANUFACTURER_STRING, USBD_StrDesc, length);
+  USBD_GetString((uint8_t *) (uint8_t *) USBD_MANUFACTURER_STRING, USBD_StrDesc, length);
   return USBD_StrDesc;
 }
 
 /**
-  * @brief  Return the serial number string descriptor
-  * @param  speed : Current device speed
-  * @param  length : Pointer to data length variable
+  * @brief  Returns the serial number string descriptor.
+  * @param  speed: Current device speed
+  * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
   */
-uint8_t * USBD_FS_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t *USBD_HID_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * length)
 {
-  UNUSED(speed);
   *length = USB_SIZ_STRING_SERIAL;
 
   /* Update the serial number string descriptor with the data from the unique
    * ID */
   Get_SerialNum();
-  /* USER CODE BEGIN USBD_FS_SerialStrDescriptor */
-  
-  /* USER CODE END USBD_FS_SerialStrDescriptor */
+
   return (uint8_t *) USBD_StringSerial;
 }
 
 /**
-  * @brief  Return the configuration string descriptor
-  * @param  speed : Current device speed
-  * @param  length : Pointer to data length variable
+  * @brief  Returns the configuration string descriptor.
+  * @param  speed: Current device speed
+  * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
   */
-uint8_t * USBD_FS_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t *USBD_HID_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * length)
 {
-  if(speed == USBD_SPEED_HIGH)
-  {
-    USBD_GetString((uint8_t *)USBD_CONFIGURATION_STRING_FS, USBD_StrDesc, length);
-  }
-  else
-  {
-    USBD_GetString((uint8_t *)USBD_CONFIGURATION_STRING_FS, USBD_StrDesc, length);
-  }
+  USBD_GetString((uint8_t *) (uint8_t *) USBD_CONFIGURATION_FS_STRING, USBD_StrDesc, length);
   return USBD_StrDesc;
 }
 
 /**
-  * @brief  Return the interface string descriptor
-  * @param  speed : Current device speed
-  * @param  length : Pointer to data length variable
+  * @brief  Returns the interface string descriptor.
+  * @param  speed: Current device speed
+  * @param  length: Pointer to data length variable
   * @retval Pointer to descriptor buffer
   */
-uint8_t * USBD_FS_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
+uint8_t *USBD_HID_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t * length)
 {
-  if(speed == 0)
-  {
-    USBD_GetString((uint8_t *)USBD_INTERFACE_STRING_FS, USBD_StrDesc, length);
-  }
-  else
-  {
-    USBD_GetString((uint8_t *)USBD_INTERFACE_STRING_FS, USBD_StrDesc, length);
-  }
+  USBD_GetString((uint8_t *) (uint8_t *) USBD_INTERFACE_FS_STRING, USBD_StrDesc, length);
   return USBD_StrDesc;
 }
 
 /**
-  * @brief  Create the serial number string descriptor 
-  * @param  None 
+  * @brief  Create the serial number string descriptor
+  * @param  None
   * @retval None
   */
 static void Get_SerialNum(void)
@@ -357,10 +312,25 @@ static void Get_SerialNum(void)
   }
 }
 
+#if ((USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0 == 1) || (USBD_LPM_ENABLED == 1))
 /**
-  * @brief  Convert Hex 32Bits value into char 
+  * @brief  USBD_USR_BOSDescriptor
+  *         return the BOS descriptor
+  * @param  speed : current device speed
+  * @param  length : pointer to data length variable
+  * @retval pointer to descriptor buffer
+  */
+uint8_t *USBD_USR_BOSDescriptor(USBD_SpeedTypeDef speed , uint16_t *length)
+{
+  *length = sizeof(USBD_BOSDesc);
+  return (uint8_t*)&USBD_BOSDesc;
+}
+#endif
+
+/**
+  * @brief  Convert Hex 32Bits value into char
   * @param  value: value to convert
-  * @param  pbuf: pointer to the buffer 
+  * @param  pbuf: pointer to the buffer
   * @param  len: buffer length
   * @retval None
   */
@@ -384,16 +354,40 @@ static void IntToUnicode(uint32_t value, uint8_t * pbuf, uint8_t len)
     pbuf[2 * idx + 1] = 0;
   }
 }
-/**
-  * @}
-  */
 
-/**
-  * @}
-  */
+static uint32_t GetFwVersion(void) {
+//  AppNVConfig xData;
+  uint32_t nFwVersion = 0x00000000;
 
-/**
-  * @}
-  */
+//  if (!SYS_IS_ERROR_CODE(AppNVDataGetData(&xData))) {
+  if (TRUE) {
+    nFwVersion = 0x01010100U;
+
+    // Add the HW revision.
+    uint32_t nHwRevision = 0;
+//    nHwRevision |= ((HW_REV0_GPIO_Port->IDR & HW_REV0_Pin ? 0x1U : 0x0U) | (HW_REV1_GPIO_Port->IDR & HW_REV1_Pin ? 0x2U : 0x0U));
+    nFwVersion = (nFwVersion & 0xFFFFFF00U) | nHwRevision;
+  }
+
+  return nFwVersion;
+}
+
+void WriteFwVersion(char *str, uint8_t nStartIdx, uint32_t nFwVersion) {
+  uint8_t nFM = (nFwVersion & 0xFF000000) >> 24;
+  uint8_t nFm = (nFwVersion & 0x00FF0000) >> 16;
+  uint8_t nM =  (nFwVersion & 0x0000FF00) >> 8;
+  uint8_t nHR = nFwVersion & 0x000000FF;
+
+  int32_t nRes = sprintf(&str[nStartIdx], "%u", nFM);
+  nStartIdx += nRes;
+  str[nStartIdx++] = '.';
+  nRes = sprintf(&str[nStartIdx], "%u", nFm);
+  nStartIdx += nRes;
+  str[nStartIdx++] = '.';
+  nRes = sprintf(&str[nStartIdx], "%u", nM);
+  nStartIdx += nRes;
+  str[nStartIdx++] = '.';
+  nRes = sprintf(&str[nStartIdx], "%u", nHR);
+}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
