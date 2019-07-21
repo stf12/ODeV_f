@@ -40,6 +40,7 @@
 									<listOptionValue builtIn="false" value="&quot;../system/include/drivers&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/services&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/stm32f0-hal&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/stm32_usb_device_library&quot;"/>
 								</option>
 								<option id="com.atollic.truestudio.common_options.target.interwork.1578444770" name="Mix ARM/Thumb" superClass="com.atollic.truestudio.common_options.target.interwork" useByScannerDiscovery="false"/>
 								<option id="com.atollic.truestudio.exe.debug.toolchain.as.debug.flags.1453691001" name="Debug Level" superClass="com.atollic.truestudio.exe.debug.toolchain.as.debug.flags" useByScannerDiscovery="false" value="com.atollic.truestudio.as.debug.flags.2" valueType="enumerated"/>
@@ -65,6 +66,8 @@
 									<listOptionValue builtIn="false" value="&quot;../system/include/drivers&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/services&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/stm32f0-hal&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/stm32_usb_device_library/core&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/stm32_usb_device_library/class/hid&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/freertos&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/src/freertos/portable/GCC/ARM_CM0&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/trace_recorder/include&quot;"/>
@@ -139,7 +142,7 @@
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="include"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
-						<entry excluding="src/cmsis/startup_stm32l431xx.s|src/freertos/stream_buffer.c|src/trace_recorder|src/freertos/portable/MemMang/heap_5.c|src/freertos/portable/MemMang/heap_4.c|src/freertos/portable/MemMang/heap_3.c|src/freertos/portable/MemMang/heap_2.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="system"/>
+						<entry excluding="src/cmsis/startup_stm32l431xx.s|src/trace_recorder|src/freertos/portable/MemMang/heap_4.c|src/freertos/portable/MemMang/heap_3.c|src/freertos/portable/MemMang/heap_2.c|src/freertos/portable/MemMang/heap_5.c|src/freertos/stream_buffer.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="system"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -183,6 +186,7 @@
 									<listOptionValue builtIn="false" value="&quot;../system/include/drivers&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/services&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/stm32f0-hal&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/stm32_usb_device_library&quot;"/>
 								</option>
 								<option id="com.atollic.truestudio.common_options.target.interwork.1335410687" name="Mix ARM/Thumb" superClass="com.atollic.truestudio.common_options.target.interwork" useByScannerDiscovery="false"/>
 								<option id="com.atollic.truestudio.exe.release.toolchain.as.debug.flags.1228762474" name="Debug Level" superClass="com.atollic.truestudio.exe.release.toolchain.as.debug.flags" useByScannerDiscovery="false" value="com.atollic.truestudio.as.debug.flags.0" valueType="enumerated"/>
@@ -204,8 +208,12 @@
 									<listOptionValue builtIn="false" value="&quot;../system/include/drivers&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/services&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/stm32f0-hal&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/stm32_usb_device_library/core&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/stm32_usb_device_library/class/hid&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/freertos&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/src/freertos/portable/GCC/ARM_CM0&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/trace_recorder/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/trace_recorder/config&quot;"/>
 								</option>
 								<option id="com.atollic.truestudio.common_options.target.endianess.573473006" name="Endianess" superClass="com.atollic.truestudio.common_options.target.endianess" useByScannerDiscovery="false"/>
 								<option id="com.atollic.truestudio.common_options.target.mcpu.105396310" name="Microcontroller" superClass="com.atollic.truestudio.common_options.target.mcpu" useByScannerDiscovery="false" value="STM32F070RB" valueType="enumerated"/>
@@ -276,7 +284,7 @@
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="include"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
-						<entry excluding="src/cmsis/startup_stm32l431xx.s|src/freertos/stream_buffer.c|src/trace_recorder|src/freertos/portable/MemMang/heap_5.c|src/freertos/portable/MemMang/heap_4.c|src/freertos/portable/MemMang/heap_3.c|src/freertos/portable/MemMang/heap_2.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="system"/>
+						<entry excluding="src/cmsis/startup_stm32l431xx.s|src/trace_recorder|src/freertos/portable/MemMang/heap_4.c|src/freertos/portable/MemMang/heap_3.c|src/freertos/portable/MemMang/heap_2.c|src/freertos/portable/MemMang/heap_5.c|src/freertos/stream_buffer.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="system"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -320,6 +328,7 @@
 									<listOptionValue builtIn="false" value="&quot;../system/include/drivers&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/services&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/stm32f0-hal&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/stm32_usb_device_library&quot;"/>
 								</option>
 								<option id="com.atollic.truestudio.common_options.target.interwork.980089468" name="Mix ARM/Thumb" superClass="com.atollic.truestudio.common_options.target.interwork" useByScannerDiscovery="false"/>
 								<option id="com.atollic.truestudio.exe.debug.toolchain.as.debug.flags.1263863525" name="Debug Level" superClass="com.atollic.truestudio.exe.debug.toolchain.as.debug.flags" useByScannerDiscovery="false" value="com.atollic.truestudio.as.debug.flags.0" valueType="enumerated"/>
@@ -341,6 +350,8 @@
 									<listOptionValue builtIn="false" value="&quot;../system/include/drivers&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/services&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/stm32f0-hal&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/stm32_usb_device_library/core&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/stm32_usb_device_library/class/hid&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/freertos&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/src/freertos/portable/GCC/ARM_CM0&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/trace_recorder/include&quot;"/>
@@ -415,7 +426,7 @@
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="include"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
-						<entry excluding="src/cmsis/startup_stm32l431xx.s|src/freertos/stream_buffer.c|src/freertos/portable/MemMang/heap_5.c|src/freertos/portable/MemMang/heap_4.c|src/freertos/portable/MemMang/heap_3.c|src/freertos/portable/MemMang/heap_2.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="system"/>
+						<entry excluding="src/cmsis/startup_stm32l431xx.s|src/freertos/portable/MemMang/heap_4.c|src/freertos/portable/MemMang/heap_3.c|src/freertos/portable/MemMang/heap_2.c|src/freertos/portable/MemMang/heap_5.c|src/freertos/stream_buffer.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="system"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -459,6 +470,7 @@
 									<listOptionValue builtIn="false" value="&quot;../system/include/drivers&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/services&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/stm32f0-hal&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/stm32_usb_device_library&quot;"/>
 								</option>
 								<option id="com.atollic.truestudio.common_options.target.interwork.85579009" name="Mix ARM/Thumb" superClass="com.atollic.truestudio.common_options.target.interwork" useByScannerDiscovery="false"/>
 								<option id="com.atollic.truestudio.exe.release.toolchain.as.debug.flags.375090456" name="Debug Level" superClass="com.atollic.truestudio.exe.release.toolchain.as.debug.flags" useByScannerDiscovery="false" value="com.atollic.truestudio.as.debug.flags.0" valueType="enumerated"/>
@@ -481,8 +493,12 @@
 									<listOptionValue builtIn="false" value="&quot;../system/include/drivers&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/services&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/stm32f0-hal&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/stm32_usb_device_library/core&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/stm32_usb_device_library/class/hid&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/freertos&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/src/freertos/portable/GCC/ARM_CM0&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/trace_recorder/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/trace_recorder/config&quot;"/>
 								</option>
 								<option id="com.atollic.truestudio.common_options.target.endianess.2147062954" name="Endianess" superClass="com.atollic.truestudio.common_options.target.endianess" useByScannerDiscovery="false"/>
 								<option id="com.atollic.truestudio.common_options.target.mcpu.621561534" name="Microcontroller" superClass="com.atollic.truestudio.common_options.target.mcpu" useByScannerDiscovery="false" value="STM32F070RB" valueType="enumerated"/>
@@ -553,7 +569,7 @@
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="include"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
-						<entry excluding="src/cmsis/startup_stm32l431xx.s|src/freertos/stream_buffer.c|src/trace_recorder|src/freertos/portable/MemMang/heap_5.c|src/freertos/portable/MemMang/heap_4.c|src/freertos/portable/MemMang/heap_3.c|src/freertos/portable/MemMang/heap_2.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="system"/>
+						<entry excluding="src/cmsis/startup_stm32l431xx.s|src/trace_recorder|src/freertos/portable/MemMang/heap_4.c|src/freertos/portable/MemMang/heap_3.c|src/freertos/portable/MemMang/heap_2.c|src/freertos/portable/MemMang/heap_5.c|src/freertos/stream_buffer.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="system"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -592,6 +608,9 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.atollic.truestudio.mbs.ARMToolsPerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="com.atollic.truestudio.configuration.release.1683439469.864214478;com.atollic.truestudio.configuration.release.1683439469.864214478.;com.atollic.truestudio.exe.release.toolchain.gcc.55001740;com.atollic.truestudio.gcc.input.119625809">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.atollic.truestudio.mbs.ARMToolsPerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.atollic.truestudio.exe.debug.1791647559.1073279283.1140767606;com.atollic.truestudio.exe.debug.1791647559.1073279283.1140767606.;com.atollic.truestudio.exe.debug.toolchain.gcc.1351138919;com.atollic.truestudio.gcc.input.376225185">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.atollic.truestudio.mbs.ARMToolsPerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="com.atollic.truestudio.exe.debug.1791647559;com.atollic.truestudio.exe.debug.1791647559.;com.atollic.truestudio.exe.debug.toolchain.gcc.1637060342;com.atollic.truestudio.gcc.input.277578509">

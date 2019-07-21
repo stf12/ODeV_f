@@ -58,7 +58,7 @@ static system_clock_t system_clock;
 void SystemClock_Config(void) {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-//  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   //Initializes the CPU, AHB and APB busses clocks
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
@@ -83,12 +83,13 @@ void SystemClock_Config(void) {
   {
     sys_error_handler();
   }
-//  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2;
-//  PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_HSI;
-//  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-//  {
-//    sys_error_handler();
-//  }
+
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
+  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+  {
+    sys_error_handler();
+  }
 }
 
 void SystemClock_Backup(void)
