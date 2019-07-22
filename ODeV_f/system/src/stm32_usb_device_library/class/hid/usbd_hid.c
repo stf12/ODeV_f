@@ -195,7 +195,7 @@ const USBD_ClassTypeDef  USBD_HID =
 };
 
 /* USB HID device FS Configuration Descriptor */
-__ALIGN_BEGIN static const uint8_t USBD_HID_CfgFSDesc[USB_HID_CONFIG_DESC_SIZ]  __ALIGN_END =
+__ALIGN_BEGIN static uint8_t USBD_HID_CfgFSDesc[USB_HID_CONFIG_DESC_SIZ]  __ALIGN_END =
 {
   0x09,                           /* bLength: Configuration Descriptor size */
   USB_DESC_TYPE_CONFIGURATION,    /* bDescriptorType: Configuration */
