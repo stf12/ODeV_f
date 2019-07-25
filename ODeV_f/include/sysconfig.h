@@ -42,6 +42,14 @@
 // uncomment the following line to change the drive common parameters
 //#define NUCLEO_DRV_CFG_IRQ_PRIORITY              13
 
+// file KeyMatrixDriver.c
+#define KMDRV_CFG_IRQ_LINE                         TIM16_IRQn
+#define KMDRV_CFG_IRQ_PRIORITY                     2
+#define KMDRV_CFG_TIM_SPEED                        5  // 1=FAST, 5=NORMAL, 10=SLOW
+#define KMDRV_CFG_DEBOUNCE_FILTER                  4
+#define KMDRV_CFG_DEBOUNCE_FILTER_WITH_EFT         8
+
+
 // Other hardware configuration
 // ****************************
 
@@ -61,6 +69,10 @@
 #define USBD_CFG_ENABLE_MS_OS_DESCRIPTOR_V2_0      0
 #define USBD_CFG_ENABLE_MS_SELECTIVE_SUSPEND       0
 
+// file KeyScanner.c
+#define KS_ANTIGHOST_ENABLE                        TRUE
+#define KS_QUEUE_LENGHT                            64
+
 
 // Tasks configuration
 // *******************
@@ -75,6 +87,11 @@
 #define HCC_TASK_CFG_STACK_DEPTH                   (120*2)
 #define HCC_TASK_CFG_PRIORITY                      (configMAX_PRIORITIES - 2)
 #define HCC_TASK_CFG_IN_QUEUE_LENGTH               80
+
+// file KeyboardTask.c
+#define KEYBOARD_TASK_CFG_STACK_DEPTH              140
+#define KEYBOARD_TASK_CFG_PRIORITY                 (tskIDLE_PRIORITY + 1)
+
 
 // file HelloWorldTask.c
 // uncomment the following lines to change the task common parameters

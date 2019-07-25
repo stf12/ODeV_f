@@ -49,6 +49,8 @@ extern "C" {
 #define SYS_DBG_PB                         SYS_DBG_ON                 ///< Push button task debug control byte
 #define SYS_DBG_HID_USB_DEVICE_SERVICES    SYS_DBG_OFF                ///< USB debug control byte
 #define SYS_DBG_HCC_TASK                   SYS_DBG_OFF                ///< Host Communication Channel task debug control byte
+#define SYS_DBG_KEYBOARD_TASK              SYS_DBG_OFF               ///< Keyboard task debug control byte
+#define SYS_DBG_KEY_SCANNER                SYS_DBG_OFF               ///< Key Scanner services debug control byte
 
 
 

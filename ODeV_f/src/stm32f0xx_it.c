@@ -22,6 +22,7 @@
 #include "stm32f0xx.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "EXTIPinMap.h"
 
 
 // Forward function declarations
@@ -29,11 +30,31 @@
 
 extern void xPortSysTickHandler(void);
 
+/**
+ * Map one EXTI to n callback based on the GPIO PIN.
+ */
+static inline void ExtiDefISR();
+
 
 // External variables
 // ******************
 
 extern PCD_HandleTypeDef g_hpcd;
+
+EXTI_DECLARE_PIN2F_MAP()
+
+
+// Private function definition
+void ExtiDefISR() {
+  EXTIPin2CallbckMap xMap = EXTI_GET_P2F_MAP();
+  for (int i=0; xMap[i].pfCallback != NULL; i++) {
+    if (__HAL_GPIO_EXTI_GET_IT(xMap[i].nPin)) {
+      /* EXTI line interrupt detected */
+      __HAL_GPIO_EXTI_CLEAR_IT(xMap[i].nPin);
+      xMap[i].pfCallback(xMap[i].nPin);
+    }
+  }
+}
 
 /******************************************************************************/
 /*           Cortex-M0 Processor Interruption and Exception Handlers          */
@@ -84,4 +105,19 @@ void USB_IRQHandler(void)
 {
   HAL_PCD_IRQHandler(&g_hpcd);
 }
+
+void EXTI0_1_IRQHandler(void)
+{
+  ExtiDefISR();
+}
+
+void EXTI2_3_IRQHandler(void)
+{
+  ExtiDefISR();
+}
+void EXTI4_15_IRQHandler(void)
+{
+  ExtiDefISR();
+}
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
