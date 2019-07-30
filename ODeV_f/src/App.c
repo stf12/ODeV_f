@@ -34,18 +34,18 @@
 #include "ApplicationContext.h"
 #include "HostComChannelTask.h"
 #include "KeyboardTask.h"
-#include "HelloWorldTask.h"
-#include "PushButtonTask.h"
+//#include "HelloWorldTask.h"
+//#include "PushButtonTask.h"
 
 /**
  * Application managed task.
  */
-static AManagedTask *s_pxHelloWorldObj = NULL;
+//static AManagedTask *s_pxHelloWorldObj = NULL;
 
 /**
  * Application managed task.
  */
-static AManagedTaskEx *s_pxPushButtonObj = NULL;
+//static AManagedTaskEx *s_pxPushButtonObj = NULL;
 
 /**
  * Application managed task.
@@ -64,15 +64,15 @@ sys_error_code_t SysLoadApplicationContext(ApplicationContext *pAppContext) {
 
 
   // Allocate the task objects
-  s_pxHelloWorldObj = HelloWorldTaskAlloc();
-  s_pxPushButtonObj = PushButtonTaskAlloc();
+//  s_pxHelloWorldObj = HelloWorldTaskAlloc();
+//  s_pxPushButtonObj = PushButtonTaskAlloc();
   s_pxKeyboardTaskObj = KeyboardTaskAlloc();
   s_pxHostComChannelTask = HostComChannelTaskAlloc();
 
   // Add the task object to the context.
-  xRes = ACAddTask(pAppContext, s_pxHelloWorldObj);
-  xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxPushButtonObj);
-//  xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxKeyboardTaskObj);
+//  xRes = ACAddTask(pAppContext, s_pxHelloWorldObj);
+//  xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxPushButtonObj);
+  xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxKeyboardTaskObj);
   xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxHostComChannelTask);
 
   return xRes;
@@ -81,14 +81,15 @@ sys_error_code_t SysLoadApplicationContext(ApplicationContext *pAppContext) {
 sys_error_code_t SysOnStartApplication(ApplicationContext *pAppContext) {
   UNUSED(pAppContext);
 
-  IDriver *pxNucleoDriver = HelloWorldTaskGetDriver((HelloWorldTask*)s_pxHelloWorldObj);
-  PushButtonTaskSetDriver((PushButtonTask*)s_pxPushButtonObj, pxNucleoDriver);
+//  IDriver *pxNucleoDriver = HelloWorldTaskGetDriver((HelloWorldTask*)s_pxHelloWorldObj);
+//  PushButtonTaskSetDriver((PushButtonTask*)s_pxPushButtonObj, pxNucleoDriver);
 
   // Set the output delivery queue.
-//  QueueHandle_t xQueue = HostComChannelGetInputReportQueue(s_pxHostComChannelTask);
-//  KeyboardSetReportDeliveryQueue(s_pxKeyboardTaskObj, xQueue);
+  QueueHandle_t xQueue = HostComChannelGetInputReportQueue(s_pxHostComChannelTask);
+  KeyboardSetReportDeliveryQueue(s_pxKeyboardTaskObj, xQueue);
 
-  // Set the FN delegate.
+  // Set the FN delegate. The delegate object is used to handle the FN function keys,
+  // so we don't need it for this project.
 //  KeyboardSetFNDelegate(s_pxKeyboardTaskObj, UtilityGetFNDelegate(s_pxUtilityTaskObj));
 
   return SYS_NO_ERROR_CODE;
