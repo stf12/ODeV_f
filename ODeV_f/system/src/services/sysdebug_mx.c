@@ -31,9 +31,9 @@
 
 #include "systp.h"
 
-#define UART_TX_Pin GPIO_PIN_2
+#define UART_TX_Pin GPIO_PIN_9
 #define UART_TX_GPIO_Port GPIOA
-#define UART_RX_Pin GPIO_PIN_3
+#define UART_RX_Pin GPIO_PIN_10
 #define UART_RX_GPIO_Port GPIOA
 
 // Forward function declaration
@@ -47,8 +47,8 @@ void sys_error_handler(void);
 // Public API definition
 // *********************
 
-void MX_USART2_UART_Init(UART_HandleTypeDef* uartHandle) {
-  uartHandle->Instance = USART2;
+void MX_USART_DBG_Init(UART_HandleTypeDef* uartHandle) {
+  uartHandle->Instance = USART1;
   uartHandle->Init.BaudRate = 115200;
   uartHandle->Init.WordLength = UART_WORDLENGTH_8B;
   uartHandle->Init.StopBits = UART_STOPBITS_1;
@@ -66,22 +66,22 @@ void MX_USART2_UART_Init(UART_HandleTypeDef* uartHandle) {
 void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 {
 
-  GPIO_InitTypeDef GPIO_InitStruct;
-  if(uartHandle->Instance==USART2)
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  if(uartHandle->Instance==USART1)
   {
-    /* USART2 clock enable */
-    __HAL_RCC_USART2_CLK_ENABLE();
+    /* USART1 clock enable */
+    __HAL_RCC_USART1_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
 
     /**USART2 GPIO Configuration
-    PA2             ------> USART2_TX
-    PA3             ------> USART2_RX
+    PA9             ------> USART2_TX
+    PA10             ------> USART2_RX
     */
     GPIO_InitStruct.Pin = UART_TX_Pin|UART_RX_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF1_USART2;
+    GPIO_InitStruct.Alternate = GPIO_AF1_USART1;
     HAL_GPIO_Init(UART_TX_GPIO_Port, &GPIO_InitStruct);
   }
 }
@@ -89,14 +89,14 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 {
 
-  if(uartHandle->Instance==USART2)
+  if(uartHandle->Instance==USART1)
   {
     /* Peripheral clock disable */
     __HAL_RCC_USART2_CLK_DISABLE();
 
     /**USART2 GPIO Configuration
-    PA2     ------> USART2_TX
-    PA3     ------> USART2_RX
+    PA9     ------> USART2_TX
+    PA10     ------> USART2_RX
     */
     HAL_GPIO_DeInit(GPIOA, UART_TX_Pin|UART_RX_Pin);
   }

@@ -70,7 +70,7 @@ void SysDebugLock();
 void SysDebugUnlock();
 
 extern void sys_error_handler(void);
-extern void MX_USART2_UART_Init(UART_HandleTypeDef* uartHandle);
+extern void MX_USART_DBG_Init(UART_HandleTypeDef* uartHandle);
 extern void MX_TIM6_Init(TIM_HandleTypeDef* tim_baseHandle);
 
 
@@ -153,7 +153,7 @@ __attribute__((weak))
 int SysDebugHardwareInit() {
 
   __HAL_RCC_DBGMCU_CLK_ENABLE();
-  MX_USART2_UART_Init(&s_xUartHandle);
+  MX_USART_DBG_Init(&s_xUartHandle);
 
 #ifdef DEBUG
   // Debug TP1 and TP2 configuration
