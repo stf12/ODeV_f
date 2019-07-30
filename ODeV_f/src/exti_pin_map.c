@@ -32,7 +32,7 @@
 #include "EXTIPinMap.h"
 
 // Forward function declaration.
-void PushButton_EXTI_Callback(uint16_t nPin);
+//void PushButton_EXTI_Callback(uint16_t nPin);
 void KeyMatrixDrv_EXTI_Callback(uint16_t nPin);
 
 
@@ -42,8 +42,8 @@ EXTI_BEGIN_P2F_MAP()
   EXTI_P2F_MAP_ENTRY(GPIO_PIN_2, KeyMatrixDrv_EXTI_Callback)
   EXTI_P2F_MAP_ENTRY(GPIO_PIN_3, KeyMatrixDrv_EXTI_Callback)
   EXTI_P2F_MAP_ENTRY(GPIO_PIN_4, KeyMatrixDrv_EXTI_Callback)
+  EXTI_P2F_MAP_ENTRY(GPIO_PIN_5, KeyMatrixDrv_EXTI_Callback)
   EXTI_P2F_MAP_ENTRY(GPIO_PIN_6, KeyMatrixDrv_EXTI_Callback)
   EXTI_P2F_MAP_ENTRY(GPIO_PIN_7, KeyMatrixDrv_EXTI_Callback)
-  EXTI_P2F_MAP_ENTRY(GPIO_PIN_8, KeyMatrixDrv_EXTI_Callback)
-  EXTI_P2F_MAP_ENTRY(GPIO_PIN_13, PushButton_EXTI_Callback)
+//  EXTI_P2F_MAP_ENTRY(GPIO_PIN_13, PushButton_EXTI_Callback)
 EXTI_END_P2F_MAP()

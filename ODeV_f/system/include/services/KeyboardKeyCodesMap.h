@@ -123,6 +123,8 @@ extern "C" {
 #define KC_126 0xEE ///< fn lock - ?      11111111
 #define KC_127 0xE3 ///< left gui         11100011
 #define KC_128 0x35 ///< Grave accent or Tilde
+#define KC_129 0x32 ///< NON-US # and ~
+#define KC_130 0xCE ///< Keypad @
 
 #define KC_NUL 0xFF
 
