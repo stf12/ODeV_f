@@ -1,9 +1,10 @@
 /**
  ******************************************************************************
- * @file    IDriver.c
+ * @file    IIODriver.c
  * @author  STMicroelectronics - ST-Korea - MCD Team
- * @version 1.2.0
- * @date    Mar 20, 2017
+ * @version 1.0.0
+ * @date    Aug 6, 2019
+ *
  * @brief
  *
  * <DESCRIPTIOM>
@@ -11,7 +12,7 @@
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; COPYRIGHT 2016 STMicroelectronics</center></h2>
+ * <h2><center>&copy; COPYRIGHT 2017 STMicroelectronics</center></h2>
  *
  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
  * You may not use this file except in compliance with the License.
@@ -28,16 +29,18 @@
  ******************************************************************************
  */
 
-#include "IDriver.h"
-#include "IDriver_vtbl.h"
+#include "IIODriver.h"
+#include "IIODriver_vtbl.h"
 
 // GCC requires one function forward declaration in only one .c source
 // in order to manage the inline.
 // See also http://stackoverflow.com/questions/26503235/c-inline-function-and-gcc
 #if defined (__GNUC__)
-extern sys_error_code_t IDrvInit(IDriver *_this, void *pParams);
-extern sys_error_code_t IDrvStart(IDriver *_this);
-extern sys_error_code_t IDrvStop(IDriver *_this);
-extern sys_error_code_t IDrvDoEnterPowerMode(IDriver *this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
-extern sys_error_code_t IDrvReset(IDriver *_this, void *pParams);
+//extern sys_error_code_t IDrvInit(IDriver *this, void *pParams);
+//extern sys_error_code_t IDrvStart(IDriver *this);
+//extern sys_error_code_t IDrvStop(IDriver *this);
+//extern sys_error_code_t IDrvDoEnterPowerMode(IDriver *this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
+extern sys_error_code_t IIODrvWrite(IIODriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel);
+extern sys_error_code_t IIODrvRead(IIODriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel);
 #endif
+

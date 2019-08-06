@@ -29,8 +29,8 @@
  ******************************************************************************
  */
 
-#ifndef INCLUDE_DRIVERS_IDRIVERVTBL_H_
-#define INCLUDE_DRIVERS_IDRIVERVTBL_H_
+#ifndef INCLUDE_DRIVERS_IDRIVER_VTBL_H_
+#define INCLUDE_DRIVERS_IDRIVER_VTBL_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,12 +44,13 @@ typedef struct _IDriver_vtbl IDriver_vtbl;
 
 
 struct _IDriver_vtbl {
-	sys_error_code_t (*Init)(IDriver *_this, void *pParams);
-	sys_error_code_t (*Start)(IDriver *_this);
-	sys_error_code_t (*Stop)(IDriver *_this);
-	sys_error_code_t (*DoEnterPowerMode)(IDriver *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
-	sys_error_code_t (*Write)(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel);
-	sys_error_code_t (*Read)(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel);
+  sys_error_code_t (*Init)(IDriver *_this, void *pParams);
+  sys_error_code_t (*Start)(IDriver *_this);
+  sys_error_code_t (*Stop)(IDriver *_this);
+  sys_error_code_t (*DoEnterPowerMode)(IDriver *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
+//  sys_error_code_t (*Write)(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel);
+//  sys_error_code_t (*Read)(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel);
+  sys_error_code_t (*Reset)(IDriver *_this, void *pParams);
 };
 
 /**
@@ -57,46 +58,50 @@ struct _IDriver_vtbl {
  * It declares only the virtual table used to implement the inheritance.
  */
 struct _IDriver {
-	const IDriver_vtbl *vptr;
+  const IDriver_vtbl *vptr;
 };
 
 // Inline function definition.
-//
+// ***************************
 
 SYS_DEFINE_INLINE
 sys_error_code_t IDrvInit(IDriver *_this, void *pParams) {
-	return _this->vptr->Init(_this, pParams);
+  return _this->vptr->Init(_this, pParams);
 }
 
 SYS_DEFINE_INLINE
 sys_error_code_t IDrvStart(IDriver *_this) {
-	return _this->vptr->Start(_this);
+  return _this->vptr->Start(_this);
 }
 
 SYS_DEFINE_INLINE
 sys_error_code_t IDrvStop(IDriver *_this) {
-	return _this->vptr->Stop(_this);
+  return _this->vptr->Stop(_this);
 }
 
 SYS_DEFINE_INLINE
 sys_error_code_t IDrvDoEnterPowerMode(IDriver *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
-	return _this->vptr->DoEnterPowerMode(_this, eActivePowerMode, eNewPowerMode);
+  return _this->vptr->DoEnterPowerMode(_this, eActivePowerMode, eNewPowerMode);
 }
+
+//SYS_DEFINE_INLINE
+//sys_error_code_t IDrvWrite(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel) {
+//  return _this->vptr->Write(_this, pDataBuffer, nDataSize, nChannel);
+//}
+//
+//SYS_DEFINE_INLINE
+//sys_error_code_t IDrvRead(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel) {
+//  return _this->vptr->Read(_this, pDataBuffer, nDataSize, nChannel);
+//}
 
 SYS_DEFINE_INLINE
-sys_error_code_t IDrvWrite(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel) {
-	return _this->vptr->Write(_this, pDataBuffer, nDataSize, nChannel);
+sys_error_code_t IDrvReset(IDriver *_this, void *pParams) {
+  return _this->vptr->Reset(_this, pParams);
 }
-
-SYS_DEFINE_INLINE
-sys_error_code_t IDrvRead(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel) {
-	return _this->vptr->Read(_this, pDataBuffer, nDataSize, nChannel);
-}
-
 
 #ifdef __cplusplus
 }
 #endif
 
 
-#endif /* INCLUDE_DRIVERS_IDRIVERVTBL_H_ */
+#endif /* INCLUDE_DRIVERS_IDRIVER_VTBL_H_ */

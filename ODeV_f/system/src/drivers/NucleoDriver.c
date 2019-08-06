@@ -50,8 +50,7 @@ static const IDriver_vtbl s_xNucleoDriver_vtbl = {
     NucleoDriver_vtblStart,
     NucleoDriver_vtblStop,
     NucleoDriver_vtblDoEnterPowerMode,
-    NucleoDriver_vtblWrite,
-    NucleoDriver_vtblRead
+    NucleoDriver_vtblReset
 };
 
 /**
@@ -165,26 +164,30 @@ sys_error_code_t NucleoDriver_vtblDoEnterPowerMode(IDriver *_this, const EPowerM
   return xRes;
 }
 
-sys_error_code_t NucleoDriver_vtblWrite(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel) {
+sys_error_code_t NucleoDriver_vtblReset(IDriver *_this, void *pParams) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 //  NucleoDriver *pObj = (NucleoDriver*)_this;
+  GPIO_InitTypeDef GPIO_InitStruct;
 
-  SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("NucleoDRV: Write method not used by _this driver.\r\n"));
+  HAL_GPIO_DeInit(LD4_GPIO_Port, LD4_Pin);
+  HAL_GPIO_DeInit(B1_GPIO_Port, B1_Pin);
+
+  // Configure GPIO pin : LD4
+  GPIO_InitStruct.Pin = LD4_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(LD4_GPIO_Port, &GPIO_InitStruct);
+
+  // Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = B1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
   return xRes;
 }
-
-sys_error_code_t NucleoDriver_vtblRead(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel) {
-  assert_param(_this);
-  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  NucleoDriver *pObj = (NucleoDriver*)_this;
-
-  SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("NucleoDRV: Read method not used by _this driver.\r\n"));
-
-  return xRes;
-}
-
 
 sys_error_code_t NucleoDriverWaitForButtonEvent(NucleoDriver *_this, boolean_t *pbButtonPressed) {
   assert_param(_this);

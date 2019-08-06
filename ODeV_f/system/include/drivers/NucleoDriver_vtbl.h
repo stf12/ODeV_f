@@ -5,7 +5,7 @@
  * @version 1.0.0
  * @date    Nov 2, 2018
  *
- * @brief   
+ * @brief
  *
  * <DESCRIPTIOM>
  *
@@ -66,6 +66,11 @@ sys_error_code_t NucleoDriver_vtblWrite(IDriver *this, uint8_t *pDataBuffer, uin
  * @sa IDrvRead
  */
 sys_error_code_t NucleoDriver_vtblRead(IDriver *this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel);
+
+/**
+ * @sa IDrvReset
+ */
+sys_error_code_t NucleoDriver_vtblReset(IDriver *this, void *pParams);
 
 #ifdef __cplusplus
 }

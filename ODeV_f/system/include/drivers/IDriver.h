@@ -49,12 +49,14 @@ typedef struct _IDriver IDriver;
  * the hardware initialization process.
  *
  * @param _this [IN] specifies a pointer to a IDriver object.
- * @param pParams specifies a pointer to a subclass defined initialization parameters.
+ * @param pParams [IN] specifies a pointer to a initialization parameters defined by a subclass.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
 inline sys_error_code_t IDrvInit(IDriver *_this, void *pParams);
 
 /**
+ * Start the driver. This method enable the driver normal processing. For example it enables the related IRQ.
+ * It should be called after the driver initialization.
  *
  * @param _this s[IN] specifies a pointer to a IDriver object.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
@@ -62,6 +64,8 @@ inline sys_error_code_t IDrvInit(IDriver *_this, void *pParams);
 inline sys_error_code_t IDrvStart(IDriver *_this);
 
 /**
+ * Stop a driver. This method disable the driver normal operation. For example it disables the IRQ. It doesn't
+ * de-initialize the driver.
  *
  * @param _this [IN] specifies a pointer to a IDriver object.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
@@ -69,7 +73,8 @@ inline sys_error_code_t IDrvStart(IDriver *_this);
 inline sys_error_code_t IDrvStop(IDriver *_this);
 
 /**
- * This function is called by the framework when the system changing the power mode.
+ * This function is called by the framework when the system is changing the power mode. The driver
+ * must reconfigure itself according the new power mode.
  *
  * @param _this [IN] specifies a pointer to a IDriver object.
  * @param eActivePowerMode [IN] specifies the actual power mode.
@@ -79,24 +84,14 @@ inline sys_error_code_t IDrvStop(IDriver *_this);
 inline sys_error_code_t IDrvDoEnterPowerMode(IDriver *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
 
 /**
+ * Reset the peripherals owned by the driver. This method should operate at hardware level, for example
+ * by using the HAL_XXX_DeInit() and HAL_XXX_Init() functions.
  *
  * @param _this [IN] specifies a pointer to a IDriver object.
- * @param pDataBuffer [IN] specifies the buffer used to store the received data.
- * @param nDataSize [IN] specified the size in byte of the buffer.
- * @param nChannel [IN] not used by
- * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
+ * @param pParams [IN] specifies a pointer to a parameters defined by a subclass.
+ * @return
  */
-inline sys_error_code_t IDrvWrite(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel);
-
-/**
- *
- * @param _this [IN] specifies a pointer to a IDriver object.
- * @param pDataBuffer
- * @param nDataSize
- * @param nChannel
- * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
- */
-inline sys_error_code_t IDrvRead(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel);
+inline sys_error_code_t IDrvReset(IDriver *_this, void *pParams);
 
 
 #ifdef __cplusplus
