@@ -32,6 +32,10 @@
 #include "systp.h"
 #include "syserror.h"
 
+//Select the SystemClock_Config
+//#define SystemClock_Config_SensorTile SystemClock_Config
+#define SystemClock_Config_MX SystemClock_Config
+
 /**
  * This type group together the components of the clock three to be modified during
  * a power mode change.
@@ -55,59 +59,170 @@ static system_clock_t system_clock;
 // Public API definition
 // *********************
 
-void SystemClock_Config(void) {
-  RCC_OscInitTypeDef RCC_OscInitStruct;
-  RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_PeriphCLKInitTypeDef PeriphClkInit;
+void SystemClock_Config_MX(void) {
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
-  //Initializes the CPU, AHB and APB busses clocks
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  /** Configure the main internal regulator output voltage
+  */
+  if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST) != HAL_OK)
+  {
+    sys_error_handler();
+  }
+
+  /** Configure LSE Drive Capability
+  */
+  HAL_PWR_EnableBkUpAccess();
+  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
+  /** Initializes the CPU, AHB and APB busses clocks
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48|RCC_OSCILLATORTYPE_HSE
+                              |RCC_OSCILLATORTYPE_LSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
+  RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 1;
-  RCC_OscInitStruct.PLL.PLLN = 8;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLM = 2;
+  RCC_OscInitStruct.PLL.PLLN = 30;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV4;
+  RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
     sys_error_handler();
   }
 
-  //Initializes the CPU, AHB and APB busses clocks
+  /** Initializes the CPU, AHB and APB busses clocks
+  */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK) {
     sys_error_handler();
   }
-
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2;
-  PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_HSI;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_SDMMC1;
+  PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
+  PeriphClkInit.Sdmmc1ClockSelection = RCC_SDMMC1CLKSOURCE_HSI48;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK) {
     sys_error_handler();
   }
 
-  //Configure the main internal regulator output voltage
-  if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK) {
+  //TODO: STF.Begin
+//  /* Enable Power Clock*/
+//  __HAL_RCC_PWR_CLK_ENABLE();
+//  HAL_PWREx_EnableVddUSB();
+//  HAL_PWREx_EnableVddIO2();
+//  //BSP_Enable_DCDC2();
+//  GPIO_InitTypeDef  GPIO_InitStruct;
+//
+//  __HAL_RCC_GPIOE_CLK_ENABLE();
+//
+//  /* Configure the GPIO_LED pin */
+//  GPIO_InitStruct.Pin = GPIO_PIN_13;
+//  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+//  GPIO_InitStruct.Pull = GPIO_NOPULL;
+//  GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
+//
+//  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+//
+//  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_13, GPIO_PIN_SET);
+  // STF.End
+
+}
+
+/**
+ * @brief  System Clock Configuration
+ *         The system Clock is configured as follow :
+ *            System Clock source            = PLL (MSI)
+ *            SYSCLK(Hz)                     = 80000000
+ *            HCLK(Hz)                       = 80000000
+ *            AHB Prescaler                  = 1
+ *            APB1 Prescaler                 = 1
+ *            APB2 Prescaler                 = 1
+ *            MSI Frequency(Hz)              = 48000000
+ *            PLL_M                          = 6
+ *            PLL_N                          = 40
+ *            PLL_P                          = 7
+ *            PLL_R                          = 4
+ *            PLL_Q                          = 4
+ *            Flash Latency(WS)              = 4
+ * @param  None
+ * @retval None
+ */
+void SystemClock_Config_SensorTile(void)
+{
+  RCC_ClkInitTypeDef RCC_ClkInitStruct;
+  RCC_OscInitTypeDef RCC_OscInitStruct;
+#if SENSING1_USE_USB
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
+#endif /* SENSING1_USE_USB */
+
+  /* Enable access to the backup domain */
+  __HAL_RCC_PWR_CLK_ENABLE();
+  HAL_PWR_EnableBkUpAccess();
+
+  /* RTC Clock selection can be changed only if the Backup Domain is reset */
+  __HAL_RCC_BACKUPRESET_FORCE();
+  __HAL_RCC_BACKUPRESET_RELEASE();
+
+  /* set low drive on LSE to reduce power consumption */
+  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_LOW);
+
+  /* Enable the LSE Oscilator and Disable the LSI Oscillator */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+  RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
+  RCC_OscInitStruct.LSEState       = RCC_LSE_ON;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
     sys_error_handler();
   }
 
-  // NOTE: SYSTICK is initialized by FreeRTOS port layer!!!
+  /* Enable the CSS interrupt in case LSE signal is corrupted or not present */
+  HAL_RCCEx_DisableLSECSS();
 
-//  //Configure the Systick interrupt time
-//  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
-//
-//  //Configure the Systick
-//  HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
-//
-//  //SysTick_IRQn interrupt configuration
-//  HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
+  /* Enable MSI Oscillator and activate PLL with MSI as source */
+  RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_MSI;
+  RCC_OscInitStruct.MSIState            = RCC_MSI_ON;
+  RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.MSIClockRange       = RCC_MSIRANGE_11;
+  RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_MSI;
+  RCC_OscInitStruct.PLL.PLLM            = 6;
+  RCC_OscInitStruct.PLL.PLLN            = 40;
+  RCC_OscInitStruct.PLL.PLLP            = 7;
+  RCC_OscInitStruct.PLL.PLLQ            = 4;
+  RCC_OscInitStruct.PLL.PLLR            = 4;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+    sys_error_handler();
+  }
+
+  /* Enable MSI Auto-calibration through LSE */
+  HAL_RCCEx_EnableMSIPLLMode();
+
+#if SENSING1_USE_USB
+  /* Select MSI output as USB clock source */
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
+  PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_MSI;
+  HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+#endif /* SENSING1_USE_USB */
+
+  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
+     clocks dividers */
+  RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK |
+                                      RCC_CLOCKTYPE_HCLK |
+                                      RCC_CLOCKTYPE_PCLK1 |
+                                      RCC_CLOCKTYPE_PCLK2);
+  RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) {
+    sys_error_handler();
+  }
 }
 
 void SystemClock_Backup(void)
@@ -153,62 +268,62 @@ void SysPowerConfig() {
   __HAL_RCC_WAKEUPSTOP_CLK_CONFIG(RCC_STOP_WAKEUPCLOCK_HSI);
 
 
-  // This function is called in the early step of the system initialization.
-  // All the PINs used by the application are reconfigured later by the application tasks.
-
-  GPIO_InitTypeDef GPIO_InitStruct;
-
-  // Configure all GPIO as analog to reduce current consumption on non used IOs
-  // Enable GPIOs clock
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOH_CLK_ENABLE();
-
-  // Configure GPIO pins : PA0 PA1 PA2 PA3 PA4 PA5
-  //                       PA6 PA7 PA8 PA9 PA10
-  //                       PA11 PA12 PA15
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6
-                          |GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10
-                          |GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_15;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  // Configure GPIO pins : PB0 PB1 PB2 PB3 PB4 PB5
-  //                       PB6 PB7 PB7 PB8 PB9 PB10
-  //                       PB11 PB12 PB13 PB14 PB15
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4
-                          |GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9
-                          |GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13
-                          |GPIO_PIN_14|GPIO_PIN_15;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  // Configure GPIO pins : PC0 PC1 PC2 PC3
-  //                       PC4 PC5 PC6 PC7
-  //                       PC8 PC9 PC10 PC11
-  //                       PC12 PC13
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
-                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7
-                          |GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11
-                          |GPIO_PIN_12|GPIO_PIN_13;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-  // Configure GPIO pin : PD2
-  GPIO_InitStruct.Pin = GPIO_PIN_2;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-  // Configure GPIO pin : PH0 PH1 PH3
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_3;
-  HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
-
-  // Disable GPIOs clock
-  __HAL_RCC_GPIOA_CLK_DISABLE();
-  __HAL_RCC_GPIOB_CLK_DISABLE();
-  __HAL_RCC_GPIOC_CLK_DISABLE();
-  __HAL_RCC_GPIOD_CLK_DISABLE();
-  __HAL_RCC_GPIOH_CLK_DISABLE();
+//  // This function is called in the early step of the system initialization.
+//  // All the PINs used by the application are reconfigured later by the application tasks.
+//
+//  GPIO_InitTypeDef GPIO_InitStruct;
+//
+//  // Configure all GPIO as analog to reduce current consumption on non used IOs
+//  // Enable GPIOs clock
+//  __HAL_RCC_GPIOA_CLK_ENABLE();
+//  __HAL_RCC_GPIOB_CLK_ENABLE();
+//  __HAL_RCC_GPIOC_CLK_ENABLE();
+//  __HAL_RCC_GPIOD_CLK_ENABLE();
+//  __HAL_RCC_GPIOH_CLK_ENABLE();
+//
+//  // Configure GPIO pins : PA0 PA1 PA2 PA3 PA4 PA5
+//  //                       PA6 PA7 PA8 PA9 PA10
+//  //                       PA11 PA12 PA15
+//  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6
+//                          |GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10
+//                          |GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_15;
+//  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+//  GPIO_InitStruct.Pull = GPIO_NOPULL;
+//  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+//
+//  // Configure GPIO pins : PB0 PB1 PB2 PB3 PB4 PB5
+//  //                       PB6 PB7 PB7 PB8 PB9 PB10
+//  //                       PB11 PB12 PB13 PB14 PB15
+//  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3|GPIO_PIN_4
+//                          |GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9
+//                          |GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13
+//                          |GPIO_PIN_14|GPIO_PIN_15;
+//  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+//
+//  // Configure GPIO pins : PC0 PC1 PC2 PC3
+//  //                       PC4 PC5 PC6 PC7
+//  //                       PC8 PC9 PC10 PC11
+//  //                       PC12 PC13
+//  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
+//                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7
+//                          |GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11
+//                          |GPIO_PIN_12|GPIO_PIN_13;
+//  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+//
+//  // Configure GPIO pin : PD2
+//  GPIO_InitStruct.Pin = GPIO_PIN_2;
+//  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+//
+//  // Configure GPIO pin : PH0 PH1 PH3
+//  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_3;
+//  HAL_GPIO_Init(GPIOH, &GPIO_InitStruct);
+//
+//  // Disable GPIOs clock
+//  __HAL_RCC_GPIOA_CLK_DISABLE();
+//  __HAL_RCC_GPIOB_CLK_DISABLE();
+//  __HAL_RCC_GPIOC_CLK_DISABLE();
+//  __HAL_RCC_GPIOD_CLK_DISABLE();
+//  __HAL_RCC_GPIOH_CLK_DISABLE();
 }
 
 /**

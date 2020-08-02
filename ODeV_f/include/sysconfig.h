@@ -40,28 +40,29 @@
 
 // file NucleoDriver.c
 // uncomment the following line to change the drive common parameters
-//#define NUCLEO_DRV_CFG_IRQ_PRIORITY              13
+//#define NUCLEO_DRV_CFG_IRQ_PRIORITY             13
 
 // Other hardware configuration
 // ****************************
 
+#define USE_HAL_SPI_REGISTER_CALLBACKS            1
 
 // Services configuration
 // **********************
 
 // files syslowpower.h, SysDefPowerModeHelper.c
-#define SYS_CFG_USE_DEFAULT_PM_HELPER              1
-#define SYS_CFG_DEF_PM_HELPER_STANDBY              0  ///< if defined to 1 then the MCU goes in STANDBY mode when the system enters in SLEEP_1.
+#define SYS_CFG_USE_DEFAULT_PM_HELPER             1
+#define SYS_CFG_DEF_PM_HELPER_STANDBY             0  ///< if defined to 1 then the MCU goes in STANDBY mode when the system enters in SLEEP_1.
 
 
 // Tasks configuration
 // *******************
 
 // file IManagedTask.h
-#define MT_ALLOWED_ERROR_COUNT                     0x2
+#define MT_ALLOWED_ERROR_COUNT                    0x2
 
 // file sysinit.c
-#define INIT_TASK_CFG_ENABLE_BOOT_IF               0
+#define INIT_TASK_CFG_ENABLE_BOOT_IF              0
 
 // file HelloWorldTask.c
 // uncomment the following lines to change the task common parameters
@@ -73,5 +74,28 @@
 //#define PB_TASK_CFG_STACK_DEPTH                    120
 //#define PB_TASK_CFG_PRIORITY                       (tskIDLE_PRIORITY+2)
 
+// file ISM330DHCXTask.c
+#define ISM330DHCX_TASK_CFG_STACK_DEPTH           (configMINIMAL_STACK_SIZE*3)
+#define ISM330DHCX_TASK_CFG_PRIORITY              (tskIDLE_PRIORITY+4)
+
+// file IIS3DWBTask.c
+#define IIS3DWB_TASK_CFG_STACK_DEPTH              (configMINIMAL_STACK_SIZE*3)
+#define IIS3DWB_TASK_CFG_PRIORITY                 (tskIDLE_PRIORITY+4)
+
+// file SPIBusTask.c
+#define SPIBUS_TASK_CFG_STACK_DEPTH               140
+#define SPIBUS_TASK_CFG_PRIORITY                  (tskIDLE_PRIORITY+4)
+
+// file AITask.c
+#define AI_TASK_CFG_STACK_DEPTH                   140
+#define AI_TASK_CFG_PRIORITY                      (tskIDLE_PRIORITY+2)
+
+// file UtilTask.c
+#define UTIL_TASK_CFG_STACK_DEPTH                 120
+#define UTIL_TASK_CFG_PRIORITY                    (tskIDLE_PRIORITY+1)
+
+// file SDCardTask.c
+#define SDC_TASK_CFG_STACK_DEPTH                  (configMINIMAL_STACK_SIZE*8)
+#define SDC_TASK_CFG_PRIORITY                     (tskIDLE_PRIORITY+3)
 
 #endif /* SYSCONFIG_H_ */

@@ -35,7 +35,13 @@
 #include "stm32l4xx.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "EXTIPinMap.h"
 
+// External variables
+// *******************
+extern DMA_HandleTypeDef hdma_spi3_rx;
+extern DMA_HandleTypeDef hdma_spi3_tx;
+extern SD_HandleTypeDef hsd1;
 
 
 // Forward function declarations
@@ -43,10 +49,30 @@
 
 extern void xPortSysTickHandler(void);
 
+/**
+ * Map one EXTI to n callback based on the GPIO PIN.
+ */
+static inline void ExtiDefISR();
+
 
 // External variables
 // ******************
 
+EXTI_DECLARE_PIN2F_MAP()
+
+// Private function definition
+// ***************************
+
+void ExtiDefISR() {
+  EXTIPin2CallbckMap xMap = EXTI_GET_P2F_MAP();
+  for (int i=0; xMap[i].pfCallback != NULL; i++) {
+    if (__HAL_GPIO_EXTI_GET_IT(xMap[i].nPin)) {
+      /* EXTI line interrupt detected */
+      __HAL_GPIO_EXTI_CLEAR_IT(xMap[i].nPin);
+      xMap[i].pfCallback(xMap[i].nPin);
+    }
+  }
+}
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */
@@ -78,5 +104,68 @@ void SysTick_Handler(void)
  * @brief This function handles EXTI line4 interrupt.
  */
 
+void WWDG_IRQHandler(void) {
+  while (1) {
+    __NOP();
+  }
+}
+
+/**
+  * @brief This function handles DMA1 channel1 global interrupt.
+  */
+void DMA1_Channel1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel1_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_spi3_rx);
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA1 channel2 global interrupt.
+  */
+void DMA1_Channel2_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel2_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel2_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_spi3_tx);
+  /* USER CODE BEGIN DMA1_Channel2_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel2_IRQn 1 */
+}
+
+/**
+  * @brief This function handles EXTI line[9:5] interrupts.
+  */
+void EXTI9_5_IRQHandler(void)
+{
+  ExtiDefISR();
+}
+
+/**
+  * @brief This function handles EXTI line[10:15] interrupts.
+  */
+void EXTI15_10_IRQHandler(void)
+{
+  ExtiDefISR();
+}
+
+/**
+  * @brief This function handles SDMMC1 global interrupt.
+  */
+void SDMMC1_IRQHandler(void)
+{
+  /* USER CODE BEGIN SDMMC1_IRQn 0 */
+
+  /* USER CODE END SDMMC1_IRQn 0 */
+  HAL_SD_IRQHandler(&hsd1);
+  /* USER CODE BEGIN SDMMC1_IRQn 1 */
+
+  /* USER CODE END SDMMC1_IRQn 1 */
+}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

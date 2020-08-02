@@ -109,29 +109,13 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -248,6 +232,8 @@ static HAL_StatusTypeDef CRYP_AES_IT(CRYP_HandleTypeDef *hcryp);
 /**
   * @brief  Initialize the CRYP according to the specified
   *         parameters in the CRYP_InitTypeDef and initialize the associated handle.
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
+  *         the configuration information for CRYP module  
   * @note Specific care must be taken to format the key and the Initialization Vector IV
   *       stored in the MCU memory before calling HAL_CRYP_Init(). Refer to explanations
   *       hereabove.
@@ -451,7 +437,7 @@ HAL_StatusTypeDef HAL_CRYP_Init(CRYP_HandleTypeDef *hcryp)
 
 /**
   * @brief  DeInitialize the CRYP peripheral.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
   * @retval HAL status
   */
@@ -501,7 +487,7 @@ HAL_StatusTypeDef HAL_CRYP_DeInit(CRYP_HandleTypeDef *hcryp)
 
 /**
   * @brief  Initialize the CRYP MSP.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
   * @retval None
   */
@@ -517,7 +503,7 @@ __weak void HAL_CRYP_MspInit(CRYP_HandleTypeDef *hcryp)
 
 /**
   * @brief  DeInitialize CRYP MSP.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
   * @retval None
   */
@@ -557,12 +543,12 @@ __weak void HAL_CRYP_MspDeInit(CRYP_HandleTypeDef *hcryp)
 
 /**
   * @brief  Encrypt pPlainData in AES ECB encryption mode. The cypher data are available in pCypherData.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pPlainData: Pointer to the plaintext buffer
-  * @param  Size: Length of the plaintext buffer in bytes, must be a multiple of 16.
-  * @param  pCypherData: Pointer to the cyphertext buffer
-  * @param  Timeout: Specify Timeout value
+  * @param  pPlainData Pointer to the plaintext buffer
+  * @param  Size Length of the plaintext buffer in bytes, must be a multiple of 16.
+  * @param  pCypherData Pointer to the cyphertext buffer
+  * @param  Timeout Specify Timeout value
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES() API instead (usage recommended).
   * @retval HAL status
@@ -588,12 +574,12 @@ HAL_StatusTypeDef HAL_CRYP_AESECB_Encrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pP
 
 /**
   * @brief  Encrypt pPlainData in AES CBC encryption mode with key derivation. The cypher data are available in pCypherData.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pPlainData: Pointer to the plaintext buffer
-  * @param  Size: Length of the plaintext buffer in bytes, must be a multiple of 16.
-  * @param  pCypherData: Pointer to the cyphertext buffer
-  * @param  Timeout: Specify Timeout value
+  * @param  pPlainData Pointer to the plaintext buffer
+  * @param  Size Length of the plaintext buffer in bytes, must be a multiple of 16.
+  * @param  pCypherData Pointer to the cyphertext buffer
+  * @param  Timeout Specify Timeout value
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES() API instead (usage recommended).
   * @retval HAL status
@@ -619,12 +605,12 @@ HAL_StatusTypeDef HAL_CRYP_AESCBC_Encrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pP
 
 /**
   * @brief  Encrypt pPlainData in AES CTR encryption mode. The cypher data are available in pCypherData
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pPlainData: Pointer to the plaintext buffer
-  * @param  Size: Length of the plaintext buffer in bytes, must be a multiple of 16.
-  * @param  pCypherData: Pointer to the cyphertext buffer
-  * @param  Timeout: Specify Timeout value
+  * @param  pPlainData Pointer to the plaintext buffer
+  * @param  Size Length of the plaintext buffer in bytes, must be a multiple of 16.
+  * @param  pCypherData Pointer to the cyphertext buffer
+  * @param  Timeout Specify Timeout value
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES() API instead (usage recommended).
   * @retval HAL status
@@ -650,12 +636,12 @@ HAL_StatusTypeDef HAL_CRYP_AESCTR_Encrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pP
 /**
   * @brief  Decrypt pCypherData in AES ECB decryption mode with key derivation,
   *         the decyphered data are available in pPlainData.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pCypherData: Pointer to the cyphertext buffer
-  * @param  Size: Length of the plaintext buffer in bytes, must be a multiple of 16.
-  * @param  pPlainData: Pointer to the plaintext buffer
-  * @param  Timeout: Specify Timeout value
+  * @param  pCypherData Pointer to the cyphertext buffer
+  * @param  Size Length of the plaintext buffer in bytes, must be a multiple of 16.
+  * @param  pPlainData Pointer to the plaintext buffer
+  * @param  Timeout Specify Timeout value
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES() API instead (usage recommended).
   * @retval HAL status
@@ -681,12 +667,12 @@ HAL_StatusTypeDef HAL_CRYP_AESECB_Decrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pC
 /**
   * @brief  Decrypt pCypherData in AES ECB decryption mode with key derivation,
   *         the decyphered data are available in pPlainData.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pCypherData: Pointer to the cyphertext buffer
-  * @param  Size: Length of the plaintext buffer in bytes, must be a multiple of 16.
-  * @param  pPlainData: Pointer to the plaintext buffer
-  * @param  Timeout: Specify Timeout value
+  * @param  pCypherData Pointer to the cyphertext buffer
+  * @param  Size Length of the plaintext buffer in bytes, must be a multiple of 16.
+  * @param  pPlainData Pointer to the plaintext buffer
+  * @param  Timeout Specify Timeout value
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES() API instead (usage recommended).
   * @retval HAL status
@@ -712,12 +698,12 @@ HAL_StatusTypeDef HAL_CRYP_AESCBC_Decrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pC
 /**
   * @brief  Decrypt pCypherData in AES CTR decryption mode,
   *         the decyphered data are available in pPlainData.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pCypherData: Pointer to the cyphertext buffer
-  * @param  Size: Length of the plaintext buffer in bytes, must be a multiple of 16.
-  * @param  pPlainData: Pointer to the plaintext buffer
-  * @param  Timeout: Specify Timeout value
+  * @param  pCypherData Pointer to the cyphertext buffer
+  * @param  Size Length of the plaintext buffer in bytes, must be a multiple of 16.
+  * @param  pPlainData Pointer to the plaintext buffer
+  * @param  Timeout Specify Timeout value
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES() API instead (usage recommended).
   * @retval HAL status
@@ -743,11 +729,11 @@ HAL_StatusTypeDef HAL_CRYP_AESCTR_Decrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pC
 /**
   * @brief  Encrypt pPlainData in AES ECB encryption mode using Interrupt,
   *         the cypher data are available in pCypherData.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pPlainData: Pointer to the plaintext buffer
-  * @param  Size: Length of the plaintext buffer in bytes, must be a multiple of 16.
-  * @param  pCypherData: Pointer to the cyphertext buffer
+  * @param  pPlainData Pointer to the plaintext buffer
+  * @param  Size Length of the plaintext buffer in bytes, must be a multiple of 16.
+  * @param  pCypherData Pointer to the cyphertext buffer
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES_IT() API instead (usage recommended).
   * @retval HAL status
@@ -773,11 +759,11 @@ HAL_StatusTypeDef HAL_CRYP_AESECB_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
 /**
   * @brief  Encrypt pPlainData in AES CBC encryption mode using Interrupt,
   *         the cypher data are available in pCypherData.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pPlainData: Pointer to the plaintext buffer
-  * @param  Size: Length of the plaintext buffer in bytes, must be a multiple of 16.
-  * @param  pCypherData: Pointer to the cyphertext buffer
+  * @param  pPlainData Pointer to the plaintext buffer
+  * @param  Size Length of the plaintext buffer in bytes, must be a multiple of 16.
+  * @param  pCypherData Pointer to the cyphertext buffer
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES_IT() API instead (usage recommended).
   * @retval HAL status
@@ -804,11 +790,11 @@ HAL_StatusTypeDef HAL_CRYP_AESCBC_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
 /**
   * @brief  Encrypt pPlainData in AES CTR encryption mode using Interrupt,
   *         the cypher data are available in pCypherData.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pPlainData: Pointer to the plaintext buffer
-  * @param  Size: Length of the plaintext buffer in bytes, must be a multiple of 16.
-  * @param  pCypherData: Pointer to the cyphertext buffer
+  * @param  pPlainData Pointer to the plaintext buffer
+  * @param  Size Length of the plaintext buffer in bytes, must be a multiple of 16.
+  * @param  pCypherData Pointer to the cyphertext buffer
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES_IT() API instead (usage recommended).
   * @retval HAL status
@@ -834,11 +820,11 @@ HAL_StatusTypeDef HAL_CRYP_AESCTR_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
 /**
   * @brief  Decrypt pCypherData in AES ECB decryption mode using Interrupt,
   *         the decyphered data are available in pPlainData.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pCypherData: Pointer to the cyphertext buffer
-  * @param  Size: Length of the plaintext buffer in bytes, must be a multiple of 16.
-  * @param  pPlainData: Pointer to the plaintext buffer.
+  * @param  pCypherData Pointer to the cyphertext buffer
+  * @param  Size Length of the plaintext buffer in bytes, must be a multiple of 16.
+  * @param  pPlainData Pointer to the plaintext buffer.
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES_IT() API instead (usage recommended).
   * @retval HAL status
@@ -864,11 +850,11 @@ HAL_StatusTypeDef HAL_CRYP_AESECB_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
 /**
   * @brief  Decrypt pCypherData in AES CBC decryption mode using Interrupt,
   *         the decyphered data are available in pPlainData.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pCypherData: Pointer to the cyphertext buffer
-  * @param  Size: Length of the plaintext buffer in bytes, must be a multiple of 16.
-  * @param  pPlainData: Pointer to the plaintext buffer
+  * @param  pCypherData Pointer to the cyphertext buffer
+  * @param  Size Length of the plaintext buffer in bytes, must be a multiple of 16.
+  * @param  pPlainData Pointer to the plaintext buffer
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES_IT() API instead (usage recommended).
   * @retval HAL status
@@ -894,11 +880,11 @@ HAL_StatusTypeDef HAL_CRYP_AESCBC_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
 /**
   * @brief  Decrypt pCypherData in AES CTR decryption mode using Interrupt,
   *         the decyphered data are available in pPlainData.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pCypherData: Pointer to the cyphertext buffer
-  * @param  Size: Length of the plaintext buffer in bytes, must be a multiple of 16.
-  * @param  pPlainData: Pointer to the plaintext buffer
+  * @param  pCypherData Pointer to the cyphertext buffer
+  * @param  Size Length of the plaintext buffer in bytes, must be a multiple of 16.
+  * @param  pPlainData Pointer to the plaintext buffer
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES_IT() API instead (usage recommended).
   * @retval HAL status
@@ -924,11 +910,11 @@ HAL_StatusTypeDef HAL_CRYP_AESCTR_Decrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
 /**
   * @brief  Encrypt pPlainData in AES ECB encryption mode using DMA,
   *         the cypher data are available in pCypherData.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pPlainData: Pointer to the plaintext buffer
-  * @param  Size: Length of the plaintext buffer in bytes, must be a multiple of 16.
-  * @param  pCypherData: Pointer to the cyphertext buffer
+  * @param  pPlainData Pointer to the plaintext buffer
+  * @param  Size Length of the plaintext buffer in bytes, must be a multiple of 16.
+  * @param  pCypherData Pointer to the cyphertext buffer
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES_DMA() API instead (usage recommended).
   * @note   pPlainData and pCypherData buffers must be 32-bit aligned to ensure a correct DMA transfer to and from the IP.
@@ -957,11 +943,11 @@ HAL_StatusTypeDef HAL_CRYP_AESECB_Encrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t
 /**
   * @brief  Encrypt pPlainData in AES CBC encryption mode using DMA,
   *         the cypher data are available in pCypherData.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pPlainData: Pointer to the plaintext buffer
-  * @param  Size: Length of the plaintext buffer, must be a multiple of 16.
-  * @param  pCypherData: Pointer to the cyphertext buffer
+  * @param  pPlainData Pointer to the plaintext buffer
+  * @param  Size Length of the plaintext buffer, must be a multiple of 16.
+  * @param  pCypherData Pointer to the cyphertext buffer
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES_DMA() API instead (usage recommended).
   * @note   pPlainData and pCypherData buffers must be 32-bit aligned to ensure a correct DMA transfer to and from the IP.
@@ -988,11 +974,11 @@ HAL_StatusTypeDef HAL_CRYP_AESCBC_Encrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t
 /**
   * @brief  Encrypt pPlainData in AES CTR encryption mode using DMA,
   *         the cypher data are available in pCypherData.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pPlainData: Pointer to the plaintext buffer
-  * @param  Size: Length of the plaintext buffer in bytes, must be a multiple of 16.
-  * @param  pCypherData: Pointer to the cyphertext buffer.
+  * @param  pPlainData Pointer to the plaintext buffer
+  * @param  Size Length of the plaintext buffer in bytes, must be a multiple of 16.
+  * @param  pCypherData Pointer to the cyphertext buffer.
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES_DMA() API instead (usage recommended).
   * @note   pPlainData and pCypherData buffers must be 32-bit aligned to ensure a correct DMA transfer to and from the IP.
@@ -1019,11 +1005,11 @@ HAL_StatusTypeDef HAL_CRYP_AESCTR_Encrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t
 /**
   * @brief  Decrypt pCypherData in AES ECB decryption mode using DMA,
   *         the decyphered data are available in pPlainData.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pCypherData: Pointer to the cyphertext buffer
-  * @param  Size: Length of the plaintext buffer in bytes, must be a multiple of 16.
-  * @param  pPlainData: Pointer to the plaintext buffer
+  * @param  pCypherData Pointer to the cyphertext buffer
+  * @param  Size Length of the plaintext buffer in bytes, must be a multiple of 16.
+  * @param  pPlainData Pointer to the plaintext buffer
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES_DMA() API instead (usage recommended).
   * @note   pPlainData and pCypherData buffers must be 32-bit aligned to ensure a correct DMA transfer to and from the IP.
@@ -1050,11 +1036,11 @@ HAL_StatusTypeDef HAL_CRYP_AESECB_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t
 /**
   * @brief  Decrypt pCypherData in AES CBC decryption mode using DMA,
   *         the decyphered data are available in pPlainData.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pCypherData: Pointer to the cyphertext buffer
-  * @param  Size: Length of the plaintext buffer in bytes, must be a multiple of 16.
-  * @param  pPlainData: Pointer to the plaintext buffer
+  * @param  pCypherData Pointer to the cyphertext buffer
+  * @param  Size Length of the plaintext buffer in bytes, must be a multiple of 16.
+  * @param  pPlainData Pointer to the plaintext buffer
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES_DMA() API instead (usage recommended).
   * @note   pPlainData and pCypherData buffers must be 32-bit aligned to ensure a correct DMA transfer to and from the IP.
@@ -1081,11 +1067,11 @@ HAL_StatusTypeDef HAL_CRYP_AESCBC_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t
 /**
   * @brief  Decrypt pCypherData in AES CTR decryption mode using DMA,
   *         the decyphered data are available in pPlainData.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
-  * @param  pCypherData: Pointer to the cyphertext buffer
-  * @param  Size: Length of the plaintext buffer in bytes, must be a multiple of 16.
-  * @param  pPlainData: Pointer to the plaintext buffer
+  * @param  pCypherData Pointer to the cyphertext buffer
+  * @param  Size Length of the plaintext buffer in bytes, must be a multiple of 16.
+  * @param  pPlainData Pointer to the plaintext buffer
   * @note   This API is provided only to maintain compatibility with legacy software. Users should directly
   *         resort to generic HAL_CRYPEx_AES_DMA() API instead (usage recommended).
   * @note   pPlainData and pCypherData buffers must be 32-bit aligned to ensure a correct DMA transfer to and from the IP.
@@ -1132,7 +1118,7 @@ HAL_StatusTypeDef HAL_CRYP_AESCTR_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t
 
 /**
   * @brief  CRYP error callback.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
   * @retval None
   */
@@ -1148,7 +1134,7 @@ __weak void HAL_CRYP_ErrorCallback(CRYP_HandleTypeDef *hcryp)
 
 /**
   * @brief  Input DMA transfer complete callback.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
   * @retval None
   */
@@ -1164,7 +1150,7 @@ __weak void HAL_CRYP_InCpltCallback(CRYP_HandleTypeDef *hcryp)
 
 /**
   * @brief  Output DMA transfer complete callback.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
   * @retval None
   */
@@ -1386,7 +1372,7 @@ HAL_StatusTypeDef status = HAL_OK;
 
 /**
   * @brief  Handle AES interrupt request.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
   * @retval None
   */
@@ -1432,26 +1418,43 @@ void HAL_CRYP_IRQHandler(CRYP_HandleTypeDef *hcryp)
 
   /* Check if computation complete interrupt is enabled
      and if the computation complete flag is raised */
-  if((__HAL_CRYP_GET_FLAG(hcryp, CRYP_IT_CCF) != RESET) && (__HAL_CRYP_GET_IT_SOURCE(hcryp, CRYP_IT_CCFIE) != RESET))
+  if (__HAL_CRYP_GET_FLAG(hcryp, CRYP_IT_CCF) != RESET)
   {
+    if (__HAL_CRYP_GET_IT_SOURCE(hcryp, CRYP_IT_CCFIE) != RESET)
+    {
 #if defined(AES_CR_NPBLB)
-    if ((hcryp->Init.ChainingMode == CRYP_CHAINMODE_AES_GCM_GMAC)
-     || (hcryp->Init.ChainingMode == CRYP_CHAINMODE_AES_CCM))
+      if ((hcryp->Init.ChainingMode == CRYP_CHAINMODE_AES_GCM_GMAC)
+       || (hcryp->Init.ChainingMode == CRYP_CHAINMODE_AES_CCM))
 #else
-    if ((hcryp->Init.ChainingMode == CRYP_CHAINMODE_AES_GCM_GMAC)
-     || (hcryp->Init.ChainingMode == CRYP_CHAINMODE_AES_CMAC))
+      if ((hcryp->Init.ChainingMode == CRYP_CHAINMODE_AES_GCM_GMAC)
+       || (hcryp->Init.ChainingMode == CRYP_CHAINMODE_AES_CMAC))
 #endif
-    {
-     /* To ensure proper suspension requests management, CCF flag
-        is reset in CRYP_AES_Auth_IT() according to the current
-        phase under handling */
-      CRYP_AES_Auth_IT(hcryp);
-    }
-    else
-    {
-      /* Clear Computation Complete Flag */
-      __HAL_CRYP_CLEAR_FLAG(hcryp, CRYP_CCF_CLEAR);
-      CRYP_AES_IT(hcryp);
+      {
+       /* To ensure proper suspension requests management, CCF flag
+          is reset in CRYP_AES_Auth_IT() according to the current
+          phase under handling */
+        if (CRYP_AES_Auth_IT(hcryp) !=  HAL_OK)
+        {
+#if (USE_HAL_CRYP_REGISTER_CALLBACKS == 1)
+          hcryp->ErrorCallback(hcryp);
+#else
+          HAL_CRYP_ErrorCallback(hcryp);
+#endif /* USE_HAL_CRYP_REGISTER_CALLBACKS */
+        }
+      }
+      else
+      {
+        /* Clear Computation Complete Flag */
+        __HAL_CRYP_CLEAR_FLAG(hcryp, CRYP_CCF_CLEAR);
+        if (CRYP_AES_IT(hcryp) !=  HAL_OK)
+        {
+#if (USE_HAL_CRYP_REGISTER_CALLBACKS == 1)
+          hcryp->ErrorCallback(hcryp);
+#else
+          HAL_CRYP_ErrorCallback(hcryp);
+#endif /* USE_HAL_CRYP_REGISTER_CALLBACKS */
+        }
+      }
     }
   }
 }
@@ -1476,7 +1479,7 @@ void HAL_CRYP_IRQHandler(CRYP_HandleTypeDef *hcryp)
 
 /**
   * @brief  Return the CRYP handle state.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
   * @retval HAL state
   */
@@ -1488,7 +1491,7 @@ HAL_CRYP_STATETypeDef HAL_CRYP_GetState(CRYP_HandleTypeDef *hcryp)
 
 /**
   * @brief  Return the CRYP peripheral error.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
   * @note   The returned error is a bit-map combination of possible errors
   * @retval Error bit-map
@@ -1513,15 +1516,15 @@ uint32_t HAL_CRYP_GetError(CRYP_HandleTypeDef *hcryp)
 
 /**
   * @brief  Write the Key in KeyRx registers.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
   * @retval None
   */
 static HAL_StatusTypeDef  CRYP_SetKey(CRYP_HandleTypeDef *hcryp)
 {
-  uint32_t keyaddr = 0x0;
+  uint32_t keyaddr;
 
-  if ((uint32_t)(hcryp->Init.pKey == NULL))
+  if (hcryp->Init.pKey == NULL)
   {
     return HAL_ERROR;
   }
@@ -1532,21 +1535,21 @@ static HAL_StatusTypeDef  CRYP_SetKey(CRYP_HandleTypeDef *hcryp)
   if (hcryp->Init.KeySize == CRYP_KEYSIZE_256B)
   {
     hcryp->Instance->KEYR7 = __REV(*(uint32_t*)(keyaddr));
-    keyaddr+=4;
+    keyaddr+=4U;
     hcryp->Instance->KEYR6 = __REV(*(uint32_t*)(keyaddr));
-    keyaddr+=4;
+    keyaddr+=4U;
     hcryp->Instance->KEYR5 = __REV(*(uint32_t*)(keyaddr));
-    keyaddr+=4;
+    keyaddr+=4U;
     hcryp->Instance->KEYR4 = __REV(*(uint32_t*)(keyaddr));
-    keyaddr+=4;
+    keyaddr+=4U;
   }
 
   hcryp->Instance->KEYR3 = __REV(*(uint32_t*)(keyaddr));
-  keyaddr+=4;
+  keyaddr+=4U;
   hcryp->Instance->KEYR2 = __REV(*(uint32_t*)(keyaddr));
-  keyaddr+=4;
+  keyaddr+=4U;
   hcryp->Instance->KEYR1 = __REV(*(uint32_t*)(keyaddr));
-  keyaddr+=4;
+  keyaddr+=4U;
   hcryp->Instance->KEYR0 = __REV(*(uint32_t*)(keyaddr));
 
   return HAL_OK;
@@ -1554,13 +1557,13 @@ static HAL_StatusTypeDef  CRYP_SetKey(CRYP_HandleTypeDef *hcryp)
 
 /**
   * @brief  Write the InitVector/InitCounter in IVRx registers.
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module
   * @retval None
   */
 static HAL_StatusTypeDef CRYP_SetInitVector(CRYP_HandleTypeDef *hcryp)
 {
-  uint32_t ivaddr = 0x0;
+  uint32_t ivaddr;
 
 #if !defined(AES_CR_NPBLB)
   if (hcryp->Init.ChainingMode == CRYP_CHAINMODE_AES_CMAC)
@@ -1581,11 +1584,11 @@ static HAL_StatusTypeDef CRYP_SetInitVector(CRYP_HandleTypeDef *hcryp)
     ivaddr = (uint32_t)(hcryp->Init.pInitVect);
 
     hcryp->Instance->IVR3 = __REV(*(uint32_t*)(ivaddr));
-    ivaddr+=4;
+    ivaddr+=4U;
     hcryp->Instance->IVR2 = __REV(*(uint32_t*)(ivaddr));
-    ivaddr+=4;
+    ivaddr+=4U;
     hcryp->Instance->IVR1 = __REV(*(uint32_t*)(ivaddr));
-    ivaddr+=4;
+    ivaddr+=4U;
     hcryp->Instance->IVR0 = __REV(*(uint32_t*)(ivaddr));
   }
   return HAL_OK;
@@ -1597,13 +1600,13 @@ static HAL_StatusTypeDef CRYP_SetInitVector(CRYP_HandleTypeDef *hcryp)
   * @brief  Handle CRYP block input/output data handling under interruption.
   * @note   The function is called under interruption only, once
   *         interruptions have been enabled by HAL_CRYPEx_AES_IT().
-  * @param  hcryp: pointer to a CRYP_HandleTypeDef structure that contains
+  * @param  hcryp pointer to a CRYP_HandleTypeDef structure that contains
   *         the configuration information for CRYP module.
   * @retval HAL status
   */
 static HAL_StatusTypeDef CRYP_AES_IT(CRYP_HandleTypeDef *hcryp)
 {
-  uint32_t inputaddr = 0;
+  uint32_t inputaddr;
   uint32_t outputaddr = (uint32_t)hcryp->pCrypOutBuffPtr;
 
   if(hcryp->State == HAL_CRYP_STATE_BUSY)
@@ -1612,14 +1615,14 @@ static HAL_StatusTypeDef CRYP_AES_IT(CRYP_HandleTypeDef *hcryp)
     {
       /* Read the last available output block from the Data Output Register */
       *(uint32_t*)(outputaddr) = hcryp->Instance->DOUTR;
-      outputaddr+=4;
+      outputaddr+=4U;
       *(uint32_t*)(outputaddr) = hcryp->Instance->DOUTR;
-      outputaddr+=4;
+      outputaddr+=4U;
       *(uint32_t*)(outputaddr) = hcryp->Instance->DOUTR;
-      outputaddr+=4;
+      outputaddr+=4U;
       *(uint32_t*)(outputaddr) = hcryp->Instance->DOUTR;
       hcryp->pCrypOutBuffPtr += 16;
-      hcryp->CrypOutCount -= 16;
+      hcryp->CrypOutCount -= 16U;
 
     }
     else
@@ -1628,27 +1631,27 @@ static HAL_StatusTypeDef CRYP_AES_IT(CRYP_HandleTypeDef *hcryp)
       if (hcryp->Init.KeySize == CRYP_KEYSIZE_256B)
       {
         *(uint32_t*)(outputaddr) = __REV(hcryp->Instance->KEYR7);
-        outputaddr+=4;
+        outputaddr+=4U;
         *(uint32_t*)(outputaddr) = __REV(hcryp->Instance->KEYR6);
-        outputaddr+=4;
+        outputaddr+=4U;
         *(uint32_t*)(outputaddr) = __REV(hcryp->Instance->KEYR5);
-        outputaddr+=4;
+        outputaddr+=4U;
         *(uint32_t*)(outputaddr) = __REV(hcryp->Instance->KEYR4);
-        outputaddr+=4;
+        outputaddr+=4U;
       }
 
         *(uint32_t*)(outputaddr) = __REV(hcryp->Instance->KEYR3);
-        outputaddr+=4;
+        outputaddr+=4U;
         *(uint32_t*)(outputaddr) = __REV(hcryp->Instance->KEYR2);
-        outputaddr+=4;
+        outputaddr+=4U;
         *(uint32_t*)(outputaddr) = __REV(hcryp->Instance->KEYR1);
-        outputaddr+=4;
+        outputaddr+=4U;
         *(uint32_t*)(outputaddr) = __REV(hcryp->Instance->KEYR0);
     }
 
     /* In case of ciphering or deciphering, check if all output text has been retrieved;
        In case of key derivation, stop right there */
-    if ((hcryp->CrypOutCount == 0) || (hcryp->Init.OperatingMode == CRYP_ALGOMODE_KEYDERIVATION))
+    if ((hcryp->CrypOutCount == 0U) || (hcryp->Init.OperatingMode == CRYP_ALGOMODE_KEYDERIVATION))
     {
       /* Disable Computation Complete Flag and Errors Interrupts */
       __HAL_CRYP_DISABLE_IT(hcryp, CRYP_IT_CCFIE|CRYP_IT_ERRIE);
@@ -1690,15 +1693,15 @@ static HAL_StatusTypeDef CRYP_AES_IT(CRYP_HandleTypeDef *hcryp)
 
       /* Increment/decrement instance pointer/counter */
       hcryp->pCrypInBuffPtr += 16;
-      hcryp->CrypInCount -= 16;
+      hcryp->CrypInCount -= 16U;
 
       /* Write the next input block in the Data Input register */
       hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-      inputaddr+=4;
+      inputaddr+=4U;
       hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
-      inputaddr+=4;
+      inputaddr+=4U;
       hcryp->Instance->DINR  = *(uint32_t*)(inputaddr);
-      inputaddr+=4;
+      inputaddr+=4U;
       hcryp->Instance->DINR = *(uint32_t*)(inputaddr);
 
       return HAL_OK;

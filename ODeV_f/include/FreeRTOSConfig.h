@@ -90,8 +90,8 @@
 #define configUSE_TICKLESS_IDLE                  0
 #define configCPU_CLOCK_HZ                       ( SystemCoreClock )
 #define configTICK_RATE_HZ                       ((TickType_t)1000)
-#define configMAX_PRIORITIES                     ( 5 )
-#define configMAX_TASK_NAME_LEN                  ( 5 )
+#define configMAX_PRIORITIES                     ( 6 )
+#define configMAX_TASK_NAME_LEN                  ( 8 )
 #define configMINIMAL_STACK_SIZE                 ((uint16_t)70)
 #define configUSE_16_BIT_TICKS                   0
 #define configIDLE_SHOULD_YIELD                  1
@@ -103,7 +103,11 @@
 #endif
 #define configUSE_RECURSIVE_MUTEXES              0
 #define configUSE_COUNTING_SEMAPHORES            0
-#define configQUEUE_REGISTRY_SIZE                7
+#if defined(DEBUG) || defined(SYS_DEBUG)
+#define configQUEUE_REGISTRY_SIZE                20
+#else
+#define configQUEUE_REGISTRY_SIZE                1
+#endif
 #define configUSE_QUEUE_SETS                     0
 #define configENABLE_BACKWARD_COMPATIBILITY      0
 #define configNUM_THREAD_LOCAL_STORAGE_POINTERS  0
@@ -112,9 +116,9 @@
 #define configSUPPORT_STATIC_ALLOCATION          0
 #define configSUPPORT_DYNAMIC_ALLOCATION         1
 #if defined(DEBUG) || (SYS_DBG_ENABLE_TA4>=1)
-#define configTOTAL_HEAP_SIZE                    ((size_t)4000)
+#define configTOTAL_HEAP_SIZE                    ((size_t)20000)
 #else
-#define configTOTAL_HEAP_SIZE                    ((size_t)3000)
+#define configTOTAL_HEAP_SIZE                    ((size_t)19000)
 #endif
 #define configAPPLICATION_ALLOCATED_HEAP         1
 
@@ -196,7 +200,7 @@ function. */
 routine that makes calls to interrupt safe FreeRTOS API functions.  DO NOT CALL
 INTERRUPT SAFE FREERTOS API FUNCTIONS FROM ANY INTERRUPT THAT HAS A HIGHER
 PRIORITY THAN THIS! (higher priorities are lower numeric values. */
-#define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY  5
+#define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY  2
 
 /* Interrupt priorities used by the kernel port layer itself.  These are generic
 to all Cortex-M ports, and do not rely on any particular library functions. */
@@ -243,6 +247,9 @@ placed into the low power state respectively. */
 // forward declaration
 extern void SysDebugStartRunTimeStatsTimer();
 extern uint32_t g_ulHighFrequencyTimerTicks;
+
+// see https://stackoverflow.com/questions/56703232/how-to-show-runtime-in-freertos-task-list-during-debugging
+#define portREMOVE_STATIC_QUALIFIER 1
 
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() SysDebugStartRunTimeStatsTimer()
 #define portGET_RUN_TIME_COUNTER_VALUE() g_ulHighFrequencyTimerTicks

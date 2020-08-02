@@ -31,10 +31,10 @@
 
 #include "systp.h"
 
-#define UART_TX_Pin GPIO_PIN_2
-#define UART_TX_GPIO_Port GPIOA
-#define UART_RX_Pin GPIO_PIN_3
-#define UART_RX_GPIO_Port GPIOA
+#define UART_TX_Pin GPIO_PIN_5
+#define UART_TX_GPIO_Port GPIOD
+#define UART_RX_Pin GPIO_PIN_6
+#define UART_RX_GPIO_Port GPIOD
 
 // Forward function declaration
 // ****************************
@@ -57,6 +57,7 @@ void MX_USART2_UART_Init(UART_HandleTypeDef* uartHandle) {
   uartHandle->Init.HwFlowCtl = UART_HWCONTROL_NONE;
   uartHandle->Init.OverSampling = UART_OVERSAMPLING_16;
   uartHandle->Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  uartHandle->Init.ClockPrescaler = UART_PRESCALER_DIV1;
   uartHandle->AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_DMADISABLEONERROR_INIT;
   uartHandle->AdvancedInit.DMADisableonRxError = UART_ADVFEATURE_DMA_DISABLEONRXERROR;
   if (HAL_UART_Init(uartHandle) != HAL_OK) {
@@ -67,23 +68,23 @@ void MX_USART2_UART_Init(UART_HandleTypeDef* uartHandle) {
 void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 {
 
-  GPIO_InitTypeDef GPIO_InitStruct;
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
   if(uartHandle->Instance==USART2)
   {
     /* USART2 clock enable */
     __HAL_RCC_USART2_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
 
+    __HAL_RCC_GPIOD_CLK_ENABLE();
     /**USART2 GPIO Configuration
-    PA2             ------> USART2_TX
-    PA3             ------> USART2_RX
+    PD6     ------> USART2_RX
+    PD5     ------> USART2_TX
     */
-    GPIO_InitStruct.Pin = UART_TX_Pin|UART_RX_Pin;
+    GPIO_InitStruct.Pin = UART_RX_Pin|UART_TX_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
-    HAL_GPIO_Init(UART_TX_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
   }
 }
 

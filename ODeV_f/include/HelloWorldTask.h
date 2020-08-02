@@ -42,7 +42,7 @@ extern "C" {
 #include "AManagedTask.h"
 #include "AManagedTaskVtbl.h"
 #include "IDriver.h"
-#include "IDriverVtbl.h"
+#include "IDriver_vtbl.h"
 
 /**
  * Create  type name for _HelloWorldTask.

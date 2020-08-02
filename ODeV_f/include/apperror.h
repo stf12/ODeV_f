@@ -46,15 +46,53 @@ extern "C" {
 // IP error
 //#define SYS_BASE_XX_ERROR_CODE                               APP_BASE_ERROR_CODE
 
+// SPI Master error code
+#define SYS_BASE_SPI_M_ERROR_CODE                              APP_BASE_ERROR_CODE
+#define SYS_SPI_M_WRITE_READ_ERROR_CODE                        SYS_BASE_SPI_M_ERROR_CODE + 1
+#define SYS_SPI_M_WRITE_ERROR_CODE                             SYS_BASE_SPI_M_ERROR_CODE + 2
+
 
 // Service Level error code
 // ************************
 
+// IEventSrc error code
+#define SYS_BASE_IEVTSRC_ERROR_CODE                           SYS_BASE_SPI_M_ERROR_CODE + SYS_GROUP_ERROR_COUNT
+#define SYS_IEVTSRC_FULL_ERROR_CODE                           SYS_BASE_SPI_M_ERROR_CODE + 1
+
+// CircularBuffer error code
+#define SYS_CB_BASE_ERROR_CODE                                SYS_BASE_SPI_M_ERROR_CODE + SYS_GROUP_ERROR_COUNT
+#define SYS_CB_INVALID_ITEM_ERROR_CODE                        SYS_CB_BASE_ERROR_CODE + 1
+#define SYS_CB_FULL_ERROR_CODE                                SYS_CB_BASE_ERROR_CODE + 2
+#define SYS_CB_NO_READY_ITEM_ERROR_CODE                       SYS_CB_BASE_ERROR_CODE + 3
 
 // Task Level error code
 // *********************
 
+// Generic task error code
+#define SYS_BASE_APP_TASK_ERROR_CODE                           SYS_BASE_IEVTSRC_ERROR_CODE + SYS_GROUP_ERROR_COUNT
+#define SYS_APP_TASK_UNKNOWN_REPORT_ERROR_CODE                 SYS_BASE_APP_TASK_ERROR_CODE +1
+#define SYS_APP_TASK_REPORT_LOST_ERROR_CODE                    SYS_BASE_APP_TASK_ERROR_CODE + 2
 
+// SPI Bus task error code
+#define SYS_BASE_SPIBUS_TASK_ERROR_CODE                        SYS_BASE_APP_TASK_ERROR_CODE + SYS_GROUP_ERROR_COUNT
+#define SYS_SPIBUS_TASK_IO_ERROR_CODE                          SYS_BASE_SPIBUS_TASK_ERROR_CODE + 1
+#define SYS_SPIBUS_TASK_RESUME_ERROR_CODE                      SYS_BASE_SPIBUS_TASK_ERROR_CODE + 2
+
+// AI task error code
+#define SYS_AI_TASK_BASE_ERROR_CODE                           SYS_BASE_SPIBUS_TASK_ERROR_CODE + SYS_GROUP_ERROR_COUNT
+#define SYS_AI_TASK_INIT_ERROR_CODE                           SYS_AI_TASK_BASE_ERROR_CODE + 1
+#define SYS_AI_TASK_INVALID_CMD_ERROR_CODE                    SYS_AI_TASK_BASE_ERROR_CODE + 2
+#define SYS_AI_TASK_CMD_ERROR_CODE                            SYS_AI_TASK_BASE_ERROR_CODE + 3
+#define SYS_AI_TASK_IN_QUEUE_FULL_ERROR_CODE                  SYS_AI_TASK_BASE_ERROR_CODE + 4
+
+// Utility task error code
+#define SYS_UTIL_TASK_BASE_ERROR_CODE                         SYS_AI_TASK_BASE_ERROR_CODE + SYS_GROUP_ERROR_COUNT
+#define SYS_UTIL_TASK_INIT_ERROR_CODE                         SYS_UTIL_TASK_BASE_ERROR_CODE + 1
+
+// SDCARD task error code
+#define SYS_SD_TASK_BASE_ERROR_CODE                           SYS_UTIL_TASK_BASE_ERROR_CODE + SYS_GROUP_ERROR_COUNT
+#define SYS_SD_TASK_NO_SDCARD_ERROR_CODE                      SYS_SD_TASK_BASE_ERROR_CODE + 1
+#define SYS_SD_TASK_FILE_OPEN_ERROR_CODE                      SYS_SD_TASK_BASE_ERROR_CODE + 2
 
 #ifdef __cplusplus
 }

@@ -65,6 +65,9 @@ static TIM_HandleTypeDef        s_xTim3Handle;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
+// Imported variables
+extern uint32_t uwTickPrio;
+
 /**
   * @brief  This function configures the TIM3 as a time base source.
   *         The time source is configured  to have 1ms time base with a dedicated 
@@ -82,6 +85,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   uint32_t              pFLatency;
   
   /*Configure the TIM3 IRQ priority */
+  uwTickPrio = TickPriority;
   HAL_NVIC_SetPriority(TIM3_IRQn, TickPriority ,0);
   
   /* Enable the TIM3 global Interrupt */
@@ -94,7 +98,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   HAL_RCC_GetClockConfig(&clkconfig, &pFLatency);
   
   /* Compute TIM3 clock */
-  uwTimclock = 2*HAL_RCC_GetPCLK1Freq();
+  uwTimclock = HAL_RCC_GetPCLK1Freq();
    
   /* Compute the prescaler value to have TIM3 counter clock equal to 1MHz */
   uwPrescalerValue = (uint32_t) ((uwTimclock / 1000000) - 1);

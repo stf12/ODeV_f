@@ -32,8 +32,7 @@
 #include "HelloWorldTask.h"
 #include "HelloWorldTask_vtbl.h"
 #include "sysdebug.h"
-#include "NucleoDriver.h"
-#include "NucleoDriver_vtbl.h"
+
 
 #ifndef HW_TASK_CFG_STACK_DEPTH
 #define HW_TASK_CFG_STACK_DEPTH         120
@@ -111,17 +110,17 @@ sys_error_code_t HelloWorldTask_vtblHardwareInit(AManagedTask *this, void *pPara
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   HelloWorldTask *pObj = (HelloWorldTask*)this;
 
-  pObj->m_pxDriver = NucleoDriverAlloc();
-  if (pObj->m_pxDriver == NULL) {
-    SYS_DEBUGF(SYS_DBG_LEVEL_SEVERE, ("HW task: unable to alloc driver object.\r\n"));
-    xRes = SYS_GET_LAST_LOW_LEVEL_ERROR_CODE();
-  }
-  else {
-    xRes = IDrvInit(pObj->m_pxDriver, NULL);
-    if (SYS_IS_ERROR_CODE(xRes)) {
-      SYS_DEBUGF(SYS_DBG_LEVEL_SEVERE, ("Keyboard task: error during driver initialization\r\n"));
-    }
-  }
+//  pObj->m_pxDriver = NucleoDriverAlloc();
+//  if (pObj->m_pxDriver == NULL) {
+//    SYS_DEBUGF(SYS_DBG_LEVEL_SEVERE, ("HW task: unable to alloc driver object.\r\n"));
+//    xRes = SYS_GET_LAST_LOW_LEVEL_ERROR_CODE();
+//  }
+//  else {
+//    xRes = IDrvInit(pObj->m_pxDriver, NULL);
+//    if (SYS_IS_ERROR_CODE(xRes)) {
+//      SYS_DEBUGF(SYS_DBG_LEVEL_SEVERE, ("Keyboard task: error during driver initialization\r\n"));
+//    }
+//  }
 
   return xRes;
 }
@@ -147,7 +146,7 @@ sys_error_code_t HelloWorldTask_vtblDoEnterPowerMode(AManagedTask *this, const E
   HelloWorldTask *pObj = (HelloWorldTask*)this;
 
   if (eNewPowerMode == E_POWER_MODE_SLEEP_1) {
-    NucleoDriverSetLed((NucleoDriver*)pObj->m_pxDriver, FALSE);
+//    NucleoDriverSetLed((NucleoDriver*)pObj->m_pxDriver, FALSE);
   }
 
   return xRes;
@@ -169,8 +168,11 @@ static sys_error_code_t HelloWorldTaskExecuteStepRun(HelloWorldTask *this) {
   assert_param(this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
-  vTaskDelay(pdMS_TO_TICKS(500));
-  NucleoDriverToggleLed((NucleoDriver*)this->m_pxDriver);
+  vTaskDelay(pdMS_TO_TICKS(1000));
+//  NucleoDriverToggleLed((NucleoDriver*)this->m_pxDriver);
+  SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("Hello STWIN!!\r\n"));
+  __NOP();
+  __NOP();
 
   return xRes;
 }
