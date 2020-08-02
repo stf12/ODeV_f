@@ -93,6 +93,8 @@ extern "C" {
 #define SYS_SD_TASK_BASE_ERROR_CODE                           SYS_UTIL_TASK_BASE_ERROR_CODE + SYS_GROUP_ERROR_COUNT
 #define SYS_SD_TASK_NO_SDCARD_ERROR_CODE                      SYS_SD_TASK_BASE_ERROR_CODE + 1
 #define SYS_SD_TASK_FILE_OPEN_ERROR_CODE                      SYS_SD_TASK_BASE_ERROR_CODE + 2
+#define SYS_SD_TASK_FILE_CLOSE_ERROR_CODE                     SYS_SD_TASK_BASE_ERROR_CODE + 3
+#define SYS_SD_TASK_FILE_OP_ERROR_CODE                        SYS_SD_TASK_BASE_ERROR_CODE + 4
 
 #ifdef __cplusplus
 }

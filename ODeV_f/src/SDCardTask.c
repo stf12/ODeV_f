@@ -91,6 +91,7 @@ struct _SDCardTask {
   char SDPath[4]; /* SD card logical drive path */
 
   uint8_t *SD_WriteBuffer[COM_MAX_SENSORS];
+  uint32_t SD_WriteBufferIdx[COM_MAX_SENSORS];
 
   COM_Device_t JSON_device;
 
@@ -143,10 +144,18 @@ static sys_error_code_t SDT_SD_DeInit(SDCardTask *_this);
 /**
  * SDCARD memory initialization. Performs the dynamic allocation for the SD_WriteBuffer associated to each active sensor.
  *
- * @param _this _this [IN] specifies a pointer to a task object.
+ * @param _this [IN] specifies a pointer to a task object.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
 static sys_error_code_t SDTMemoryInit(SDCardTask *_this);
+
+/**
+ * SDCARD Task memory De-initialization.
+ *
+ * @param _this [IN] specifies a pointer to a task object.
+ * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
+ */
+static sys_error_code_t SDTMemoryDeinit(SDCardTask *_this);
 
 /**
  * Execute the one time initialization when the task start. It check for the low battery condition and Initialize the SDCARD.
@@ -158,11 +167,20 @@ static sys_error_code_t SDTRuntimeInit(SDCardTask *_this);
 
 /**
  * Create the file and folder in the SDCARD to store the data.
+ * reate teh memory buffers to handle the sensor data.
  *
  * @param _this [IN] specifies a pointer to a task object.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
 static sys_error_code_t SDTStartLogging(SDCardTask *_this);
+
+/**
+ * Create the file and folder in the SDCARD to store the data.
+ *
+ * @param _this [IN] specifies a pointer to a task object.
+ * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
+ */
+static sys_error_code_t SDTStopLogging(SDCardTask *_this);
 
 static sys_error_code_t SDTReadJSON(SDCardTask *_this, char *serialized_string);
 
@@ -171,6 +189,16 @@ static sys_error_code_t SDTCreateJSON(SDCardTask *_this, char **serialized_strin
 static uint32_t SDTGetLastDirNumber(SDCardTask *_this);
 
 static sys_error_code_t SDTOpenFile(SDCardTask *_this, uint32_t id, const char *sensorName);
+
+static sys_error_code_t SDTCloseFiles(SDCardTask *_this);
+
+static sys_error_code_t SDTFlushBuffer(SDCardTask *_this, uint32_t id);
+
+static inline sys_error_code_t SDTWriteBuffer(SDCardTask *_this, uint32_t id, uint8_t *buffer, uint32_t size);
+
+static inline sys_error_code_t SDTCloseFile(SDCardTask *_this, uint32_t id);
+
+static inline sys_error_code_t SDTriteConfigBuffer(SDCardTask *_this, uint8_t *buffer, uint32_t size);
 
 
 // Inline function forward declaration
@@ -278,6 +306,11 @@ static void SDCardTaskRun(void *pParams) {
   }
 
   xRes = SDTStartLogging(_this);
+  if(SYS_IS_ERROR_CODE(xRes)) {
+    sys_error_handler();
+  }
+
+  xRes = SDTStopLogging(_this);
   if(SYS_IS_ERROR_CODE(xRes)) {
     sys_error_handler();
   }
@@ -438,10 +471,12 @@ static sys_error_code_t SDTCreateJSON(SDCardTask *_this, char **serialized_strin
   assert_param(serialized_string);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   COM_Device_t *device;
-  uint32_t size;
 
   device = COM_GetDevice();
-  size = HSD_serialize_Device_JSON(device, serialized_string);
+  if (HSD_serialize_Device_JSON(device, serialized_string)) {
+    xRes = SYS_SD_TASK_FILE_OP_ERROR_CODE;
+    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SD_TASK_FILE_OP_ERROR_CODE);
+  }
 
   return xRes;
 }
@@ -483,6 +518,8 @@ static sys_error_code_t SDTStartLogging(SDCardTask *_this) {
         sensor_descriptor = COM_GetSensorDescriptor(i);
         sprintf(file_name, "%s/%s", dir_name, sensor_descriptor->name);
 
+        SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("SDC: open log file %s\r\n", file_name));
+
         if(SYS_IS_ERROR_CODE(SDTOpenFile(_this, i, file_name))) {
           xRes = SYS_SD_TASK_FILE_OPEN_ERROR_CODE;
           SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SD_TASK_FILE_OPEN_ERROR_CODE);
@@ -503,6 +540,25 @@ static sys_error_code_t SDTStartLogging(SDCardTask *_this) {
 //      }
     }
   }
+
+  return xRes;
+}
+
+static sys_error_code_t SDTStopLogging(SDCardTask *_this) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+
+//  SM_TIM_Stop(); //TODO: STF.Porting to move in the UtilTask
+
+  xRes = SDTCloseFiles(_this);
+  xRes = SDTMemoryDeinit(_this);
+
+  //TODO: STF.Porting - what shall I do ???
+//  if (init_SD_peripheral != 0)
+//  {
+//    SDM_SD_DeInit();
+//    init_SD_peripheral = 0;
+//  }
 
   return xRes;
 }
@@ -550,7 +606,7 @@ static sys_error_code_t SDTOpenFile(SDCardTask *_this, uint32_t id, const char *
 //	assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
-	UNUSED(_this);
+  UNUSED(_this);
 
   char file_name[50];
 
@@ -562,6 +618,71 @@ static sys_error_code_t SDTOpenFile(SDCardTask *_this, uint32_t id, const char *
   }
 
   return xRes; // OK
+}
+
+static sys_error_code_t SDTCloseFiles(SDCardTask *_this) {
+  //  assert_param(_this);
+    sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+    COM_SensorStatus_t * sensor_status = NULL;
+    COM_DeviceDescriptor_t * device_descriptor = NULL;
+    uint32_t id = 0, dir_n = 0;
+    char dir_name[sizeof(LOG_DIR_PREFIX)+4];
+    char file_name[50];
+    char* JSON_string = NULL;
+
+    UNUSED(_this);
+
+    device_descriptor = COM_GetDeviceDescriptor();
+
+    /* Put all the sensors in "SUSPENDED" mode */
+    //STF.Porting this must be done by each sensor task during the power mode switch.
+//    for(id=0; id<device_descriptor->nSensor; id++) {
+//      sensor_status = COM_GetSensorStatus(id);
+//
+//      if(sensor_status->isActive) {
+//        SDM_StopSensorThread(id);
+//      }
+//    }
+
+    /* Flush remaining data and close the files  */
+    for(id=0; id<device_descriptor->nSensor; id++) {
+      sensor_status = COM_GetSensorStatus(id);
+
+      if(sensor_status->isActive) {
+        SDTFlushBuffer(_this, id);
+        xRes = SDTCloseFile(_this, id);
+        if(SYS_IS_ERROR_CODE(xRes)) {
+          break;
+        }
+      }
+    }
+
+    if (!SYS_IS_ERROR_CODE(xRes)) {
+      dir_n = SDTGetLastDirNumber(_this);
+      sprintf(dir_name, "%s%03ld", LOG_DIR_PREFIX, dir_n);
+      sprintf(file_name, "%s/DeviceConfig.json", dir_name);
+
+      if(f_open(&_this->FileConfigHandler, (char const*)file_name, FA_CREATE_ALWAYS | FA_WRITE) != FR_OK) {
+        xRes = SYS_SD_TASK_FILE_OPEN_ERROR_CODE;
+        SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SD_TASK_FILE_OPEN_ERROR_CODE);
+      }
+
+      if (!SYS_IS_ERROR_CODE(xRes)) {
+        SDTCreateJSON(_this, &JSON_string);
+        SDTriteConfigBuffer(_this, (uint8_t*)JSON_string, strlen(JSON_string));
+
+        if (f_close(&_this->FileConfigHandler)!= FR_OK) {
+          xRes = SYS_SD_TASK_FILE_CLOSE_ERROR_CODE;
+          SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SD_TASK_FILE_CLOSE_ERROR_CODE);
+        }
+      }
+
+//      HSD_JSON_free(JSON_string); //TODO: STF.Porting - this function is present in v2.1.1, but the header is v2.0.0
+      JSON_string = NULL;
+    }
+
+
+    return xRes;
 }
 
 static sys_error_code_t SDTMemoryInit(SDCardTask *_this) {
@@ -588,6 +709,94 @@ static sys_error_code_t SDTMemoryInit(SDCardTask *_this) {
     {
       _this->SD_WriteBuffer[i] = 0;
     }
+  }
+
+  return xRes;
+}
+
+static sys_error_code_t SDTMemoryDeinit(SDCardTask *_this) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  COM_SensorStatus_t * sensor_status = NULL;
+  COM_DeviceDescriptor_t * device_descriptor = NULL;
+  uint32_t i = 0;
+
+  device_descriptor = COM_GetDeviceDescriptor();
+
+  for(i=0; i<device_descriptor->nSensor; i++) {
+    sensor_status = COM_GetSensorStatus(i);
+    if(sensor_status->isActive && _this->SD_WriteBuffer[i]!=0) {
+      HSD_free(_this->SD_WriteBuffer[i]);
+      _this->SD_WriteBuffer[i] = NULL;
+    }
+  }
+
+  return xRes;
+}
+
+static sys_error_code_t SDTFlushBuffer(SDCardTask *_this, uint32_t id) {
+	assert_param(_this);
+	sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  uint32_t buf_size = 0;
+  COM_SensorStatus_t * sensor_status = NULL;
+
+  sensor_status = COM_GetSensorStatus(id);
+  buf_size = sensor_status->sdWriteBufferSize;
+
+  if(_this->SD_WriteBufferIdx[id]>0 && _this->SD_WriteBufferIdx[id]<(buf_size-1)) {
+    /* flush from the beginning */
+    xRes = SDTWriteBuffer(_this, id, _this->SD_WriteBuffer[id], _this->SD_WriteBufferIdx[id]+1);
+  }
+  else if (_this->SD_WriteBufferIdx[id]>(buf_size-1) && _this->SD_WriteBufferIdx[id]<(buf_size*2-1)) {
+    /* flush from half buffer */
+    xRes =  SDTWriteBuffer(_this, id, (uint8_t *)(_this->SD_WriteBuffer[id]+buf_size), _this->SD_WriteBufferIdx[id]+1-buf_size);
+  }
+
+  _this->SD_WriteBufferIdx[id] = 0;
+
+	return xRes;
+}
+
+
+// Inline function definition
+// **************************
+
+static inline
+sys_error_code_t SDTWriteBuffer(SDCardTask *_this, uint32_t id, uint8_t *buffer, uint32_t size) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  uint32_t byteswritten = 0;
+
+  if(f_write(&_this->FileHandler[id], buffer, size, (void *)&byteswritten) != FR_OK) {
+    xRes = SYS_SD_TASK_FILE_OP_ERROR_CODE;
+    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SD_TASK_FILE_OP_ERROR_CODE);
+  }
+
+  return xRes;
+}
+
+static inline
+sys_error_code_t SDTCloseFile(SDCardTask *_this, uint32_t id) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+
+  if (f_close(&_this->FileHandler[id]) != FR_OK) {
+    xRes = SYS_SD_TASK_FILE_CLOSE_ERROR_CODE;
+    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SD_TASK_FILE_CLOSE_ERROR_CODE);
+  }
+
+  return xRes;
+}
+
+static inline
+sys_error_code_t SDTriteConfigBuffer(SDCardTask *_this, uint8_t *buffer, uint32_t size) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  uint32_t byteswritten = 0;
+
+  if (f_write(&_this->FileConfigHandler, buffer, size, (void *)&byteswritten) != FR_OK) {
+    xRes = SYS_SD_TASK_FILE_OP_ERROR_CODE;
+    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SD_TASK_FILE_OP_ERROR_CODE);
   }
 
   return xRes;
