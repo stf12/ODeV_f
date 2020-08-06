@@ -251,6 +251,12 @@ static void UtilTaskRun(void *pParams) {
         taskEXIT_CRITICAL();
         break;
 
+      case E_POWER_MODE_DATALOG:
+        //TODO: STF - TBD.
+        break;
+
+      case E_POWER_MODE_AI:
+      case E_POWER_MODE_DATALOG_AI:
       case E_POWER_MODE_SLEEP_1:
         AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
         vTaskSuspend(_this->super.m_xThaskHandle);

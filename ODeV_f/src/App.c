@@ -32,6 +32,7 @@
 
 #include "sysdebug.h"
 #include "ApplicationContext.h"
+#include "AppPowerModeHelper.h"
 #include "SPIBusTask.h"
 #include "ISM330DHCXTask.h"
 #include "IIS3DWBTask.h"
@@ -112,8 +113,8 @@ sys_error_code_t SysOnStartApplication(ApplicationContext *pAppContext) {
 //
 //  //add the AI task to the sensors
   IEventListener *pxListener = AITaskGetEventListenrIF((AITask*)s_pxPDMObj);
-//  IEventSrcAddEventListener(ISM330DHCXTaskGetEventSrcIF((ISM330DHCXTask*)s_pxISM330DHCXObj), pxListener);
-  IEventSrcAddEventListener(IIS3DWBTaskGetEventSrcIF((IIS3DWBTask*)s_pxIIS3DWBObj), pxListener);
+  IEventSrcAddEventListener(ISM330DHCXTaskGetEventSrcIF((ISM330DHCXTask*)s_pxISM330DHCXObj), pxListener);
+//  IEventSrcAddEventListener(IIS3DWBTaskGetEventSrcIF((IIS3DWBTask*)s_pxIIS3DWBObj), pxListener);
 
   return SYS_NO_ERROR_CODE;
 }
@@ -127,13 +128,13 @@ sys_error_code_t SysOnStartApplication(ApplicationContext *pAppContext) {
 //
 //  return s_pxErrDelegate;
 //}
-//
-//IAppPowerModeHelper *SysGetPowerModeHelper() {
-//  // Install the application power mode helper.
-//  static IAppPowerModeHelper *s_pxPowerModeHelper = NULL;
-//  if (s_pxPowerModeHelper == NULL) {
-//    s_pxPowerModeHelper = AppPowerModeHelperAlloc();
-//  }
-//
-//  return s_pxPowerModeHelper;
-//}
+
+IAppPowerModeHelper *SysGetPowerModeHelper() {
+  // Install the application power mode helper.
+  static IAppPowerModeHelper *s_pxPowerModeHelper = NULL;
+  if (s_pxPowerModeHelper == NULL) {
+    s_pxPowerModeHelper = AppPowerModeHelperAlloc();
+  }
+
+  return s_pxPowerModeHelper;
+}

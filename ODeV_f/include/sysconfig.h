@@ -51,7 +51,7 @@
 // **********************
 
 // files syslowpower.h, SysDefPowerModeHelper.c
-#define SYS_CFG_USE_DEFAULT_PM_HELPER             1
+#define SYS_CFG_USE_DEFAULT_PM_HELPER             0
 #define SYS_CFG_DEF_PM_HELPER_STANDBY             0  ///< if defined to 1 then the MCU goes in STANDBY mode when the system enters in SLEEP_1.
 
 

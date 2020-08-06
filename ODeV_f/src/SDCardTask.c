@@ -198,7 +198,7 @@ static inline sys_error_code_t SDTWriteBuffer(SDCardTask *_this, uint32_t id, ui
 
 static inline sys_error_code_t SDTCloseFile(SDCardTask *_this, uint32_t id);
 
-static inline sys_error_code_t SDTriteConfigBuffer(SDCardTask *_this, uint8_t *buffer, uint32_t size);
+static inline sys_error_code_t SDTWriteConfigBuffer(SDCardTask *_this, uint8_t *buffer, uint32_t size);
 
 
 // Inline function forward declaration
@@ -338,6 +338,12 @@ static void SDCardTaskRun(void *pParams) {
         taskEXIT_CRITICAL();
         break;
 
+      case E_POWER_MODE_DATALOG:
+        //TODO: STF - TBD.
+        break;
+
+      case E_POWER_MODE_AI:
+      case E_POWER_MODE_DATALOG_AI:
       case E_POWER_MODE_SLEEP_1:
         AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
         vTaskSuspend(_this->super.m_xThaskHandle);
@@ -669,7 +675,7 @@ static sys_error_code_t SDTCloseFiles(SDCardTask *_this) {
 
       if (!SYS_IS_ERROR_CODE(xRes)) {
         SDTCreateJSON(_this, &JSON_string);
-        SDTriteConfigBuffer(_this, (uint8_t*)JSON_string, strlen(JSON_string));
+        SDTWriteConfigBuffer(_this, (uint8_t*)JSON_string, strlen(JSON_string));
 
         if (f_close(&_this->FileConfigHandler)!= FR_OK) {
           xRes = SYS_SD_TASK_FILE_CLOSE_ERROR_CODE;
@@ -789,7 +795,7 @@ sys_error_code_t SDTCloseFile(SDCardTask *_this, uint32_t id) {
 }
 
 static inline
-sys_error_code_t SDTriteConfigBuffer(SDCardTask *_this, uint8_t *buffer, uint32_t size) {
+sys_error_code_t SDTWriteConfigBuffer(SDCardTask *_this, uint8_t *buffer, uint32_t size) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   uint32_t byteswritten = 0;
