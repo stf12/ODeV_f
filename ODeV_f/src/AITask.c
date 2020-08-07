@@ -218,6 +218,14 @@ static AITask s_xTaskObj;
 static sys_error_code_t AITaskExecuteStepRun(AITask *_this);
 
 /**
+ * Execute one step of the task control loop while the system is in AI or DATALOG_AI mode.
+ *
+ * @param _this [IN] specifies a pointer to a task object.
+ * @return SYS_NO_EROR_CODE if success, a task specific error code otherwise.
+ */
+static sys_error_code_t AITaskExecuteStepAI(AITask *_this);
+
+/**
  * Task control function.
  *
  * @param pParams .
@@ -545,7 +553,31 @@ sys_error_code_t AITask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t *pv
 sys_error_code_t AITask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  AITask *pObj = (AITask*)_this;
+  AITask *pObj = (AITask*)_this;
+
+  if (eNewPowerMode == E_POWER_MODE_AI) {
+    // the only option is the transaction RUN (3)-> AI, so I don't need other check
+
+    // reset the input queue
+    xQueueReset(pObj->m_xInQueue);
+    // get ready to receive new data
+    if (SYS_NO_ERROR_CODE != AITaskSetMode(pObj, E_AI_LEARNING, pdMS_TO_TICKS(50))) {
+      sys_error_handler();
+    }
+    if (SYS_NO_ERROR_CODE != AITtaskStart(pObj, pdMS_TO_TICKS(50))) {
+      sys_error_handler();
+    }
+  }
+  else if (eNewPowerMode == E_POWER_MODE_RUN) {
+    if (eActivePowerMode == E_POWER_MODE_AI) {
+      // reset the input queue
+      xQueueReset(pObj->m_xInQueue);
+      //TODO: STF - check -  send a stop command. Is it meaningful ?
+      if (SYS_NO_ERROR_CODE != AITtaskStop(pObj, pdMS_TO_TICKS(50))) {
+        sys_error_handler();
+      }
+    }
+  }
 
   return xRes;
 }
@@ -561,7 +593,19 @@ sys_error_code_t AITask_vtblHandleError(AManagedTask *_this, SysEvent xError) {
 sys_error_code_t AITask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMode eActivePowerMode) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  AITask *pObj = (AITask*)_this;
+  AITask *pObj = (AITask*)_this;
+
+  HIDReport xReport = {
+      .reportID = HID_REPORT_ID_FORCE_STEP,
+  };
+
+  if ((eActivePowerMode == E_POWER_MODE_AI) || (eActivePowerMode == E_POWER_MODE_RUN)) {
+    xQueueSendToFront(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100));
+  }
+  else {
+    vTaskResume(_this->m_xThaskHandle);
+  }
+
 
   return xRes;
 }
@@ -632,7 +676,10 @@ static sys_error_code_t AITaskExecuteStepRun(AITask *_this) {
   AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
   if (pdTRUE == xQueueReceive(_this->m_xInQueue, &xCommand, xTimeoutInTick)) {
     AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
-    if (xCommand.reportId == HID_REPORT_ID_AI_CMD) {
+    if (xCommand.reportId == HID_REPORT_ID_FORCE_STEP) {
+      __NOP();
+    }
+    else if (xCommand.reportId == HID_REPORT_ID_AI_CMD) {
       switch (xCommand.nCmdID) {
 
       case AI_CMD_ID_SET_TIMER:
@@ -709,6 +756,68 @@ static sys_error_code_t AITaskExecuteStepRun(AITask *_this) {
 
       case AI_CMD_ID_INIT:
         NanoEdgeAI_initialize();
+        break;
+
+      default:
+        break;
+      }
+
+      if (xRes != SYS_NO_ERROR_CODE) {
+//        printf("\r\nAItaskRun() error 0x%x\r\n\r\n", (unsigned int)xRes);
+        SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("AI: step run error 0x%x\r\n", (unsigned int)xRes));
+      }
+    }
+  }
+
+  return xRes;
+}
+
+static sys_error_code_t AITaskExecuteStepAI(AITask *_this) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  TickType_t xTimeoutInTick = AI_TICK_TO_WAIT_IN_CMD_LOOP;
+  struct aiReport_t xCommand = {0};
+
+  AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
+  if (pdTRUE == xQueueReceive(_this->m_xInQueue, &xCommand, xTimeoutInTick)) {
+    AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
+    if (xCommand.reportId == HID_REPORT_ID_FORCE_STEP) {
+      __NOP();
+    }
+    else if (xCommand.reportId == HID_REPORT_ID_AI_CMD) {
+      switch (xCommand.nCmdID) {
+
+      case AI_CMD_ID_SET_MODE:
+        _this->m_xCmdContext.pfNeaiMode = (EAIMode)xCommand.nParam == E_AI_DETECTION ? NanoEdgeAI_detect : NanoEdgeAI_learn;
+        break;
+
+      case AI_CMD_ID_START:
+        if (_this->m_eState == E_AI_STOP) {
+          _this->m_eState = E_AI_START;
+          // prepare the execution context
+          if ((EAIMode)xCommand.nParam != E_AI_MODE_NONE) {
+            _this->m_xCmdContext.pfNeaiMode = (EAIMode)xCommand.nParam == E_AI_DETECTION ? NanoEdgeAI_detect : NanoEdgeAI_learn;
+          }
+//          if (_this->m_xCmdContext.pfNeaiMode == NanoEdgeAI_learn){
+//            LCD_LearnPanel();
+//          }
+//          else if (_this->m_xCmdContext.pfNeaiMode == NanoEdgeAI_detect){
+//            LCD_DetectionPanel();
+//          }
+          // copy the application context into the local copy in the task stack.
+          memcpy(&_this->m_xActualCmdContext, &_this->m_xCmdContext, sizeof(AICmdExecutionContext));
+          // complete the rest of the command execution
+          xRes = AITaskStartImp(_this, &_this->m_xActualCmdContext);
+        }
+        break;
+
+      case AI_CMD_ID_STOP:
+        if(_this->m_eState == E_AI_START) {
+          _this->m_eState = E_AI_STOP;
+//          LCD_IdlePanel();
+          // complete the rest of the command execution
+          xRes = AITaskStopImp(_this, &_this->m_xActualCmdContext);
+        }
         break;
 
       case AI_CMD_ID_SIGNAL_READY:
@@ -800,27 +909,20 @@ static void AITaskRun(void *pParams) {
   // If the frame size is bigger than 256 (the maximum depth of the sensor queue)
   // than it should be, at least, a multiple of 256 otherwise some sensor data are lost.
   const uint32_t nDataInputUser = DATA_INPUT_USER;
+
+  // the message should be reported to the user in other way?
   if (!((nDataInputUser != 0) && ((nDataInputUser & (nDataInputUser - 1)) == 0))) {
-    printf("\r\nWARNING: the buffer size (DATA_INPUT_USER), is not a power of 2.\r\n");
+    SYS_DEBUGF(SYS_DBG_LEVEL_WARNING, ("AI: WARNING - the buffer size (DATA_INPUT_USER), is not a power of 2.\r\n"));
     // frame size is not a power of 2.
     if ((nDataInputUser < 256) || ((nDataInputUser % 256) == 0)) {
       // frame size is multiple of 256
-      printf("         However it is a multiple of the sensor queue, so the application\r\n         may works fine.\r\n\r\r$ ");
+      SYS_DEBUGF(SYS_DBG_LEVEL_WARNING, ("AI: however it is a multiple of the sensor queue, so the application may works fine.\r\n"));
     }
     else {
-      printf("         Moreover it is not a multiple of the sensor queue, so the application\r\n         will not work as expected.\r\n\r\r$ ");
+      SYS_DEBUGF(SYS_DBG_LEVEL_WARNING, ("AI: moreover it is not a multiple of the sensor queue, so the application will not work as expected.\r\n"));
     }
   }
 
-  //TODO: STF.Begin
-  // send a fake command to simulate the 'start neai_lear' command.
-  if (SYS_NO_ERROR_CODE != AITaskSetMode(_this, E_AI_LEARNING, pdMS_TO_TICKS(100))) {
-    sys_error_handler();
-  }
-  if (SYS_NO_ERROR_CODE != AITtaskStart(_this, pdMS_TO_TICKS(100))) {
-    sys_error_handler();
-  }
-  // STF.End
 
   for (;;) {
 
@@ -844,11 +946,17 @@ static void AITaskRun(void *pParams) {
         taskEXIT_CRITICAL();
         break;
 
-      case E_POWER_MODE_DATALOG:
-        //TODO: STF - TBD.
+      case E_POWER_MODE_AI:
+        taskENTER_CRITICAL();
+          _this->super.m_xStatus.nDelayPowerModeSwitch = 1;
+        taskEXIT_CRITICAL();
+        xRes = AITaskExecuteStepAI(_this);
+        taskENTER_CRITICAL();
+          _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
+        taskEXIT_CRITICAL();
         break;
 
-      case E_POWER_MODE_AI:
+      case E_POWER_MODE_DATALOG:
       case E_POWER_MODE_DATALOG_AI:
       case E_POWER_MODE_SLEEP_1:
         AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);

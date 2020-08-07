@@ -44,10 +44,12 @@ extern "C" {
 
 #include "syserror.h"
 
-#define HID_REPORT_ID_ISM330DHCX                0x01  /// Report coming from the ISM330DHCX sensor
-#define HID_REPORT_ID_IIS3DWB                   0x02  /// Report coming from the IIS3DWB sensor
-#define HID_REPORT_ID_AI_CMD                    0x03  /// AI command encapsulated in a HID report.
-#define HID_REPORT_ID_FORCE_STEP                0xFE  /// Special ID used by the INIT task to force the execution of ManagedTaskEx step.
+#define HID_REPORT_ID_ISM330DHCX                0x01  ///< Report coming from the ISM330DHCX sensor
+#define HID_REPORT_ID_IIS3DWB                   0x02  ///< Report coming from the IIS3DWB sensor
+#define HID_REPORT_ID_AI_CMD                    0x03  ///< AI command encapsulated in a HID report.
+#define HID_REPORT_ID_SENSOR_CMD                0x04  ///< Sensor command encapsulated in a HID report.
+#define HID_REPORT_ID_SD_CMD                    0x05  ///< SDCARD command encapsulated in a HID report.
+#define HID_REPORT_ID_FORCE_STEP                0xFE  ///< Special ID used by the INIT task to force the execution of ManagedTaskEx step.
 
 typedef union _HIDReport {
   uint8_t reportID;
@@ -88,6 +90,30 @@ typedef union _HIDReport {
       float fParam;                                    // genetic floating point parameters.
     };
   } aiReport;
+
+  //--------------------------------------------------------------------------------
+  //  SensorReport 04 (MCU --> MCU) - Generic Sensor command
+  //--------------------------------------------------------------------------------
+
+  struct sensorReport_t
+  {
+    uint8_t   reportId;                                // Report ID = 0x04 (4)
+    uint8_t   nPadding;                                // Padding byte
+    uint16_t  nCmdID;                                  // Specify the command ID
+    uint32_t  nParam;                                  // Specify an optional parameter.
+  } sensorReport;
+
+  //--------------------------------------------------------------------------------
+  //  SensorReport 05 (MCU --> MCU) - SDCARD command
+  //--------------------------------------------------------------------------------
+
+  struct sdReport_t
+  {
+    uint8_t   reportId;                                // Report ID = 0x05 (5)
+    uint8_t   nPadding;                                // Padding byte
+    uint16_t  nCmdID;                                  // Specify the command ID
+    uint32_t  nParam;                                  // Specify an optional parameter.
+  } sdReport;
 
   //--------------------------------------------------------------------------------
   //  internalReport (MCU)

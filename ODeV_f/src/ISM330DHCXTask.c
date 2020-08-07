@@ -26,6 +26,7 @@
 #include "ISM330DHCXTask.h"
 #include "ISM330DHCXTask_vtbl.h"
 #include "hid_report_parser.h"
+#include "SensorCommands.h"
 #include "ISensorEventListener.h"
 #include "ISensorEventListener_vtbl.h"
 #include <string.h>
@@ -88,6 +89,14 @@ static ISM330DHCXTask s_xTaskObj;
  * @return SYS_NO_EROR_CODE if success, a task specific error code otherwise.
  */
 static sys_error_code_t ISM330DHCXTaskExecuteStepRun(ISM330DHCXTask *_this);
+
+/**
+ * Execute one step of the task control loop while the system is in DATALOG mode.
+ *
+ * @param _this [IN] specifies a pointer to a task object.
+ * @return SYS_NO_EROR_CODE if success, a task specific error code otherwise.
+ */
+static sys_error_code_t ISM330DHCXTaskExecuteStepDatalog(ISM330DHCXTask *_this);
 
 /**
  * Task control function.
@@ -263,7 +272,29 @@ sys_error_code_t ISM330DHCXTask_vtblOnCreateTask(AManagedTask *_this, TaskFuncti
 sys_error_code_t ISM330DHCXTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  ISM330DHCXTask *pObj = (ISM330DHCXTask*)_this;
+  ISM330DHCXTask *pObj = (ISM330DHCXTask*)_this;
+
+  if (eNewPowerMode == E_POWER_MODE_DATALOG) {
+    HIDReport xReport = {
+        .reportID = HID_REPORT_ID_SENSOR_CMD,
+        .sensorReport.nCmdID = SENSOR_CMD_ID_START
+    };
+
+    if (xQueueSendToBack(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100)) != pdTRUE) {
+      xRes = SYS_APP_TASK_REPORT_LOST_ERROR_CODE;
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_REPORT_LOST_ERROR_CODE);
+    }
+
+    SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("ISM330DHCX: -> DATALOG\r\n"));
+  }
+  else if (eNewPowerMode == E_POWER_MODE_RUN) {
+    ism330dhcx_fifo_gy_batch_set(&pObj->m_xSensorDrv, ISM330DHCX_GY_NOT_BATCHED);
+    xQueueReset(pObj->m_pxEventSrc);
+    // TODO: STF - power down
+
+    SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("ISM330DHCX: -> RUN\r\n"));
+  }
+
 
   return xRes;
 }
@@ -286,7 +317,7 @@ sys_error_code_t ISM330DHCXTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPow
       .nData = 0
   };
 
-  if (eActivePowerMode == E_POWER_MODE_RUN) {
+  if ((eActivePowerMode == E_POWER_MODE_RUN) || (eActivePowerMode == E_POWER_MODE_DATALOG)) {
     xRes = ISM330DHCXTaskPostReportToFront(pObj, (HIDReport*)&xReport);
   }
   else {
@@ -312,6 +343,30 @@ static sys_error_code_t ISM330DHCXTaskExecuteStepRun(ISM330DHCXTask *_this) {
     switch (xReport.reportID) {
     case HID_REPORT_ID_FORCE_STEP:
       // do nothing. I need only to resume.
+      __NOP();
+      break;
+
+    default:
+      break;
+    }
+  }
+
+  return xRes;
+}
+
+static sys_error_code_t ISM330DHCXTaskExecuteStepDatalog(ISM330DHCXTask *_this) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  HIDReport xReport = {};
+
+  AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
+  if (pdTRUE == xQueueReceive(_this->m_xInQueue, &xReport, portMAX_DELAY)) {
+    AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
+
+    switch (xReport.reportID) {
+    case HID_REPORT_ID_FORCE_STEP:
+      // do nothing. I need only to resume.
+      __NOP();
       break;
 
     case HID_REPORT_ID_ISM330DHCX:
@@ -322,6 +377,16 @@ static sys_error_code_t ISM330DHCXTaskExecuteStepRun(ISM330DHCXTask *_this) {
         SensorEvent xEvt;
         SensorEventInit((IEvent*)&xEvt, _this->m_pxEventSrc, _this->m_pnSensorDataBuff, ISM330DHCX_GY_SAMPLES_PER_IT * 6, 0);
         IEventSrcSendEvent(_this->m_pxEventSrc, (IEvent*)&xEvt, NULL);
+      }
+      break;
+
+    case HID_REPORT_ID_SENSOR_CMD:
+      if (xReport.sensorReport.nCmdID == SENSOR_CMD_ID_START) {
+        // now I can use the sensor... let's initialize it.
+        xRes = ISM330DHCXTaskSensorInit(_this);
+
+        // enable the IRQs
+        HAL_NVIC_EnableIRQ(ISM330DHCX_INT1_EXTI_IRQn);
       }
       break;
 
@@ -344,11 +409,6 @@ static void ISM330DHCXTaskRun(void *pParams) {
   // At this point all system has been initialized.
   // Execute task specific delayed one time initialization.
 
-  // now I can use the sensor... let's initialize it.
-  xRes = ISM330DHCXTaskSensorInit(_this);
-
-  // enable the IRQs
-  HAL_NVIC_EnableIRQ(ISM330DHCX_INT1_EXTI_IRQn);
 
   for (;;) {
 
@@ -373,7 +433,13 @@ static void ISM330DHCXTaskRun(void *pParams) {
         break;
 
       case E_POWER_MODE_DATALOG:
-        //TODO: STF - TBD.
+        taskENTER_CRITICAL();
+          _this->super.m_xStatus.nDelayPowerModeSwitch = 1;
+        taskEXIT_CRITICAL();
+        xRes = ISM330DHCXTaskExecuteStepDatalog(_this);
+        taskENTER_CRITICAL();
+          _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
+        taskEXIT_CRITICAL();
         break;
 
       case E_POWER_MODE_AI:

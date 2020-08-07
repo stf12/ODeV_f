@@ -27,6 +27,7 @@
 #include "UtilTask_vtbl.h"
 #include "HSD_json.h"
 #include "hid_report_parser.h"
+#include "mx.h"
 #include "sysdebug.h"
 
 // TODO: cange XXX with a short id for the task
@@ -139,6 +140,19 @@ sys_error_code_t UtilTask_vtblHardwareInit(AManagedTask *_this, void *pParams) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 //  UtilTask *pObj = (UtilTask*)_this;
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  UNUSED(_this);
+
+  __HAL_RCC_GPIOE_CLK_ENABLE();
+
+  // Initialize PE0 (USER_BUTTON)
+  GPIO_InitStruct.Pin = USER_BUTTON_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(USER_BUTTON_GPIO_Port, &GPIO_InitStruct);
+
+  HAL_NVIC_SetPriority(USER_BUTTON_EXTI_IRQn, 15, 0);
 
   return xRes;
 }
@@ -196,9 +210,11 @@ sys_error_code_t UtilTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMode
       .reportID = HID_REPORT_ID_FORCE_STEP,
   };
 
-  if (pdTRUE != xQueueSendToFront(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100))) {
-    xRes = SYS_UNDEFINED_ERROR_CODE;
-    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_UNDEFINED_ERROR_CODE);
+  if ((eActivePowerMode == E_POWER_MODE_RUN)) {
+    xQueueSendToFront(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100));
+  }
+  else {
+    vTaskResume(_this->m_xThaskHandle);
   }
 
   return xRes;
@@ -229,6 +245,8 @@ static void UtilTaskRun(void *pParams) {
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("UTIL: start.\r\n"));
 
+  HAL_NVIC_EnableIRQ(USER_BUTTON_EXTI_IRQn);
+
   for (;;) {
 
     // check if there is a pending power mode switch request
@@ -252,9 +270,6 @@ static void UtilTaskRun(void *pParams) {
         break;
 
       case E_POWER_MODE_DATALOG:
-        //TODO: STF - TBD.
-        break;
-
       case E_POWER_MODE_AI:
       case E_POWER_MODE_DATALOG_AI:
       case E_POWER_MODE_SLEEP_1:
@@ -274,5 +289,21 @@ static void UtilTaskRun(void *pParams) {
       sys_error_handler();
     }
 #endif
+  }
+}
+
+
+// CubeMX integration
+// ******************
+
+void Util_PB_EXTI_Callback(uint16_t nPin) {
+  if (nPin == USER_BUTTON_Pin) {
+    // generate the system event.
+
+    SysEvent xEvt = {
+        .nRawEvent = SYS_PM_MAKE_EVENT(SYS_PM_EVT_SRC_PB, SYS_PM_EVT_PARAM_PRESSED)
+    };
+    SysPostPowerModeEvent(xEvt);
+    // don't check the error code. For the moment we assume that we can loose a USER BUTTON PRessed event.
   }
 }

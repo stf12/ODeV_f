@@ -193,6 +193,8 @@ sys_error_code_t SPIBusTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPow
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 //  SPIBusTask *pObj = (SPIBusTask*)_this;
 
+  SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("SPIBUS: -> %d\r\n", eNewPowerMode));
+
   return xRes;
 }
 
@@ -211,11 +213,17 @@ sys_error_code_t SPIBusTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMo
 
   // to resume the task we send a fake empty message.
   SPIBusMsg xMsg = {0};
-  // this method is called by INIT task
-  if (pdTRUE != xQueueSendToFront(pObj->m_xInQueue, &xMsg, pdMS_TO_TICKS(100))) {
-    SYS_DEBUGF(SYS_DBG_LEVEL_WARNING, ("SPIBUS: unable to resume the task.\r\n"));
-    xRes = SYS_SPIBUS_TASK_RESUME_ERROR_CODE;
-    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SPIBUS_TASK_RESUME_ERROR_CODE);
+  if ((eActivePowerMode == E_POWER_MODE_RUN) || (eActivePowerMode == E_POWER_MODE_DATALOG)) {
+    if (pdTRUE != xQueueSendToFront(pObj->m_xInQueue, &xMsg, pdMS_TO_TICKS(100))) {
+
+      SYS_DEBUGF(SYS_DBG_LEVEL_WARNING, ("SPIBUS: unable to resume the task.\r\n"));
+
+      xRes = SYS_SPIBUS_TASK_RESUME_ERROR_CODE;
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SPIBUS_TASK_RESUME_ERROR_CODE);
+    }
+  }
+  else {
+    vTaskResume(_this->m_xThaskHandle);
   }
 
   return xRes;
@@ -229,7 +237,9 @@ static sys_error_code_t SPIBusTaskExecuteStepRun(SPIBusTask *_this) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
   SPIBusMsg xMsg = {0};
+  AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
   if (pdTRUE == xQueueReceive(_this->m_xInQueue, &xMsg, portMAX_DELAY)) {
+    AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
     // check if it is a fake message to resume the task
     if (!((xMsg.pxSensor == NULL) && (xMsg.nReadSize == 0))) {
       SPIMasterDriverSelectDevice((SPIMasterDriver*)_this->m_pxDriver, xMsg.pxSensor->m_pxSSPinPort, xMsg.pxSensor->m_nSSPin);
@@ -269,6 +279,7 @@ static void SPIBusTaskRun(void *pParams) {
     else {
       switch (AMTGetSystemPowerMode()) {
       case E_POWER_MODE_RUN:
+      case E_POWER_MODE_DATALOG:
         taskENTER_CRITICAL();
           _this->super.m_xStatus.nDelayPowerModeSwitch = 1;
         taskEXIT_CRITICAL();
@@ -276,10 +287,6 @@ static void SPIBusTaskRun(void *pParams) {
         taskENTER_CRITICAL();
           _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
         taskEXIT_CRITICAL();
-        break;
-
-      case E_POWER_MODE_DATALOG:
-        //TODO: STF - TBD.
         break;
 
       case E_POWER_MODE_AI:

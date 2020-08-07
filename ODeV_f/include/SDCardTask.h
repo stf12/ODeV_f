@@ -5,7 +5,7 @@
  * @version 1.0.0
  * @date    Jul 23, 2020
  *
- * @brief   
+ * @brief
  *
  * <DESCRIPTIOM>
  *
@@ -34,6 +34,10 @@ extern "C" {
 #include "syserror.h"
 #include "AManagedTaskEx.h"
 #include "AManagedTaskEx_vtbl.h"
+
+// Command ID. These are all commands supported by a sensor task.
+#define SDT_CMD_ID_START                ((uint16_t)0x0001)              ///< START command ID.
+#define SDT_CMD_ID_STOP                 ((uint16_t)0x0002)              ///< STOP command ID.
 
 
 /**

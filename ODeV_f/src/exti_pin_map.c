@@ -35,9 +35,11 @@
 void Def_EXTI_Callback(uint16_t nPin) {};
 void ISM330DHCXTask_EXTI_Callback(uint16_t nPin);
 void IIS3DWBTask_EXTI_Callback(uint16_t nPin);
+void Util_PB_EXTI_Callback(uint16_t nPin);
 
 
 EXTI_BEGIN_P2F_MAP()
+  EXTI_P2F_MAP_ENTRY(GPIO_PIN_0, Util_PB_EXTI_Callback)
   EXTI_P2F_MAP_ENTRY(GPIO_PIN_8, ISM330DHCXTask_EXTI_Callback)
   EXTI_P2F_MAP_ENTRY(GPIO_PIN_14, IIS3DWBTask_EXTI_Callback)
 
