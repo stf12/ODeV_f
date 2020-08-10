@@ -191,7 +191,9 @@ sys_error_code_t SPIBusTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t
 sys_error_code_t SPIBusTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  SPIBusTask *pObj = (SPIBusTask*)_this;
+  SPIBusTask *pObj = (SPIBusTask*)_this;
+
+//  xQueueReset(pObj->m_xInQueue);
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("SPIBUS: -> %d\r\n", eNewPowerMode));
 

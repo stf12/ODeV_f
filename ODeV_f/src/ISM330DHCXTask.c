@@ -288,8 +288,8 @@ sys_error_code_t ISM330DHCXTask_vtblDoEnterPowerMode(AManagedTask *_this, const 
     SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("ISM330DHCX: -> DATALOG\r\n"));
   }
   else if (eNewPowerMode == E_POWER_MODE_RUN) {
-    ism330dhcx_fifo_gy_batch_set(&pObj->m_xSensorDrv, ISM330DHCX_GY_NOT_BATCHED);
-    xQueueReset(pObj->m_pxEventSrc);
+//    ism330dhcx_fifo_gy_batch_set(&pObj->m_xSensorDrv, ISM330DHCX_GY_NOT_BATCHED);
+//    xQueueReset(pObj->m_pxEventSrc);
     // TODO: STF - power down
 
     HIDReport xReport = {
@@ -357,8 +357,12 @@ static sys_error_code_t ISM330DHCXTaskExecuteStepRun(ISM330DHCXTask *_this) {
       break;
 
     case HID_REPORT_ID_SENSOR_CMD:
-      // disable the IRQs
-      HAL_NVIC_DisableIRQ(ISM330DHCX_INT1_EXTI_IRQn);
+      if (xReport.sensorReport.nCmdID == SENSOR_CMD_ID_STOP) {
+        // disable the IRQs
+        ism330dhcx_fifo_gy_batch_set(&_this->m_xSensorDrv, ISM330DHCX_GY_NOT_BATCHED);
+        // disable the IRQs
+        HAL_NVIC_DisableIRQ(ISM330DHCX_INT1_EXTI_IRQn);
+      }
       break;
 
     default:
