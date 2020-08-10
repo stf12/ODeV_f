@@ -36,7 +36,7 @@ extern "C" {
 #include "AManagedTaskEx_vtbl.h"
 #include "ISensorEventListener.h"
 #include "ISensorEventListener_vtbl.h"
-#include "NanoEdgeAI.h"
+#include <AILib.h>
 
 
 // Command ID. These are all commands supported by the Predictive Maintenance Task.

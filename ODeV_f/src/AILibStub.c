@@ -18,44 +18,28 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include "NanoEdgeAI.h"
+#include "AILib.h"
 #include "stm32l4xx_hal.h"
 
 /** Functions ----------------------------------------------------------------*/
-	void NanoEdgeAI_initialize(void) {
+	void AIInit(void) {
 
 	}
 
-	uint8_t NanoEdgeAI_learn(float data_input[]) {
+	uint8_t AILearn(float data_input[]) {
 	    HAL_Delay(20);
 		return 1;
 	}
 
-	uint8_t NanoEdgeAI_detect(float data_input[]) {
+	uint8_t AIDetect(float data_input[]) {
 		return 100;
 	}
 
-	void NanoEdgeAI_set_sensitivity(float sensitivity) {
+	void AISetSensitivity(float sensitivity) {
 
 	}
 
-	float NanoEdgeAI_get_sensitivity(void) {
+	float AIGetSensitivity(void) {
 		return 1.0f;
 	}
 
-	void NanoEdgeAI_forecasting_set_limit(float min_value, float max_value) {
-
-	}
-
-	void NanoEdgeAI_forecasting_push(float value) {
-
-	}
-
-	void NanoEdgeAI_forecasting_get(float forecast[], uint32_t n_step) {
-
-	}
-//  for freeRTOS ??????
-//void xPortSysTickHandler( void )
-//{
-//
-//}

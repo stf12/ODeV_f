@@ -39,7 +39,7 @@
 extern "C" {
 #endif
 
-#include "NanoEdgeAI.h"
+#include <AILib.h>
 
 
 #define CFG_CB_MAX_ITEMS          3 ///<< Specifies the depth of the circular buffer
@@ -53,7 +53,7 @@ typedef struct _CBItemData {
    * The buffer of accelerometer values must be ordered as follow:
    * [x0 y0 z0 x1 y1 z1 ... x255 y255 z255]
    * where xi, yi and zi are the accelerometer values for x, y and z axis   */
-  float pfBuff[DATA_INPUT_USER * AXIS_NUMBER];
+  float pfBuff[AI_DATA_INPUT_USER * AI_AXIS_NUMBER];
 } CBItemData;
 
 #ifdef __cplusplus

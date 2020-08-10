@@ -276,7 +276,7 @@ sys_error_code_t ISM330DHCXTask_vtblDoEnterPowerMode(AManagedTask *_this, const 
 
   if (eNewPowerMode == E_POWER_MODE_DATALOG) {
     HIDReport xReport = {
-        .reportID = HID_REPORT_ID_SENSOR_CMD,
+        .sensorReport.reportId = HID_REPORT_ID_SENSOR_CMD,
         .sensorReport.nCmdID = SENSOR_CMD_ID_START
     };
 
@@ -291,6 +291,16 @@ sys_error_code_t ISM330DHCXTask_vtblDoEnterPowerMode(AManagedTask *_this, const 
     ism330dhcx_fifo_gy_batch_set(&pObj->m_xSensorDrv, ISM330DHCX_GY_NOT_BATCHED);
     xQueueReset(pObj->m_pxEventSrc);
     // TODO: STF - power down
+
+    HIDReport xReport = {
+        .sensorReport.reportId = HID_REPORT_ID_SENSOR_CMD,
+        .sensorReport.nCmdID = SENSOR_CMD_ID_STOP
+    };
+
+    if (xQueueSendToBack(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100)) != pdTRUE) {
+      xRes = SYS_APP_TASK_REPORT_LOST_ERROR_CODE;
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_REPORT_LOST_ERROR_CODE);
+    }
 
     SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("ISM330DHCX: -> RUN\r\n"));
   }
@@ -344,6 +354,11 @@ static sys_error_code_t ISM330DHCXTaskExecuteStepRun(ISM330DHCXTask *_this) {
     case HID_REPORT_ID_FORCE_STEP:
       // do nothing. I need only to resume.
       __NOP();
+      break;
+
+    case HID_REPORT_ID_SENSOR_CMD:
+      // disable the IRQs
+      HAL_NVIC_DisableIRQ(ISM330DHCX_INT1_EXTI_IRQn);
       break;
 
     default:

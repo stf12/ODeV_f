@@ -55,7 +55,7 @@
 
 #define AI_TICK_TO_WAIT_IN_CMD_LOOP            portMAX_DELAY
 
-#define AI_MAX_DATA_IDX                        (DATA_INPUT_USER * AXIS_NUMBER)
+#define AI_MAX_DATA_IDX                        (AI_DATA_INPUT_USER * AI_AXIS_NUMBER)
 #define AI_DEFAULTSIMILARITY_THRESHOLD         90
 
 #define AI_TASK_IS_SIGNAL_READY(pObj)          ((pObj)->m_nDataIdx >= AI_MAX_DATA_IDX)
@@ -101,12 +101,12 @@ typedef struct _AICmdExecutionContext {
   uint32_t nSignals;
 
   /**
-   * Specifies the NanoEdge AI function to use when a new signal is ready.
+   * Specifies the AI function to use when a new signal is ready.
    * It can be on of:
-   * - NanoEdgeAI_learn
-   * - NanoEdgeAI_detect
+   * - AI_learn
+   * - AI_detect
    */
-  uint8_t (*pfNeaiMode)(float data_input[]);
+  uint8_t (*pfAIMode)(float data_input[]);
 
 }AICmdExecutionContext;
 
@@ -320,8 +320,8 @@ sys_error_code_t AITaskSetMode(AITask *_this, const EAIMode eNewMode, TickType_t
 
 sys_error_code_t AITaskSendRawData(AITask *_this, const uint8_t *pnBuf, uint16_t nSize, double nTimeStamp) {
   assert_param(_this);
-  assert_param(nSize <= DATA_INPUT_USER * AXIS_NUMBER * AI_RAW_AXIS_DATA_SIZE_B);
-  assert_param(!( DATA_INPUT_USER % (nSize / AXIS_NUMBER / AI_RAW_AXIS_DATA_SIZE_B)));
+  assert_param(nSize <= AI_DATA_INPUT_USER * AI_AXIS_NUMBER * AI_RAW_AXIS_DATA_SIZE_B);
+  assert_param(!( AI_DATA_INPUT_USER % (nSize / AI_AXIS_NUMBER / AI_RAW_AXIS_DATA_SIZE_B)));
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
   if (_this->m_pxProducerDataBuff == NULL) {
@@ -340,16 +340,16 @@ sys_error_code_t AITaskSendRawData(AITask *_this, const uint8_t *pnBuf, uint16_t
       // we assume that m_fDataBuff size (that is the frame, or signal, size) is a multiple
       // of the number of sample read by the sensor (nSize/AI_RAW_AXIS_DATA_SIZE_B). So we start at pnBuf[_this->m_nDataIdx] and
       // copy all nSize data
-      const uint32_t nDataCount = nSize / AXIS_NUMBER / AI_RAW_AXIS_DATA_SIZE_B;
+      const uint32_t nDataCount = nSize / AI_AXIS_NUMBER / AI_RAW_AXIS_DATA_SIZE_B;
       int16_t *pnSrc = (int16_t*)&pnBuf[0];
       float *pfDest = &(CBGetItemData(_this->m_pxProducerDataBuff)->pfBuff[_this->m_nDataIdx]);
       for (uint32_t i=0; i<nDataCount; ++i) {
-        for (uint32_t j=0; j<AXIS_NUMBER; ++j) {
+        for (uint32_t j=0; j<AI_AXIS_NUMBER; ++j) {
           pfDest[(i*3) + j] = ((float)*pnSrc++);
         }
       }
       // update m_nDataIdx for the next chunk of data
-      _this->m_nDataIdx += (nDataCount * AXIS_NUMBER);
+      _this->m_nDataIdx += (nDataCount * AI_AXIS_NUMBER);
 
       // if the signal is ready, notify the task
       if (AI_TASK_IS_SIGNAL_READY(_this)) {
@@ -687,7 +687,7 @@ static sys_error_code_t AITaskExecuteStepRun(AITask *_this) {
         break;
 
       case AI_CMD_ID_SET_MODE:
-        _this->m_xCmdContext.pfNeaiMode = (EAIMode)xCommand.nParam == E_AI_DETECTION ? NanoEdgeAI_detect : NanoEdgeAI_learn;
+        _this->m_xCmdContext.pfAIMode = (EAIMode)xCommand.nParam == E_AI_DETECTION ? AIDetect : AILearn;
         break;
 
       case AI_CMD_ID_SET_SIGNALS:
@@ -699,7 +699,7 @@ static sys_error_code_t AITaskExecuteStepRun(AITask *_this) {
         // learning phase. Indeed, sensitivity has no influence on the knowledge acquired during the
         //learning steps; it only plays a role in the detection step.
         _this->m_fSensitivity = xCommand.fParam;
-        NanoEdgeAI_set_sensitivity(_this->m_fSensitivity);
+        AISetSensitivity(_this->m_fSensitivity);
         break;
 
       case AI_CMD_ID_SET_THRESHOLD:
@@ -730,7 +730,7 @@ static sys_error_code_t AITaskExecuteStepRun(AITask *_this) {
           _this->m_eState = E_AI_START;
           // prepare the execution context
           if ((EAIMode)xCommand.nParam != E_AI_MODE_NONE) {
-            _this->m_xCmdContext.pfNeaiMode = (EAIMode)xCommand.nParam == E_AI_DETECTION ? NanoEdgeAI_detect : NanoEdgeAI_learn;
+            _this->m_xCmdContext.pfAIMode = (EAIMode)xCommand.nParam == E_AI_DETECTION ? AIDetect : AILearn;
           }
 //          if (_this->m_xCmdContext.pfNeaiMode == NanoEdgeAI_learn){
 //            LCD_LearnPanel();
@@ -755,7 +755,7 @@ static sys_error_code_t AITaskExecuteStepRun(AITask *_this) {
         break;
 
       case AI_CMD_ID_INIT:
-        NanoEdgeAI_initialize();
+        AIInit();
         break;
 
       default:
@@ -788,7 +788,7 @@ static sys_error_code_t AITaskExecuteStepAI(AITask *_this) {
       switch (xCommand.nCmdID) {
 
       case AI_CMD_ID_SET_MODE:
-        _this->m_xCmdContext.pfNeaiMode = (EAIMode)xCommand.nParam == E_AI_DETECTION ? NanoEdgeAI_detect : NanoEdgeAI_learn;
+        _this->m_xCmdContext.pfAIMode = (EAIMode)xCommand.nParam == E_AI_DETECTION ? AIDetect : AILearn;
         break;
 
       case AI_CMD_ID_START:
@@ -796,7 +796,7 @@ static sys_error_code_t AITaskExecuteStepAI(AITask *_this) {
           _this->m_eState = E_AI_START;
           // prepare the execution context
           if ((EAIMode)xCommand.nParam != E_AI_MODE_NONE) {
-            _this->m_xCmdContext.pfNeaiMode = (EAIMode)xCommand.nParam == E_AI_DETECTION ? NanoEdgeAI_detect : NanoEdgeAI_learn;
+            _this->m_xCmdContext.pfAIMode = (EAIMode)xCommand.nParam == E_AI_DETECTION ? AIDetect : AILearn;
           }
 //          if (_this->m_xCmdContext.pfNeaiMode == NanoEdgeAI_learn){
 //            LCD_LearnPanel();
@@ -826,7 +826,7 @@ static sys_error_code_t AITaskExecuteStepAI(AITask *_this) {
         if (_this->m_pxConsumerDataBuff != NULL) {
           uint8_t nSimilarity = 0;
           // learn about the signal
-          nSimilarity = _this->m_xActualCmdContext.pfNeaiMode(CBGetItemData(_this->m_pxConsumerDataBuff)->pfBuff);
+          nSimilarity = _this->m_xActualCmdContext.pfAIMode(CBGetItemData(_this->m_pxConsumerDataBuff)->pfBuff);
 
           // release the buffer as soon as possible
           CBReleaseItem(_this->m_pxDataBuffer, _this->m_pxConsumerDataBuff);
@@ -902,13 +902,13 @@ static void AITaskRun(void *pParams) {
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("AI: start.\r\n"));
 
   // initialize the AI library
-  NanoEdgeAI_initialize();
+  AIInit();
 
   // validate the frame size
   // the frame size depends DATA_INPUT_USER. Recommended values are power of 2.
   // If the frame size is bigger than 256 (the maximum depth of the sensor queue)
   // than it should be, at least, a multiple of 256 otherwise some sensor data are lost.
-  const uint32_t nDataInputUser = DATA_INPUT_USER;
+  const uint32_t nDataInputUser = AI_DATA_INPUT_USER;
 
   // the message should be reported to the user in other way?
   if (!((nDataInputUser != 0) && ((nDataInputUser & (nDataInputUser - 1)) == 0))) {
@@ -1061,7 +1061,7 @@ static inline sys_error_code_t AITaskSetDefaultCmdExecutionContext(AITask *_this
 
   _this->m_xCmdContext.nTimerPeriodMS = 0; // timer not active
   _this->m_xCmdContext.nSignals = 0; // infinite samples
-  _this->m_xCmdContext.pfNeaiMode = NanoEdgeAI_learn;
+  _this->m_xCmdContext.pfAIMode = AILearn;
 
   return xRes;
 }

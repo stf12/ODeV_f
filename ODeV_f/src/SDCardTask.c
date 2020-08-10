@@ -299,7 +299,7 @@ sys_error_code_t SDCardTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPow
   }
   else if (eNewPowerMode == E_POWER_MODE_RUN) {
     HIDReport xReport = {
-        .reportID = HID_REPORT_ID_SD_CMD,
+        .sdReport.reportId = HID_REPORT_ID_SD_CMD,
         .sdReport.nCmdID = SDT_CMD_ID_STOP
     };
 
