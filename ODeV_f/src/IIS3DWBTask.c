@@ -153,7 +153,7 @@ AManagedTaskEx *IIS3DWBTaskAlloc() {
 SPIBusIF *IIS3DWBTaskGetSensorIF(IIS3DWBTask *_this) {
   assert_param(_this);
 
-  return (SPIBusIF*)&_this->m_xSensorDrv;
+  return &_this->m_xSensorIF;
 }
 
 IEventSrc *IIS3DWBTaskGetEventSrcIF(IIS3DWBTask *_this) {
@@ -218,12 +218,13 @@ sys_error_code_t IIS3DWBTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_
   vQueueAddToRegistry(pObj->m_xInQueue, "IIS3DWB_Q");
 #endif
 
-  xRes = SPISensorInit(&pObj->m_xSensorIF, 0, IIS3DWB_SPI_CS_GPIO_Port, IIS3DWB_SPI_CS_Pin);
+  xRes = SPIBusIFInit(&pObj->m_xSensorIF, 0, IIS3DWB_SPI_CS_GPIO_Port, IIS3DWB_SPI_CS_Pin);
   if (SYS_IS_ERROR_CODE(xRes)) {
     return xRes;
   }
-  // take the ownership of the sensor
-  SPISensorSetOwner(&pObj->m_xSensorIF, pObj);
+  // set the SPIBusIF object as handle the IF connector because the SPIBus task
+  // will use the handle to access the SPIBusIF.
+  SPIBusIFSetHandle(&pObj->m_xSensorIF, &pObj->m_xSensorIF);
 
   // Initialize the EventSrc interface.
   pObj->m_pxEventSrc = SensorEventSrcAlloc();
@@ -234,9 +235,6 @@ sys_error_code_t IIS3DWBTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_
   }
   IEventSrcInit(pObj->m_pxEventSrc);
 
-  pObj->m_xSensorDrv.handle = &pObj->m_xSensorIF;
-  pObj->m_xSensorDrv.read_reg = SPISensorGetNullIF()->m_pfRead;
-  pObj->m_xSensorDrv.write_reg = SPISensorGetNullIF()->m_pfWrite;
   memset(pObj->m_pnSensorDataBuff, 0, sizeof(pObj->m_pnSensorDataBuff));
 
   //TODO: STF - need to read the sensor configuration from a JSON file or from a default configuration.
@@ -417,60 +415,61 @@ static inline sys_error_code_t IIS3DWBTaskPostReportToFront(IIS3DWBTask *_this, 
 static sys_error_code_t IIS3DWBTaskSensorInit(IIS3DWBTask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.m_xConnector;
 
   uint8_t nReg0 = 0;
   int32_t nRetVal = 0;
   // if this variable need to persist then I move it in the managed task class declaration.
   iis3dwb_pin_int1_route_t pin_int1_route = {0};
 
-  nRetVal = iis3dwb_device_id_get(&_this->m_xSensorDrv, (uint8_t *)&nReg0);
+  nRetVal = iis3dwb_device_id_get(pxSensorDrv, (uint8_t *)&nReg0);
   if (!nRetVal) {
-    SPISensorSetWhoAmI(&_this->m_xSensorIF, nReg0);
+    SPIBusIFSetWhoAmI(&_this->m_xSensorIF, nReg0);
   }
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("IIS3DWB: sensor - I am 0x%x.\r\n", nReg0));
 
   // reset the sensor
-  nRetVal = iis3dwb_reset_set(&_this->m_xSensorDrv, 1);
+  nRetVal = iis3dwb_reset_set(pxSensorDrv, 1);
   do {
-    iis3dwb_reset_get(&_this->m_xSensorDrv, &nReg0);
+    iis3dwb_reset_get(pxSensorDrv, &nReg0);
   } while(nReg0);
 
   //TODO: STF - what is this?
-  iis3dwb_read_reg(&_this->m_xSensorDrv, IIS3DWB_CTRL1_XL, (uint8_t *)&nReg0, 1);
+  iis3dwb_read_reg(pxSensorDrv, IIS3DWB_CTRL1_XL, (uint8_t *)&nReg0, 1);
   nReg0 |= 0xA0;
-  iis3dwb_write_reg(&_this->m_xSensorDrv, IIS3DWB_CTRL1_XL, (uint8_t *)&nReg0, 1);
+  iis3dwb_write_reg(pxSensorDrv, IIS3DWB_CTRL1_XL, (uint8_t *)&nReg0, 1);
 
   /*Disable the I2C interfacer and set fifo in continuous / stream mode*/
-  iis3dwb_i2c_interface_set(&_this->m_xSensorDrv, IIS3DWB_I2C_DISABLE);
-  iis3dwb_fifo_mode_set(&_this->m_xSensorDrv, IIS3DWB_STREAM_MODE);
+  iis3dwb_i2c_interface_set(pxSensorDrv, IIS3DWB_I2C_DISABLE);
+  iis3dwb_fifo_mode_set(pxSensorDrv, IIS3DWB_STREAM_MODE);
 
   /*Set watermark*/
-  iis3dwb_fifo_watermark_set(&_this->m_xSensorDrv, IIS3DWB_WTM_LEVEL);
+  iis3dwb_fifo_watermark_set(pxSensorDrv, IIS3DWB_WTM_LEVEL);
   /*Data Ready pulse mode*/
-  iis3dwb_data_ready_mode_set(&_this->m_xSensorDrv, IIS3DWB_DRDY_PULSED);
+  iis3dwb_data_ready_mode_set(pxSensorDrv, IIS3DWB_DRDY_PULSED);
 
   /*Set full scale*/
   if(_this->m_xSensorCommonParam.pfFS[0] < 3.0f)
-    iis3dwb_xl_full_scale_set(&_this->m_xSensorDrv, IIS3DWB_2g);
+    iis3dwb_xl_full_scale_set(pxSensorDrv, IIS3DWB_2g);
   else if(_this->m_xSensorCommonParam.pfFS[0] < 5.0f)
-    iis3dwb_xl_full_scale_set(&_this->m_xSensorDrv, IIS3DWB_4g);
+    iis3dwb_xl_full_scale_set(pxSensorDrv, IIS3DWB_4g);
   else if(_this->m_xSensorCommonParam.pfFS[0] < 9.0f)
-    iis3dwb_xl_full_scale_set(&_this->m_xSensorDrv, IIS3DWB_8g);
+    iis3dwb_xl_full_scale_set(pxSensorDrv, IIS3DWB_8g);
   else if(_this->m_xSensorCommonParam.pfFS[0] < 17.0f)
-    iis3dwb_xl_full_scale_set(&_this->m_xSensorDrv, IIS3DWB_16g);
+    iis3dwb_xl_full_scale_set(pxSensorDrv, IIS3DWB_16g);
 
   /*Set 2nd stage filter*/
-  iis3dwb_xl_hp_path_on_out_set(&_this->m_xSensorDrv,IIS3DWB_LP_5kHz);
+  iis3dwb_xl_hp_path_on_out_set(pxSensorDrv,IIS3DWB_LP_5kHz);
   /* FIFO_WTM_IA routing on pin INT1 */
-  iis3dwb_pin_int1_route_get(&_this->m_xSensorDrv, &pin_int1_route);
+  iis3dwb_pin_int1_route_get(pxSensorDrv, &pin_int1_route);
   *(uint8_t*)&(pin_int1_route.int1_ctrl) = 0;
   *(uint8_t*)&(pin_int1_route.md1_cfg) = 0;
   pin_int1_route.int1_ctrl.int1_fifo_th = PROPERTY_ENABLE;
-  iis3dwb_pin_int1_route_set(&_this->m_xSensorDrv, &pin_int1_route);
+  iis3dwb_pin_int1_route_set(pxSensorDrv, &pin_int1_route);
 
   /*Enable writing to FIFO*/
-  iis3dwb_fifo_xl_batch_set(&_this->m_xSensorDrv, IIS3DWB_XL_BATCHED_AT_26k7Hz);
+  iis3dwb_fifo_xl_batch_set(pxSensorDrv, IIS3DWB_XL_BATCHED_AT_26k7Hz);
 
   return xRes;
 }
@@ -478,6 +477,7 @@ static sys_error_code_t IIS3DWBTaskSensorInit(IIS3DWBTask *_this) {
 static sys_error_code_t IIS3DWBTaskSensorReadData(IIS3DWBTask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.m_xConnector;
 
   uint8_t nReg0 = 0;
   uint8_t nReg1 = 0;
@@ -485,8 +485,8 @@ static sys_error_code_t IIS3DWBTaskSensorReadData(IIS3DWBTask *_this) {
   uint16_t fifo_level = 0;
 
   /* Check FIFO_WTM_IA anf fifo level. We do not use PID in order to avoid reading one register twice */
-  iis3dwb_read_reg(&_this->m_xSensorDrv, IIS3DWB_FIFO_STATUS1, &nReg0, 1);
-  iis3dwb_read_reg(&_this->m_xSensorDrv, IIS3DWB_FIFO_STATUS2, &nReg1, 1);
+  iis3dwb_read_reg(pxSensorDrv, IIS3DWB_FIFO_STATUS1, &nReg0, 1);
+  iis3dwb_read_reg(pxSensorDrv, IIS3DWB_FIFO_STATUS2, &nReg1, 1);
   fifo_level = ((nReg1 & 0x03) << 8) + nReg0;
 
   //TODO: STF.Debug - need to add the timestamp
@@ -503,7 +503,7 @@ static sys_error_code_t IIS3DWBTaskSensorReadData(IIS3DWBTask *_this) {
 //    tim_value_old = tim_value;
 //    ts_iis3dwb +=  period;
 
-    iis3dwb_read_reg(&_this->m_xSensorDrv, IIS3DWB_FIFO_DATA_OUT_TAG, (uint8_t *)_this->m_pnSensorDataBuff, IIS3DWB_SAMPLES_PER_IT * 7);
+    iis3dwb_read_reg(pxSensorDrv, IIS3DWB_FIFO_DATA_OUT_TAG, (uint8_t *)_this->m_pnSensorDataBuff, IIS3DWB_SAMPLES_PER_IT * 7);
 
     /* Arrange Data */
     int16_t * p16src = (int16_t *)_this->m_pnSensorDataBuff;

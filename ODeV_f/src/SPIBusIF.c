@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    SPISensor.c
+ * @file    SPIBusIF.c
  * @author  STMicroelectronics - AIS - MCD Team
  * @version 1.0.0
  * @date    Jul 6, 2020
@@ -23,7 +23,7 @@
  ******************************************************************************
  */
 
-#include "SPISensor.h"
+#include <SPIBusIF.h>
 
 // Private functions declaration
 // *****************************
@@ -33,15 +33,11 @@ static int32_t SPIBusNullRW(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData, u
 // Private variables
 // *****************
 
-static SPIBusIF s_xSPINullIF = {
-    .m_pfRead = SPIBusNullRW,
-    .m_pfWrite = SPIBusNullRW
-};
 
 // Public API implementation.
 // **************************
 
-sys_error_code_t SPISensorInit(SPISensor *_this, uint8_t nWhoAmI, GPIO_TypeDef* pxSSPinPort, uint16_t nSSPin) {
+sys_error_code_t SPIBusIFInit(SPIBusIF *_this, uint8_t nWhoAmI, GPIO_TypeDef* pxSSPinPort, uint16_t nSSPin) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
@@ -61,10 +57,14 @@ sys_error_code_t SPISensorInit(SPISensor *_this, uint8_t nWhoAmI, GPIO_TypeDef* 
   }
 #endif
 
+  _this->m_xConnector.pfReadReg = SPIBusNullRW;
+  _this->m_xConnector.pfWriteReg = SPIBusNullRW;
+  _this->m_xConnector.pxHandle = NULL;
+
   return xRes;
 }
 
-sys_error_code_t SPISensorWaitIOComplete(SPISensor *_this) {
+sys_error_code_t SPIBusIFWaitIOComplete(SPIBusIF *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
@@ -82,7 +82,7 @@ sys_error_code_t SPISensorWaitIOComplete(SPISensor *_this) {
   return xRes;
 }
 
-sys_error_code_t SPISensorNotifyIOComplete(SPISensor *_this) {
+sys_error_code_t SPIBusIFNotifyIOComplete(SPIBusIF *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
@@ -98,10 +98,6 @@ sys_error_code_t SPISensorNotifyIOComplete(SPISensor *_this) {
   }
 
   return xRes;
-}
-
-SPIBusIF *SPISensorGetNullIF() {
-  return  &s_xSPINullIF;
 }
 
 

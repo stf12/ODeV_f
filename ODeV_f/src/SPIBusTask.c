@@ -52,7 +52,7 @@
  */
 typedef struct _SPIBusMsg
 {
-  SPISensor *pxSensor;
+  SPIBusIF *pxSensor;
   uint8_t * pnDataPtr;
   uint8_t nRegAddr;
   uint16_t nReadSize;
@@ -126,8 +126,8 @@ sys_error_code_t SPIBusTaskConnectDevice(SPIBusTask *_this, SPIBusIF *pxBusIF) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
   if (pxBusIF != NULL) {
-    pxBusIF->m_pfRead = SPIBusTaskRead;
-    pxBusIF->m_pfWrite = SPIBusTaskWrite;
+    pxBusIF->m_xConnector.pfReadReg = SPIBusTaskRead;
+    pxBusIF->m_xConnector.pfWriteReg = SPIBusTaskWrite;
   }
   else {
     xRes = SYS_INVALID_PARAMETER_ERROR_CODE;
@@ -248,7 +248,7 @@ static sys_error_code_t SPIBusTaskExecuteStepRun(SPIBusTask *_this) {
       IIODrvWrite(_this->m_pxDriver, &xMsg.nRegAddr, 1, 1000);
       SPIMasterDriverWriteRead((SPIMasterDriver*)_this->m_pxDriver, xMsg.pnDataPtr, xMsg.pnDataPtr, xMsg.nReadSize);
       SPIMasterDriverDeselectDevice((SPIMasterDriver*)_this->m_pxDriver, xMsg.pxSensor->m_pxSSPinPort, xMsg.pxSensor->m_nSSPin);
-      xRes = SPISensorNotifyIOComplete(xMsg.pxSensor);
+      xRes = SPIBusIFNotifyIOComplete(xMsg.pxSensor);
     }
   }
 
@@ -315,7 +315,7 @@ static void SPIBusTaskRun(void *pParams) {
 
 static int32_t SPIBusTaskWrite(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData, uint16_t nSize) {
   assert_param(pxSensor);
-  SPISensor *pxSPISensor = (SPISensor *)pxSensor;
+  SPIBusIF *pxSPISensor = (SPIBusIF *)pxSensor;
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
   uint8_t nAutoInc = 0x00;
@@ -343,7 +343,7 @@ static int32_t SPIBusTaskWrite(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData
 
   if (!SYS_IS_ERROR_CODE(xRes)) {
     // suspend the sensor task.
-    xRes = SPISensorWaitIOComplete(pxSPISensor);
+    xRes = SPIBusIFWaitIOComplete(pxSPISensor);
   }
 
   return xRes;
@@ -351,7 +351,7 @@ static int32_t SPIBusTaskWrite(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData
 
 static int32_t SPIBusTaskRead(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData, uint16_t nSize) {
   assert_param(pxSensor);
-  SPISensor *pxSPISensor = (SPISensor *)pxSensor;
+  SPIBusIF *pxSPISensor = (SPIBusIF *)pxSensor;
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
   uint8_t nAutoInc = 0x00;
@@ -378,7 +378,7 @@ static int32_t SPIBusTaskRead(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData,
   }
 
   if (!SYS_IS_ERROR_CODE(xRes)) {
-    xRes = SPISensorWaitIOComplete(pxSPISensor);
+    xRes = SPIBusIFWaitIOComplete(pxSPISensor);
   }
 
   return xRes;

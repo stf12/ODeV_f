@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    SPISensor.h
+ * @file    SPIBusIF.h
  * @author  STMicroelectronics - AIS - MCD Team
  * @version 1.0.0
  * @date    Jul 6, 2020
@@ -22,8 +22,8 @@
  *
  ******************************************************************************
  */
-#ifndef SPISENSOR_H_
-#define SPISENSOR_H_
+#ifndef SPIBUSIF_H_
+#define SPIBUSIF_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,9 +37,9 @@ extern "C" {
 
 
 /**
- * Create a type name for _SPISensor.
+ * Create a type name for _SPIBusIF.
  */
-typedef struct _SPISensor SPISensor;
+typedef struct _SPIBusIF SPIBusIF;
 
 /**
  * Create a type name for the function to write in the SPI bus.
@@ -64,24 +64,37 @@ typedef int32_t (*SPIBusWriteF)(void *pxSensor, uint8_t nRegAddr, uint8_t* pnDat
 typedef int32_t (*SPIBusReadF) (void *pxSensor, uint8_t nRegAddr, uint8_t* pnData, uint16_t nSize);
 
 /**
- * Interface to connect to an SPI bus.
+ * This struct is a clone of ST stmdev_ctx_t that is defined in each sensor header file.
+ * But in the bus there can be connected other devices than the ST sensors.
  */
-typedef struct _SPIBusIF {
+typedef struct _SPIBusConnector {
   /**
-   * SPI write function. It is set when the sensor is connected to the bus.
+   * Function to write in the bus. It is a component mandatory fields.
    */
-  SPIBusWriteF m_pfWrite;
+  SPIBusWriteF  pfWriteReg;
 
   /**
-   * SPI read function. It is set when the sensor is connected to the bus.
+   * Function to read from the bus. It is a component mandatory fields.
    */
-  SPIBusReadF m_pfRead;
-} SPIBusIF;
+  SPIBusReadF   pfReadReg;
+
+  /**
+   * Customizable optional pointer.
+   */
+  void *pxHandle;
+} SPIBusConnector;
+
 
 /**
  * Specifies the SPI interface for a generic sensor.
  */
-struct _SPISensor {
+struct _SPIBusIF {
+  /**
+   * The bus connector encapsulates the function pointer to read and write in the bus,
+   * and it is compatible with the the ST universal sensor driver.
+   */
+  SPIBusConnector m_xConnector;
+
   /**
    * Sensor ID.
    */
@@ -101,11 +114,6 @@ struct _SPISensor {
    * Synchronization object used to synchronize the sensor with the bus.
    */
   SemaphoreHandle_t m_xSyncObj;
-
-  /**
-   * Owner object of the sensor.
-   */
-  void *m_pxOwner;
 };
 
 
@@ -121,43 +129,41 @@ struct _SPISensor {
  * @param nSSPin [IN] specifies the pin number of the Slave Select line.
  * @return SYS_NO_EROR_CODE if success, an error code otherwise.
  */
-sys_error_code_t SPISensorInit(SPISensor *_this, uint8_t nWhoAmI, GPIO_TypeDef* pxSSPinPort, uint16_t nSSPin);
+sys_error_code_t SPIBusIFInit(SPIBusIF *_this, uint8_t nWhoAmI, GPIO_TypeDef* pxSSPinPort, uint16_t nSSPin);
 
-sys_error_code_t SPISensorWaitIOComplete(SPISensor *_this);
-sys_error_code_t SPISensorNotifyIOComplete(SPISensor *_this);
+sys_error_code_t SPIBusIFWaitIOComplete(SPIBusIF *_this);
+sys_error_code_t SPIBusIFNotifyIOComplete(SPIBusIF *_this);
 
-inline sys_error_code_t SPISensorSetOwner(SPISensor *_this, void *pxOwner);
+inline sys_error_code_t SPIBusIFSetHandle(SPIBusIF *_this, void *pxHandle);
+inline void *SPIBusIFGetHandle(const SPIBusIF *_this);
 
-inline void *SPISensorGetOwner(const SPISensor *_this);
+inline sys_error_code_t SPIBusIFSetWhoAmI(SPIBusIF *_this, uint8_t nWhoAmI);
+inline uint8_t SPIBusIFGetWhoAmI(const SPIBusIF *_this);
 
-inline sys_error_code_t SPISensorSetWhoAmI(SPISensor *_this, uint8_t nWhoAmI);
-
-inline uint8_t SPISensorGetWhoMaI(const SPISensor *_this);
-
-SPIBusIF *SPISensorGetNullIF();
+SPIBusConnector *SPISensorGetConnector(SPIBusIF *_this);
 
 
 // Inline function definition
 // **************************
 
 SYS_DEFINE_INLINE
-sys_error_code_t SPISensorSetOwner(SPISensor *_this, void *pxOwner) {
+sys_error_code_t SPIBusIFSetHandle(SPIBusIF *_this, void *pxHandle) {
   assert_param(_this);
 
-  _this->m_pxOwner = pxOwner;
+  _this->m_xConnector.pxHandle = pxHandle;
 
   return SYS_NO_ERROR_CODE;
 }
 
 SYS_DEFINE_INLINE
-void *SPISensorGetOwner(const SPISensor *_this) {
+void *SPIBusIFGetHandle(const SPIBusIF *_this) {
   assert_param(_this);
 
-  return _this->m_pxOwner;
+  return _this->m_xConnector.pxHandle;
 }
 
 SYS_DEFINE_INLINE
-inline sys_error_code_t SPISensorSetWhoAmI(SPISensor *_this, uint8_t nWhoAmI) {
+inline sys_error_code_t SPIBusIFSetWhoAmI(SPIBusIF *_this, uint8_t nWhoAmI) {
   assert_param(_this);
 
   _this->m_nWhoAmI = nWhoAmI;
@@ -166,7 +172,7 @@ inline sys_error_code_t SPISensorSetWhoAmI(SPISensor *_this, uint8_t nWhoAmI) {
 }
 
 SYS_DEFINE_INLINE
-inline uint8_t SPISensorGetWhoMaI(const SPISensor *_this) {
+inline uint8_t SPIBusIFGetWhoAmI(const SPIBusIF *_this) {
   assert_param(_this);
 
   return _this->m_nWhoAmI;
@@ -176,4 +182,4 @@ inline uint8_t SPISensorGetWhoMaI(const SPISensor *_this) {
 }
 #endif
 
-#endif /* SPISENSOR_H_ */
+#endif /* SPIBUSIF_H_ */

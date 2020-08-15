@@ -164,7 +164,7 @@ AManagedTaskEx *ISM330DHCXTaskAlloc() {
 SPIBusIF *ISM330DHCXTaskGetSensorIF(ISM330DHCXTask *_this) {
   assert_param(_this);
 
-  return (SPIBusIF*)&_this->m_xSensorDrv;
+  return &_this->m_xSensorIF;
 }
 
 IEventSrc *ISM330DHCXTaskGetEventSrcIF(ISM330DHCXTask *_this) {
@@ -230,12 +230,13 @@ sys_error_code_t ISM330DHCXTask_vtblOnCreateTask(AManagedTask *_this, TaskFuncti
   vQueueAddToRegistry(pObj->m_xInQueue, "ISM330DHCX_Q");
 #endif
 
-  xRes = SPISensorInit(&pObj->m_xSensorIF, 0, ISM330DHCX_SPI_CS_GPIO_Port, ISM330DHCX_SPI_CS_Pin);
+  xRes = SPIBusIFInit(&pObj->m_xSensorIF, 0, ISM330DHCX_SPI_CS_GPIO_Port, ISM330DHCX_SPI_CS_Pin);
   if (SYS_IS_ERROR_CODE(xRes)) {
     return xRes;
   }
-  // take the ownership of the sensor
-  SPISensorSetOwner(&pObj->m_xSensorIF, pObj);
+  // set the SPIBusIF object as handle the IF connector because the SPIBus task
+  // will use the handle to access the SPIBusIF.
+  SPIBusIFSetHandle(&pObj->m_xSensorIF, &pObj->m_xSensorIF);
 
   // Initialize the EventSrc interface.
   // take the ownership of the interface.
@@ -247,9 +248,6 @@ sys_error_code_t ISM330DHCXTask_vtblOnCreateTask(AManagedTask *_this, TaskFuncti
   }
   IEventSrcInit(pObj->m_pxEventSrc);
 
-  pObj->m_xSensorDrv.handle = &pObj->m_xSensorIF;
-  pObj->m_xSensorDrv.read_reg = SPISensorGetNullIF()->m_pfRead;
-  pObj->m_xSensorDrv.write_reg = SPISensorGetNullIF()->m_pfWrite;
   memset(pObj->m_pnSensorDataBuff, 0, sizeof(pObj->m_pnSensorDataBuff));
 
   //TODO: STF - need to read the sensor configuration from a JSON file or from a default configuration.
@@ -345,6 +343,7 @@ static sys_error_code_t ISM330DHCXTaskExecuteStepRun(ISM330DHCXTask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   HIDReport xReport = {};
+  stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.m_xConnector;
 
   AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
   if (pdTRUE == xQueueReceive(_this->m_xInQueue, &xReport, portMAX_DELAY)) {
@@ -359,7 +358,7 @@ static sys_error_code_t ISM330DHCXTaskExecuteStepRun(ISM330DHCXTask *_this) {
     case HID_REPORT_ID_SENSOR_CMD:
       if (xReport.sensorReport.nCmdID == SENSOR_CMD_ID_STOP) {
         // disable the IRQs
-        ism330dhcx_fifo_gy_batch_set(&_this->m_xSensorDrv, ISM330DHCX_GY_NOT_BATCHED);
+        ism330dhcx_fifo_gy_batch_set(pxSensorDrv, ISM330DHCX_GY_NOT_BATCHED);
         // disable the IRQs
         HAL_NVIC_DisableIRQ(ISM330DHCX_INT1_EXTI_IRQn);
       }
@@ -507,56 +506,57 @@ static inline sys_error_code_t ISM330DHCXTaskPostReportToFront(ISM330DHCXTask *_
 static sys_error_code_t ISM330DHCXTaskSensorInit(ISM330DHCXTask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.m_xConnector;
 
   uint8_t nReg0 = 0;
   int32_t nRetVal = 0;
   // if this variable need to persist then I move it in the managed task class declaration.
   ism330dhcx_pin_int1_route_t int1_route = {0};
 
-  nRetVal = ism330dhcx_device_id_get(&_this->m_xSensorDrv, (uint8_t *)&nReg0);
+  nRetVal = ism330dhcx_device_id_get(pxSensorDrv, (uint8_t *)&nReg0);
   if (!nRetVal) {
-    SPISensorSetWhoAmI(&_this->m_xSensorIF, nReg0);
+    SPIBusIFSetWhoAmI(&_this->m_xSensorIF, nReg0);
   }
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("ISM330DHCX: sensor - I am 0x%x.\r\n", nReg0));
 
-  nRetVal = ism330dhcx_reset_set(&_this->m_xSensorDrv, 1);
+  nRetVal = ism330dhcx_reset_set(pxSensorDrv, 1);
   do {
-    ism330dhcx_reset_get(&_this->m_xSensorDrv, &nReg0);
+    ism330dhcx_reset_get(pxSensorDrv, &nReg0);
   } while(nReg0);
-  nRetVal = ism330dhcx_i2c_interface_set(&_this->m_xSensorDrv, ISM330DHCX_I2C_DISABLE);
+  nRetVal = ism330dhcx_i2c_interface_set(pxSensorDrv, ISM330DHCX_I2C_DISABLE);
 
   /* AXL FS */
   if(_this->m_xSensorCommonParam.pfFS[0] < 3.0f)
-    ism330dhcx_xl_full_scale_set(&_this->m_xSensorDrv, ISM330DHCX_2g);
+    ism330dhcx_xl_full_scale_set(pxSensorDrv, ISM330DHCX_2g);
   else if(_this->m_xSensorCommonParam.pfFS[0] < 5.0f)
-    ism330dhcx_xl_full_scale_set(&_this->m_xSensorDrv, ISM330DHCX_4g);
+    ism330dhcx_xl_full_scale_set(pxSensorDrv, ISM330DHCX_4g);
   else if(_this->m_xSensorCommonParam.pfFS[0] < 9.0f)
-    ism330dhcx_xl_full_scale_set(&_this->m_xSensorDrv, ISM330DHCX_8g);
+    ism330dhcx_xl_full_scale_set(pxSensorDrv, ISM330DHCX_8g);
   else if(_this->m_xSensorCommonParam.pfFS[0] < 17.0f)
-    ism330dhcx_xl_full_scale_set(&_this->m_xSensorDrv, ISM330DHCX_16g);
+    ism330dhcx_xl_full_scale_set(pxSensorDrv, ISM330DHCX_16g);
 
   /* GYRO FS */
   if(_this->m_xSensorCommonParam.pfFS[1] < 126.0f)
-    ism330dhcx_gy_full_scale_set(&_this->m_xSensorDrv, ISM330DHCX_125dps);
+    ism330dhcx_gy_full_scale_set(pxSensorDrv, ISM330DHCX_125dps);
   else if(_this->m_xSensorCommonParam.pfFS[1] < 251.0f)
-    ism330dhcx_gy_full_scale_set(&_this->m_xSensorDrv, ISM330DHCX_250dps);
+    ism330dhcx_gy_full_scale_set(pxSensorDrv, ISM330DHCX_250dps);
   else if(_this->m_xSensorCommonParam.pfFS[1] < 501.0f)
-    ism330dhcx_gy_full_scale_set(&_this->m_xSensorDrv, ISM330DHCX_500dps);
+    ism330dhcx_gy_full_scale_set(pxSensorDrv, ISM330DHCX_500dps);
   else if(_this->m_xSensorCommonParam.pfFS[1] < 1001.0f)
-    ism330dhcx_gy_full_scale_set(&_this->m_xSensorDrv, ISM330DHCX_1000dps);
+    ism330dhcx_gy_full_scale_set(pxSensorDrv, ISM330DHCX_1000dps);
   else if(_this->m_xSensorCommonParam.pfFS[1] < 2001.0f)
-    ism330dhcx_gy_full_scale_set(&_this->m_xSensorDrv, ISM330DHCX_2000dps);
+    ism330dhcx_gy_full_scale_set(pxSensorDrv, ISM330DHCX_2000dps);
   else if(_this->m_xSensorCommonParam.pfFS[1] < 4001.0f)
-    ism330dhcx_gy_full_scale_set(&_this->m_xSensorDrv, ISM330DHCX_4000dps);
+    ism330dhcx_gy_full_scale_set(pxSensorDrv, ISM330DHCX_4000dps);
 
-  nRetVal = ism330dhcx_fifo_watermark_set(&_this->m_xSensorDrv, ISM330DHCX_WTM_LEVEL);
+  nRetVal = ism330dhcx_fifo_watermark_set(pxSensorDrv, ISM330DHCX_WTM_LEVEL);
 
-  ism330dhcx_pin_int1_route_get(&_this->m_xSensorDrv, &int1_route);
+  ism330dhcx_pin_int1_route_get(pxSensorDrv, &int1_route);
   int1_route.int1_ctrl.int1_fifo_th = PROPERTY_ENABLE;
-  nRetVal = ism330dhcx_pin_int1_route_set(&_this->m_xSensorDrv, &int1_route);
+  nRetVal = ism330dhcx_pin_int1_route_set(pxSensorDrv, &int1_route);
 
-  nRetVal = ism330dhcx_fifo_mode_set(&_this->m_xSensorDrv, ISM330DHCX_STREAM_MODE);
+  nRetVal = ism330dhcx_fifo_mode_set(pxSensorDrv, ISM330DHCX_STREAM_MODE);
 
   ism330dhcx_odr_xl_t ism330dhcx_odr_xl = ISM330DHCX_XL_ODR_OFF;
   ism330dhcx_bdr_xl_t ism330dhcx_bdr_xl = ISM330DHCX_XL_NOT_BATCHED;
@@ -636,13 +636,13 @@ static sys_error_code_t ISM330DHCXTaskSensorInit(ISM330DHCXTask *_this) {
 
   if(_this->m_xSensorCommonParam.subSensorActive[0])
   {
-    nRetVal = ism330dhcx_xl_data_rate_set(&_this->m_xSensorDrv, ism330dhcx_odr_xl);
-    nRetVal = ism330dhcx_fifo_xl_batch_set(&_this->m_xSensorDrv, ism330dhcx_bdr_xl);
+    nRetVal = ism330dhcx_xl_data_rate_set(pxSensorDrv, ism330dhcx_odr_xl);
+    nRetVal = ism330dhcx_fifo_xl_batch_set(pxSensorDrv, ism330dhcx_bdr_xl);
   }
   if(_this->m_xSensorCommonParam.subSensorActive[1])
   {
-    ism330dhcx_gy_data_rate_set(&_this->m_xSensorDrv, ism330dhcx_odr_g);
-    ism330dhcx_fifo_gy_batch_set(&_this->m_xSensorDrv, ism330dhcx_bdr_gy);
+    ism330dhcx_gy_data_rate_set(pxSensorDrv, ism330dhcx_odr_g);
+    ism330dhcx_fifo_gy_batch_set(pxSensorDrv, ism330dhcx_bdr_gy);
   }
 
   return xRes;
@@ -651,13 +651,14 @@ static sys_error_code_t ISM330DHCXTaskSensorInit(ISM330DHCXTask *_this) {
 static sys_error_code_t ISM330DHCXTaskSensorReadData(ISM330DHCXTask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.m_xConnector;
 
   uint8_t nReg0 = 0;
   uint8_t nReg1 = 0;
 
   /* Check FIFO_WTM_IA anf fifo level. We do not use PID in order to avoid reading one register twice */
-  ism330dhcx_read_reg(&_this->m_xSensorDrv, ISM330DHCX_FIFO_STATUS1, &nReg0, 1);
-  ism330dhcx_read_reg(&_this->m_xSensorDrv, ISM330DHCX_FIFO_STATUS2, &nReg1, 1);
+  ism330dhcx_read_reg(pxSensorDrv, ISM330DHCX_FIFO_STATUS1, &nReg0, 1);
+  ism330dhcx_read_reg(pxSensorDrv, ISM330DHCX_FIFO_STATUS2, &nReg1, 1);
 
   uint16_t fifo_level = ((nReg1 & 0x03) << 8) + nReg0;
 
@@ -673,7 +674,7 @@ static sys_error_code_t ISM330DHCXTaskSensorReadData(ISM330DHCXTask *_this) {
 //    tim_value_old = tim_value;
 //    ts_ism330dhcx += period;
 
-    ism330dhcx_read_reg(&_this->m_xSensorDrv, ISM330DHCX_FIFO_DATA_OUT_TAG, _this->m_pnSensorDataBuff, ISM330DHCX_GY_SAMPLES_PER_IT * 7);
+    ism330dhcx_read_reg(pxSensorDrv, ISM330DHCX_FIFO_DATA_OUT_TAG, _this->m_pnSensorDataBuff, ISM330DHCX_GY_SAMPLES_PER_IT * 7);
 
     if(_this->m_pnSensorDataBuff[0]>>3 == 0x02 || !(_this->m_xSensorCommonParam.subSensorActive[0]) || !(_this->m_xSensorCommonParam.subSensorActive[1])) {
       /* First Sample in the fifo is AXL || 1 subsensor active only --> simply drop TAGS */

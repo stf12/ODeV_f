@@ -36,7 +36,7 @@ extern "C" {
 #include "AManagedTaskEx_vtbl.h"
 #include "IIODriver.h"
 #include "IIODriver_vtbl.h"
-#include "SPISensor.h"
+#include <SPIBusIF.h>
 #include "queue.h"
 
 

@@ -34,7 +34,7 @@ extern "C" {
 #include "syserror.h"
 #include "AManagedTaskEx.h"
 #include "AManagedTaskEx_vtbl.h"
-#include "SPISensor.h"
+#include <SPIBusIF.h>
 #include "SensorsCommonParam.h"
 #include "ism330dhcx_reg.h"
 #include "SensorEventSrc.h"
@@ -69,12 +69,7 @@ struct _ISM330DHCXTask {
   /**
    * SPI IF object used to connect the sensor task to the SPI bus.
    */
-  SPISensor m_xSensorIF;
-
-  /**
-   * Sensor driver that use the ST Sensor Solutions Software Team common driver.
-   */
-  stmdev_ctx_t m_xSensorDrv;
+  SPIBusIF m_xSensorIF;
 
   /**
    * Specifies sensor parameters used to initialize the sensor.
