@@ -26,6 +26,7 @@
 #include "IIS3DWBTask.h"
 #include "IIS3DWBTask_vtbl.h"
 #include "hid_report_parser.h"
+#include "SensorCommands.h"
 #include "ISensorEventListener.h"
 #include "ISensorEventListener_vtbl.h"
 #include <string.h>
@@ -87,6 +88,14 @@ static IIS3DWBTask s_xTaskObj;
  * @return SYS_NO_EROR_CODE if success, a task specific error code otherwise.
  */
 static sys_error_code_t IIS3DWBTaskExecuteStepRun(IIS3DWBTask *_this);
+
+/**
+ * Execute one step of the task control loop while the system is in DATALOG mode.
+ *
+ * @param _this [IN] specifies a pointer to a task object.
+ * @return SYS_NO_EROR_CODE if success, a task specific error code otherwise.
+ */
+static sys_error_code_t IIS3DWBTaskExecuteStepDatalog(IIS3DWBTask *_this);
 
 /**
  * Task control function.
@@ -255,7 +264,37 @@ sys_error_code_t IIS3DWBTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_
 sys_error_code_t IIS3DWBTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  IIS3DWBTask *pObj = (IIS3DWBTask*)_this;
+  IIS3DWBTask *pObj = (IIS3DWBTask*)_this;
+
+  if (eNewPowerMode == E_POWER_MODE_DATALOG) {
+    //TODO: STF - I have to start the task only if the sensor is enabled!!!
+    HIDReport xReport = {
+        .sensorReport.reportId = HID_REPORT_ID_SENSOR_CMD,
+        .sensorReport.nCmdID = SENSOR_CMD_ID_START
+    };
+
+    if (xQueueSendToBack(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100)) != pdTRUE) {
+      xRes = SYS_APP_TASK_REPORT_LOST_ERROR_CODE;
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_REPORT_LOST_ERROR_CODE);
+    }
+
+    SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("IIS3DWB: -> DATALOG\r\n"));
+  }
+  else if (eNewPowerMode == E_POWER_MODE_RUN) {
+    //TODO: STF - power down
+
+    HIDReport xReport = {
+        .sensorReport.reportId = HID_REPORT_ID_SENSOR_CMD,
+        .sensorReport.nCmdID = SENSOR_CMD_ID_STOP
+    };
+
+    if (xQueueSendToBack(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100)) != pdTRUE) {
+      xRes = SYS_APP_TASK_REPORT_LOST_ERROR_CODE;
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_REPORT_LOST_ERROR_CODE);
+    }
+
+    SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("IIS3DWB: -> RUN\r\n"));
+  }
 
   return xRes;
 }
@@ -296,7 +335,41 @@ sys_error_code_t IIS3DWBTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerM
 static sys_error_code_t IIS3DWBTaskExecuteStepRun(IIS3DWBTask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  HIDReport xReport = {};
+  stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.m_xConnector;
 
+  AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
+  if (pdTRUE == xQueueReceive(_this->m_xInQueue, &xReport, portMAX_DELAY)) {
+    AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
+
+    switch (xReport.reportID) {
+    case HID_REPORT_ID_FORCE_STEP:
+      // do nothing. I need only to resume.
+      __NOP();
+      break;
+
+    case HID_REPORT_ID_SENSOR_CMD:
+      if (xReport.sensorReport.nCmdID == SENSOR_CMD_ID_STOP) {
+        // disabe the fifo
+        iis3dwb_fifo_xl_batch_set(pxSensorDrv, IIS3DWB_XL_NOT_BATCHED);
+        // disable the IRQs
+        HAL_NVIC_DisableIRQ(IIS3DWB_INT1_EXTI_IRQn);
+      }
+      break;
+
+    default:
+      // unwanted report
+      xRes = SYS_APP_TASK_UNKNOWN_REPORT_ERROR_CODE;
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_UNKNOWN_REPORT_ERROR_CODE);
+    }
+  }
+
+  return xRes;
+}
+
+static sys_error_code_t IIS3DWBTaskExecuteStepDatalog(IIS3DWBTask *_this) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   HIDReport xReport = {};
 
   AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
@@ -306,6 +379,7 @@ static sys_error_code_t IIS3DWBTaskExecuteStepRun(IIS3DWBTask *_this) {
     switch (xReport.reportID) {
     case HID_REPORT_ID_FORCE_STEP:
       // do nothing. I need only to resume.
+      __NOP();
       break;
 
     case HID_REPORT_ID_IIS3DWB:
@@ -319,12 +393,24 @@ static sys_error_code_t IIS3DWBTaskExecuteStepRun(IIS3DWBTask *_this) {
       }
       break;
 
+    case HID_REPORT_ID_SENSOR_CMD:
+      if (xReport.sensorReport.nCmdID == SENSOR_CMD_ID_START) {
+        xRes = IIS3DWBTaskSensorInit(_this);
+        if (!SYS_IS_ERROR_CODE(xRes)) {
+          HAL_NVIC_EnableIRQ(IIS3DWB_INT1_EXTI_IRQn);
+        }
+      }
+      break;
+
     default:
       // unwanted report
       xRes = SYS_APP_TASK_UNKNOWN_REPORT_ERROR_CODE;
       SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_UNKNOWN_REPORT_ERROR_CODE);
+
+      break;
     }
   }
+
   return xRes;
 }
 
@@ -337,11 +423,6 @@ static void IIS3DWBTaskRun(void *pParams) {
   // At this point all system has been initialized.
   // Execute task specific delayed one time initialization.
 
-  // now I can use the sensor... let's initialize it.
-  xRes = IIS3DWBTaskSensorInit(_this);
-
-  // enable the IRQs
-  HAL_NVIC_EnableIRQ(IIS3DWB_INT1_EXTI_IRQn);
 
   for (;;) {
 
@@ -366,7 +447,13 @@ static void IIS3DWBTaskRun(void *pParams) {
         break;
 
       case E_POWER_MODE_DATALOG:
-        //TODO: STF - TBD.
+        taskENTER_CRITICAL();
+          _this->super.m_xStatus.nDelayPowerModeSwitch = 1;
+        taskEXIT_CRITICAL();
+        xRes = IIS3DWBTaskExecuteStepDatalog(_this);
+        taskENTER_CRITICAL();
+          _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
+        taskEXIT_CRITICAL();
         break;
 
       case E_POWER_MODE_AI:

@@ -98,7 +98,11 @@ sys_error_code_t SPIMasterDriver_vtblInit(IDriver *_this, void *pParams) {
   MX_SPI3_Init();
 
   // Register SPI DMA complete Callback
-  if (HAL_OK != HAL_SPI_RegisterCallback(&hspi3, HAL_SPI_TX_RX_COMPLETE_CB_ID, SPIMasterDriverTxRxCpltCallback)) {
+  if (HAL_OK != HAL_SPI_RegisterCallback(&hspi3, HAL_SPI_RX_COMPLETE_CB_ID, SPIMasterDriverTxRxCpltCallback)) {
+    SYS_SET_LOW_LEVEL_ERROR_CODE(SYS_UNDEFINED_ERROR_CODE);
+    xRes = SYS_UNDEFINED_ERROR_CODE;
+  }
+  else if (HAL_OK != HAL_SPI_RegisterCallback(&hspi3, HAL_SPI_TX_COMPLETE_CB_ID, SPIMasterDriverTxRxCpltCallback)) {
     SYS_SET_LOW_LEVEL_ERROR_CODE(SYS_UNDEFINED_ERROR_CODE);
     xRes = SYS_UNDEFINED_ERROR_CODE;
   }
@@ -167,15 +171,18 @@ sys_error_code_t SPIMasterDriver_vtblReset(IDriver *_this, void *pParams) {
 sys_error_code_t SPIMasterDriver_vtblWrite(IIODriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  SPIMasterDriver *pObj = (SPIMasterDriver*)_this;
+  SPIMasterDriver *pObj = (SPIMasterDriver*)_this;
 
-
-//  HAL_SPI_Transmit(&hsm_spi, &msg->regAddr, 1, 1000);
-  if (HAL_OK != HAL_SPI_Transmit(&hspi3, pDataBuffer, nDataSize, nChannel)) {
-    xRes = SYS_SPI_M_WRITE_ERROR_CODE;
-    SYS_SET_LOW_LEVEL_ERROR_CODE(SYS_SPI_M_WRITE_ERROR_CODE);
-    // block the application
-    sys_error_handler();
+  xRes = SPIMasterDriverTransmitRegAddr(pObj, nChannel, 500);
+  if (!SYS_IS_ERROR_CODE(xRes)) {
+    while (HAL_SPI_Transmit_DMA(&hspi3, pDataBuffer, nDataSize) != HAL_OK) {
+      if (HAL_SPI_GetError(&hspi3) != HAL_BUSY) {
+        SYS_SET_LOW_LEVEL_ERROR_CODE(SYS_SPI_M_WRITE_READ_ERROR_CODE);
+        sys_error_handler();
+      }
+    }
+    // Suspend the calling task until the operation is completed.
+    xSemaphoreTake(pObj->m_xSyncObj, portMAX_DELAY);
   }
 
   return xRes;
@@ -184,9 +191,34 @@ sys_error_code_t SPIMasterDriver_vtblWrite(IIODriver *_this, uint8_t *pDataBuffe
 sys_error_code_t SPIMasterDriver_vtblRead(IIODriver *_this, uint8_t *pDataBuffer, uint16_t nDataSize, uint16_t nChannel) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  SPIMasterDriver *pObj = (SPIMasterDriver*)_this;
+  SPIMasterDriver *pObj = (SPIMasterDriver*)_this;
 
-  SYS_DEBUGF(SYS_DBG_LEVEL_WARNING, ("SPI_M_DRV: warning! Read not implemented.\r\n"));
+  xRes = SPIMasterDriverTransmitRegAddr(pObj, nChannel, 500);
+  if (!SYS_IS_ERROR_CODE(xRes)) {
+    while (HAL_SPI_Receive_DMA(&hspi3, pDataBuffer, nDataSize) != HAL_OK) {
+      if (HAL_SPI_GetError(&hspi3) != HAL_BUSY) {
+        SYS_SET_LOW_LEVEL_ERROR_CODE(SYS_SPI_M_WRITE_READ_ERROR_CODE);
+        sys_error_handler();
+      }
+    }
+    // Suspend the calling task until the operation is completed.
+    xSemaphoreTake(pObj->m_xSyncObj, portMAX_DELAY);
+  }
+
+
+  return xRes;
+}
+
+sys_error_code_t SPIMasterDriverTransmitRegAddr(SPIMasterDriver *_this, uint8_t nRegAddr, uint32_t nTimeoutMS) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+
+  if (HAL_OK != HAL_SPI_Transmit(&hspi3, &nRegAddr, 1, nTimeoutMS)) {
+    xRes = SYS_SPI_M_WRITE_ERROR_CODE;
+    SYS_SET_LOW_LEVEL_ERROR_CODE(SYS_SPI_M_WRITE_ERROR_CODE);
+    // block the application
+    sys_error_handler();
+  }
 
   return xRes;
 }

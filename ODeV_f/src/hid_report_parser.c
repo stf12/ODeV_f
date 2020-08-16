@@ -50,8 +50,21 @@ uint16_t HidReportGetSize(uint8_t nReportID) {
     nSize = sizeof(struct aiReport_t);
     break;
 
+  case HID_REPORT_ID_SD_CMD:
+    nSize = sizeof(struct sdReport_t);
+    break;
+
+  case HID_REPORT_ID_SENSOR_CMD:
+    nSize = sizeof(struct sensorReport_t);
+    break;
+
+  case HID_REPORT_ID_SPI_BUS_READ:
+  case HID_REPORT_ID_SPI_BUS_WRITE:
+    nSize = sizeof(struct spiIOReport_t);
+    break;
+
   default:
-    nSize = HID_REPORT_ID_FORCE_STEP;
+    nSize = sizeof(struct internalReportFE_t);
   }
 
   return nSize;

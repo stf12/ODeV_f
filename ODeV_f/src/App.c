@@ -94,8 +94,8 @@ sys_error_code_t SysLoadApplicationContext(ApplicationContext *pAppContext) {
 
   // Add the task object to the context.
 //  xRes = ACAddTask(pAppContext, s_pxHelloWorldObj);
-  xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxISM330DHCXObj);
-//  xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxIIS3DWBObj);
+//  xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxISM330DHCXObj);
+  xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxIIS3DWBObj);
   xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxSPIBusObj);
   xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxSDCardObj);
 //  xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxPDMObj);
@@ -108,8 +108,8 @@ sys_error_code_t SysOnStartApplication(ApplicationContext *pAppContext) {
   UNUSED(pAppContext);
 
 //  //connect the sensor task to the bus.
-  SPIBusTaskConnectDevice((SPIBusTask*)s_pxSPIBusObj, ISM330DHCXTaskGetSensorIF((ISM330DHCXTask*)s_pxISM330DHCXObj));
-//  SPIBusTaskConnectDevice((SPIBusTask*)s_pxSPIBusObj, IIS3DWBTaskGetSensorIF((IIS3DWBTask*)s_pxIIS3DWBObj));
+//  SPIBusTaskConnectDevice((SPIBusTask*)s_pxSPIBusObj, ISM330DHCXTaskGetSensorIF((ISM330DHCXTask*)s_pxISM330DHCXObj));
+  SPIBusTaskConnectDevice((SPIBusTask*)s_pxSPIBusObj, IIS3DWBTaskGetSensorIF((IIS3DWBTask*)s_pxIIS3DWBObj));
 //
 //  //add the AI task to the sensors
 //  IEventListener *pxListener = AITaskGetEventListenrIF((AITask*)s_pxPDMObj);

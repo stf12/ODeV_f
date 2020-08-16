@@ -27,6 +27,7 @@
 #include "SPIBusTask_vtbl.h"
 #include "SPIMasterDriver.h"
 #include "SPIMasterDriver_vtbl.h"
+#include "hid_report_parser.h"
 #include "sysdebug.h"
 
 
@@ -45,18 +46,6 @@
 #define SPIBUS_OP_WAIT_MS                  50
 
 #define SYS_DEBUGF(level, message)         SYS_DEBUGF3(SYS_DBG_SPIBUS, level, message)
-
-
-/**
- * Message bla bla bla ...
- */
-typedef struct _SPIBusMsg
-{
-  SPIBusIF *pxSensor;
-  uint8_t * pnDataPtr;
-  uint8_t nRegAddr;
-  uint16_t nReadSize;
-} SPIBusMsg;
 
 
 /**
@@ -167,7 +156,7 @@ sys_error_code_t SPIBusTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t
   SPIBusTask *pObj = (SPIBusTask*)_this;
 
   // initialize the software resources.
-  pObj->m_xInQueue = xQueueCreate(SPIBUS_TASK_CFG_INQUEUE_LENGTH, sizeof(SPIBusMsg));
+  pObj->m_xInQueue = xQueueCreate(SPIBUS_TASK_CFG_INQUEUE_LENGTH, HidReportGetSize(HID_REPORT_ID_SPI_BUS_READ));
   if (pObj->m_xInQueue != NULL) {
 
 #ifdef DEBUG
@@ -191,7 +180,7 @@ sys_error_code_t SPIBusTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t
 sys_error_code_t SPIBusTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  SPIBusTask *pObj = (SPIBusTask*)_this;
+//  SPIBusTask *pObj = (SPIBusTask*)_this;
 
 //  xQueueReset(pObj->m_xInQueue);
 
@@ -214,9 +203,11 @@ sys_error_code_t SPIBusTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMo
   SPIBusTask *pObj = (SPIBusTask*)_this;
 
   // to resume the task we send a fake empty message.
-  SPIBusMsg xMsg = {0};
+  HIDReport xReport = {
+      .reportID = HID_REPORT_ID_FORCE_STEP
+  };
   if ((eActivePowerMode == E_POWER_MODE_RUN) || (eActivePowerMode == E_POWER_MODE_DATALOG)) {
-    if (pdTRUE != xQueueSendToFront(pObj->m_xInQueue, &xMsg, pdMS_TO_TICKS(100))) {
+    if (pdTRUE != xQueueSendToFront(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100))) {
 
       SYS_DEBUGF(SYS_DBG_LEVEL_WARNING, ("SPIBUS: unable to resume the task.\r\n"));
 
@@ -238,17 +229,37 @@ static sys_error_code_t SPIBusTaskExecuteStepRun(SPIBusTask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
-  SPIBusMsg xMsg = {0};
+  struct spiIOReport_t xMsg = {0};
   AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
   if (pdTRUE == xQueueReceive(_this->m_xInQueue, &xMsg, portMAX_DELAY)) {
     AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
-    // check if it is a fake message to resume the task
-    if (!((xMsg.pxSensor == NULL) && (xMsg.nReadSize == 0))) {
+    switch (xMsg.reportId) {
+    case HID_REPORT_ID_FORCE_STEP:
+      __NOP();
+      // do nothing. I need only to resume the task.
+      break;
+
+    case HID_REPORT_ID_SPI_BUS_READ:
       SPIMasterDriverSelectDevice((SPIMasterDriver*)_this->m_pxDriver, xMsg.pxSensor->m_pxSSPinPort, xMsg.pxSensor->m_nSSPin);
-      IIODrvWrite(_this->m_pxDriver, &xMsg.nRegAddr, 1, 1000);
-      SPIMasterDriverWriteRead((SPIMasterDriver*)_this->m_pxDriver, xMsg.pnDataPtr, xMsg.pnDataPtr, xMsg.nReadSize);
+      xRes = IIODrvRead(_this->m_pxDriver, xMsg.pnData, xMsg.nDataSize, xMsg.nRegAddr);
       SPIMasterDriverDeselectDevice((SPIMasterDriver*)_this->m_pxDriver, xMsg.pxSensor->m_pxSSPinPort, xMsg.pxSensor->m_nSSPin);
-      xRes = SPIBusIFNotifyIOComplete(xMsg.pxSensor);
+      if (!SYS_IS_ERROR_CODE(xRes)) {
+        xRes = SPIBusIFNotifyIOComplete(xMsg.pxSensor);
+      }
+      break;
+
+    case HID_REPORT_ID_SPI_BUS_WRITE:
+      SPIMasterDriverSelectDevice((SPIMasterDriver*)_this->m_pxDriver, xMsg.pxSensor->m_pxSSPinPort, xMsg.pxSensor->m_nSSPin);
+      xRes = IIODrvWrite(_this->m_pxDriver, xMsg.pnData, xMsg.nDataSize, xMsg.nRegAddr);
+      SPIMasterDriverDeselectDevice((SPIMasterDriver*)_this->m_pxDriver, xMsg.pxSensor->m_pxSSPinPort, xMsg.pxSensor->m_nSSPin);
+      if (!SYS_IS_ERROR_CODE(xRes)) {
+        xRes = SPIBusIFNotifyIOComplete(xMsg.pxSensor);
+      }
+      break;
+
+    default:
+      //TODO: STF -  need to notify the error
+      break;
     }
   }
 
@@ -319,19 +330,19 @@ static int32_t SPIBusTaskWrite(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
   uint8_t nAutoInc = 0x00;
-  SPIBusMsg xMsg = {
+  struct spiIOReport_t xMsg = {
+      .reportId = HID_REPORT_ID_SPI_BUS_WRITE,
       .pxSensor = pxSPISensor,
       .nRegAddr = nRegAddr | nAutoInc,
-      .pnDataPtr = pnData,
-      .nReadSize = nSize
+      .pnData = pnData,
+      .nDataSize = nSize
   };
 
   if (s_xTaskObj.m_xInQueue != NULL) {
     if (SYS_IS_CALLED_FROM_ISR()) {
-      if (pdTRUE != xQueueSendToBackFromISR(s_xTaskObj.m_xInQueue, &xMsg, NULL)) {
-        SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SPIBUS_TASK_IO_ERROR_CODE);
-        xRes = SYS_SPIBUS_TASK_IO_ERROR_CODE;
-      }
+      // we cannot read and write in the SPI BUS from an ISR. Notify the error
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SPIBUS_TASK_IO_ERROR_CODE);
+      xRes = SYS_SPIBUS_TASK_IO_ERROR_CODE;
     }
     else {
       if (pdTRUE != xQueueSendToBack(s_xTaskObj.m_xInQueue, &xMsg, SPIBUS_OP_WAIT_MS)) {
@@ -355,19 +366,19 @@ static int32_t SPIBusTaskRead(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData,
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
   uint8_t nAutoInc = 0x00;
-  SPIBusMsg xMsg = {
+  struct spiIOReport_t xMsg = {
+      .reportId = HID_REPORT_ID_SPI_BUS_READ,
       .pxSensor = pxSPISensor,
       .nRegAddr = nRegAddr | 0x80 | nAutoInc,
-      .pnDataPtr = pnData,
-      .nReadSize = nSize
+      .pnData = pnData,
+      .nDataSize = nSize
   };
 
   if (s_xTaskObj.m_xInQueue != NULL) {
     if (SYS_IS_CALLED_FROM_ISR()) {
-      if (pdTRUE != xQueueSendToBackFromISR(s_xTaskObj.m_xInQueue, &xMsg, NULL)) {
-        SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SPIBUS_TASK_IO_ERROR_CODE);
-        xRes = SYS_SPIBUS_TASK_IO_ERROR_CODE;
-      }
+      // we cannot read and write in the SPI BUS from an ISR. Notify the error
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SPIBUS_TASK_IO_ERROR_CODE);
+      xRes = SYS_SPIBUS_TASK_IO_ERROR_CODE;
     }
     else {
       if (pdTRUE != xQueueSendToBack(s_xTaskObj.m_xInQueue, &xMsg, SPIBUS_OP_WAIT_MS)) {

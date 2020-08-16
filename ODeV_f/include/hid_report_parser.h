@@ -43,12 +43,15 @@ extern "C" {
 #endif
 
 #include "syserror.h"
+#include "SPIBusIF.h"
 
 #define HID_REPORT_ID_ISM330DHCX                0x01  ///< Report coming from the ISM330DHCX sensor
 #define HID_REPORT_ID_IIS3DWB                   0x02  ///< Report coming from the IIS3DWB sensor
 #define HID_REPORT_ID_AI_CMD                    0x03  ///< AI command encapsulated in a HID report.
 #define HID_REPORT_ID_SENSOR_CMD                0x04  ///< Sensor command encapsulated in a HID report.
 #define HID_REPORT_ID_SD_CMD                    0x05  ///< SDCARD command encapsulated in a HID report.
+#define HID_REPORT_ID_SPI_BUS_READ              0x06  ///< Command to read from the SPI bus
+#define HID_REPORT_ID_SPI_BUS_WRITE             0x07  ///< Command to write in teh SPI bus.
 #define HID_REPORT_ID_FORCE_STEP                0xFE  ///< Special ID used by the INIT task to force the execution of ManagedTaskEx step.
 
 typedef union _HIDReport {
@@ -104,7 +107,7 @@ typedef union _HIDReport {
   } sensorReport;
 
   //--------------------------------------------------------------------------------
-  //  SensorReport 05 (MCU --> MCU) - SDCARD command
+  //  SDCARD Report 05 (MCU --> MCU) - SDCARD command
   //--------------------------------------------------------------------------------
 
   struct sdReport_t
@@ -114,6 +117,19 @@ typedef union _HIDReport {
     uint16_t  nCmdID;                                  // Specify the command ID
     uint32_t  nParam;                                  // Specify an optional parameter.
   } sdReport;
+
+  //--------------------------------------------------------------------------------
+  //  SPI Read / Write command 06 (MCU --> MCU) - SPI Bus command
+  //--------------------------------------------------------------------------------
+
+  struct spiIOReport_t
+  {
+    uint8_t   reportId;                                // Report ID = 0x06 / 0x07 (6 / 7)
+    uint8_t   nRegAddr;
+    uint16_t  nDataSize;
+    uint8_t  *pnData;
+    SPIBusIF *pxSensor;
+ } spiIOReport;
 
   //--------------------------------------------------------------------------------
   //  internalReport (MCU)

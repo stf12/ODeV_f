@@ -273,6 +273,7 @@ sys_error_code_t ISM330DHCXTask_vtblDoEnterPowerMode(AManagedTask *_this, const 
   ISM330DHCXTask *pObj = (ISM330DHCXTask*)_this;
 
   if (eNewPowerMode == E_POWER_MODE_DATALOG) {
+    //TODO: STF - I have to start the task only if the sensor is enabled!!!
     HIDReport xReport = {
         .sensorReport.reportId = HID_REPORT_ID_SENSOR_CMD,
         .sensorReport.nCmdID = SENSOR_CMD_ID_START
@@ -286,8 +287,6 @@ sys_error_code_t ISM330DHCXTask_vtblDoEnterPowerMode(AManagedTask *_this, const 
     SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("ISM330DHCX: -> DATALOG\r\n"));
   }
   else if (eNewPowerMode == E_POWER_MODE_RUN) {
-//    ism330dhcx_fifo_gy_batch_set(&pObj->m_xSensorDrv, ISM330DHCX_GY_NOT_BATCHED);
-//    xQueueReset(pObj->m_pxEventSrc);
     // TODO: STF - power down
 
     HIDReport xReport = {
@@ -357,7 +356,7 @@ static sys_error_code_t ISM330DHCXTaskExecuteStepRun(ISM330DHCXTask *_this) {
 
     case HID_REPORT_ID_SENSOR_CMD:
       if (xReport.sensorReport.nCmdID == SENSOR_CMD_ID_STOP) {
-        // disable the IRQs
+        // disable the fifo
         ism330dhcx_fifo_gy_batch_set(pxSensorDrv, ISM330DHCX_GY_NOT_BATCHED);
         // disable the IRQs
         HAL_NVIC_DisableIRQ(ISM330DHCX_INT1_EXTI_IRQn);
@@ -402,9 +401,10 @@ static sys_error_code_t ISM330DHCXTaskExecuteStepDatalog(ISM330DHCXTask *_this) 
       if (xReport.sensorReport.nCmdID == SENSOR_CMD_ID_START) {
         // now I can use the sensor... let's initialize it.
         xRes = ISM330DHCXTaskSensorInit(_this);
-
-        // enable the IRQs
-        HAL_NVIC_EnableIRQ(ISM330DHCX_INT1_EXTI_IRQn);
+        if (!SYS_IS_ERROR_CODE(xRes)) {
+          // enable the IRQs
+          HAL_NVIC_EnableIRQ(ISM330DHCX_INT1_EXTI_IRQn);
+        }
       }
       break;
 

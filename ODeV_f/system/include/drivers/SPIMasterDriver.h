@@ -81,6 +81,7 @@ typedef struct _SPIMasterDriverParams {
 IIODriver *SPIMasterDriverAlloc();
 
 /**
+ * Make a bidirectional communication in teh SPI bus.
  *
  * @param _this [IN] specifies a pointer to a SPIMasterDriver object.
  * @param pnTxDataBuffer [OUT] specifies the buffer with the data to send.
@@ -89,6 +90,17 @@ IIODriver *SPIMasterDriverAlloc();
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
 sys_error_code_t SPIMasterDriverWriteRead(SPIMasterDriver *_this, uint8_t *pnTxDataBuffer, uint8_t *pnRxDataBuffer, uint16_t nDataSize);
+
+/**
+ * Send one byte register address in the SPI bus in blocking mode. This method is used
+ * to implement the communication protocol adopted by the ST MEMS standard driver.
+ *
+ * @param _this [IN] specifies a pointer to a SPIMasterDriver object.
+ * @param nRegAddr [IN] specifies a register address in the target device.
+ * @param nTimeoutMS [IN] specifies a timeout in ms. If the IO operation doesn't end before teh timeout expire, then an error is generated.
+ * @return SYS_NO_ERROR_CODE if success, an eror code otherwise.
+ */
+sys_error_code_t SPIMasterDriverTransmitRegAddr(SPIMasterDriver *_this, uint8_t nRegAddr, uint32_t nTimeoutMS);
 
 /**
  * Select a device on the bus for the communications.

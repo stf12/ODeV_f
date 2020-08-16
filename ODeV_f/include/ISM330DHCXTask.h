@@ -87,7 +87,7 @@ struct _ISM330DHCXTask {
   uint8_t m_pnSensorDataBuff[ISM330DHCX_GY_SAMPLES_PER_IT * 7];
 
   /**
-   * IEventSrc interface implementation for this class.
+   * ::IEventSrc interface implementation for this class.
    */
   IEventSrc *m_pxEventSrc;
 };
