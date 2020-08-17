@@ -22,6 +22,7 @@
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __JSON_PARSER_H
+
 #define __JSON_PARSER_H
 
 #ifdef __cplusplus
@@ -29,7 +30,7 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "com_manager.h"
+#include <sensor_db.h>
 #include "string.h"
 
 /* Exported types ------------------------------------------------------------*/

@@ -27,6 +27,7 @@
 #include "ISM330DHCXTask_vtbl.h"
 #include "hid_report_parser.h"
 #include "SensorCommands.h"
+#include "sensor_db.h"
 #include "ISensorEventListener.h"
 #include "ISensorEventListener_vtbl.h"
 #include <string.h>
@@ -58,6 +59,7 @@
 #define ISM330DHCX_INT1_EXTI_IRQn                    EXTI9_5_IRQn
 #define ISM330DHCX_INT1_EXTI_LINE                    EXTI_LINE_8
 
+#define ISM330DHCX_WRITE_BUFFER_SIZE                 (uint32_t)(16000)
 
 #define SYS_DEBUGF(level, message)                   SYS_DEBUGF3(SYS_DBG_ISM330DHCX, level, message)
 
@@ -120,6 +122,21 @@ static sys_error_code_t ISM330DHCXTaskSensorInit(ISM330DHCXTask *_this);
  * @return SYS_NO_EROR_CODE if success, a task specific error code otherwise.
  */
 static sys_error_code_t ISM330DHCXTaskSensorReadData(ISM330DHCXTask *_this);
+
+/**
+ * Registerd the sensor with the global DB and initialize the default parameters.
+ *
+ * @param _this [IN] specifies a pointer to a task object.
+ * @return SYS_NO_ERROR_CODE if success, an error code otherwise
+ */
+static sys_error_code_t ISM330DHCXTaskSensorRegisterInDB(ISM330DHCXTask *_this);
+
+/**
+ * Check if the sensor is active. The sensor is active if at least one of the sub sensor is active.
+ * @param _this [IN] specifies a pointer to a task object.
+ * @return TRUE if the sensor is active, FALSE otherwise.
+ */
+static boolean_t ISM330DHCXTaskSensorIsActive(const ISM330DHCXTask *_this);
 
 /**
  * SPI CS Pin interrupt callback
@@ -250,14 +267,6 @@ sys_error_code_t ISM330DHCXTask_vtblOnCreateTask(AManagedTask *_this, TaskFuncti
 
   memset(pObj->m_pnSensorDataBuff, 0, sizeof(pObj->m_pnSensorDataBuff));
 
-  //TODO: STF - need to read the sensor configuration from a JSON file or from a default configuration.
-  pObj->m_xSensorCommonParam.fODR = 104.0f; // 12.5f, 26.0f, 52.0f, 104.0f, 208.4f, 1667.0f
-  pObj->m_xSensorCommonParam.pfFS[0] = 4.0f;
-  pObj->m_xSensorCommonParam.pfFS[1] = 4000.0f;
-  pObj->m_xSensorCommonParam.subSensorActive[0] = TRUE;
-  pObj->m_xSensorCommonParam.subSensorActive[1] = FALSE;
-
-
   *pvTaskCode = ISM330DHCXTaskRun;
   *pcName = "ISM330DHCX";
   *pnStackDepth = ISM330DHCX_TASK_CFG_STACK_DEPTH;
@@ -274,14 +283,16 @@ sys_error_code_t ISM330DHCXTask_vtblDoEnterPowerMode(AManagedTask *_this, const 
 
   if (eNewPowerMode == E_POWER_MODE_DATALOG) {
     //TODO: STF - I have to start the task only if the sensor is enabled!!!
-    HIDReport xReport = {
-        .sensorReport.reportId = HID_REPORT_ID_SENSOR_CMD,
-        .sensorReport.nCmdID = SENSOR_CMD_ID_START
-    };
+    if (ISM330DHCXTaskSensorIsActive(pObj)) {
+      HIDReport xReport = {
+          .sensorReport.reportId = HID_REPORT_ID_SENSOR_CMD,
+          .sensorReport.nCmdID = SENSOR_CMD_ID_START
+      };
 
-    if (xQueueSendToBack(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100)) != pdTRUE) {
-      xRes = SYS_APP_TASK_REPORT_LOST_ERROR_CODE;
-      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_REPORT_LOST_ERROR_CODE);
+      if (xQueueSendToBack(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100)) != pdTRUE) {
+        xRes = SYS_APP_TASK_REPORT_LOST_ERROR_CODE;
+        SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_REPORT_LOST_ERROR_CODE);
+      }
     }
 
     SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("ISM330DHCX: -> DATALOG\r\n"));
@@ -426,6 +437,11 @@ static void ISM330DHCXTaskRun(void *pParams) {
 
   // At this point all system has been initialized.
   // Execute task specific delayed one time initialization.
+  xRes = ISM330DHCXTaskSensorRegisterInDB(_this);
+  if (SYS_IS_ERROR_CODE(xRes)) {
+    SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("ISM330DHCX: unable to register with DB\r\n"));
+    sys_error_handler();
+  }
 
 
   for (;;) {
@@ -634,12 +650,12 @@ static sys_error_code_t ISM330DHCXTaskSensorInit(ISM330DHCXTask *_this) {
     ism330dhcx_bdr_gy = ISM330DHCX_GY_BATCHED_AT_6667Hz;
   }
 
-  if(_this->m_xSensorCommonParam.subSensorActive[0])
+  if(_this->m_xSensorCommonParam.pbSubSensorActive[0])
   {
     nRetVal = ism330dhcx_xl_data_rate_set(pxSensorDrv, ism330dhcx_odr_xl);
     nRetVal = ism330dhcx_fifo_xl_batch_set(pxSensorDrv, ism330dhcx_bdr_xl);
   }
-  if(_this->m_xSensorCommonParam.subSensorActive[1])
+  if(_this->m_xSensorCommonParam.pbSubSensorActive[1])
   {
     ism330dhcx_gy_data_rate_set(pxSensorDrv, ism330dhcx_odr_g);
     ism330dhcx_fifo_gy_batch_set(pxSensorDrv, ism330dhcx_bdr_gy);
@@ -676,7 +692,7 @@ static sys_error_code_t ISM330DHCXTaskSensorReadData(ISM330DHCXTask *_this) {
 
     ism330dhcx_read_reg(pxSensorDrv, ISM330DHCX_FIFO_DATA_OUT_TAG, _this->m_pnSensorDataBuff, ISM330DHCX_GY_SAMPLES_PER_IT * 7);
 
-    if(_this->m_pnSensorDataBuff[0]>>3 == 0x02 || !(_this->m_xSensorCommonParam.subSensorActive[0]) || !(_this->m_xSensorCommonParam.subSensorActive[1])) {
+    if(_this->m_pnSensorDataBuff[0]>>3 == 0x02 || !(_this->m_xSensorCommonParam.pbSubSensorActive[0]) || !(_this->m_xSensorCommonParam.pbSubSensorActive[1])) {
       /* First Sample in the fifo is AXL || 1 subsensor active only --> simply drop TAGS */
       int16_t * p16src = (int16_t *)_this->m_pnSensorDataBuff;
       int16_t * p16dest = (int16_t *)_this->m_pnSensorDataBuff;
@@ -694,6 +710,122 @@ static sys_error_code_t ISM330DHCXTaskSensorReadData(ISM330DHCXTask *_this) {
   }
 
   return xRes;
+}
+
+static sys_error_code_t ISM330DHCXTaskSensorRegisterInDB(ISM330DHCXTask *_this) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
+  COM_Device_t *pxSDB = SDB_GetIstance();
+
+  int32_t nID = SDB_AddSensor(pxSDB);
+  if (nID != -1) {
+    xRes = SYS_NO_ERROR_CODE;
+    _this->m_nDBID = nID;
+
+//    COM_DeviceDescriptor_t *tempDeviceDescriptor = SDB_GetDeviceDescriptor(pxSDB);
+//     get_unique_id(tempDeviceDescriptor->serialNumber);
+//     strcpy(tempDeviceDescriptor->alias, "STWIN_001");
+
+      /* ISM330DHCX */
+
+
+    COM_Sensor_t *pxSensor = SDB_GetSensor(pxSDB, _this->m_nDBID);
+
+    /* SENSOR DESCRIPTOR */
+    strcpy(pxSensor->sensorDescriptor.name, "ISM330DHCX");
+    pxSensor->sensorDescriptor.dataType = DATA_TYPE_INT16;
+    pxSensor->sensorDescriptor.ODR[0] = 12.5f;
+    pxSensor->sensorDescriptor.ODR[1] = 26.0f;
+    pxSensor->sensorDescriptor.ODR[2] = 52.0f;
+    pxSensor->sensorDescriptor.ODR[3] = 104.0f;
+    pxSensor->sensorDescriptor.ODR[4] = 208.0f;
+    pxSensor->sensorDescriptor.ODR[5] = 417.0f;
+    pxSensor->sensorDescriptor.ODR[6] = 833.0f;
+    pxSensor->sensorDescriptor.ODR[7] = 1667.0f;
+    pxSensor->sensorDescriptor.ODR[8] = 3333.0f;
+    pxSensor->sensorDescriptor.ODR[9] = 6667.0f;
+    pxSensor->sensorDescriptor.ODR[10] = COM_END_OF_LIST_FLOAT;
+    pxSensor->sensorDescriptor.samplesPerTimestamp[0] = 0;
+    pxSensor->sensorDescriptor.samplesPerTimestamp[1] = 1000;
+    pxSensor->sensorDescriptor.nSubSensors = 2;
+
+    /* SENSOR STATUS */
+    pxSensor->sensorStatus.ODR = 104.0f; //1667.0f;
+    pxSensor->sensorStatus.measuredODR = 0.0f;
+    pxSensor->sensorStatus.initialOffset = 0.0f;
+    pxSensor->sensorStatus.samplesPerTimestamp = 0;
+    pxSensor->sensorStatus.isActive = 1;
+    pxSensor->sensorStatus.usbDataPacketSize = 2048;
+    pxSensor->sensorStatus.sdWriteBufferSize = ISM330DHCX_WRITE_BUFFER_SIZE;
+    pxSensor->sensorStatus.comChannelNumber = -1;
+
+    /* SUBSENSOR 0 DESCRIPTOR */
+    pxSensor->sensorDescriptor.subSensorDescriptor[0].id = 0;
+    pxSensor->sensorDescriptor.subSensorDescriptor[0].sensorType = COM_TYPE_ACC;
+    pxSensor->sensorDescriptor.subSensorDescriptor[0].dataPerSample = 3;
+    strcpy(pxSensor->sensorDescriptor.subSensorDescriptor[0].unit, "g");
+    pxSensor->sensorDescriptor.subSensorDescriptor[0].FS[0] = 2.0f;
+    pxSensor->sensorDescriptor.subSensorDescriptor[0].FS[1] = 4.0f;
+    pxSensor->sensorDescriptor.subSensorDescriptor[0].FS[2] = 8.0f;
+    pxSensor->sensorDescriptor.subSensorDescriptor[0].FS[3] = 16.0f;
+    pxSensor->sensorDescriptor.subSensorDescriptor[0].FS[4] = COM_END_OF_LIST_FLOAT;
+
+    /* SUBSENSOR 0 STATUS */
+    pxSensor->sensorStatus.subSensorStatus[0].FS = 16.0f;
+    pxSensor->sensorStatus.subSensorStatus[0].isActive = 1;
+    pxSensor->sensorStatus.subSensorStatus[0].sensitivity = 0.061f * pxSensor->sensorStatus.subSensorStatus[0].FS/2.0f;
+
+      /* SUBSENSOR 1 DESCRIPTOR */
+    pxSensor->sensorDescriptor.subSensorDescriptor[1].id = 1;
+    pxSensor->sensorDescriptor.subSensorDescriptor[1].sensorType = COM_TYPE_GYRO;
+    pxSensor->sensorDescriptor.subSensorDescriptor[1].dataPerSample = 3;
+    strcpy(pxSensor->sensorDescriptor.subSensorDescriptor[1].unit, "mdps");
+    pxSensor->sensorDescriptor.subSensorDescriptor[1].FS[0] = 125.0f;
+    pxSensor->sensorDescriptor.subSensorDescriptor[1].FS[1] = 250.0f;
+    pxSensor->sensorDescriptor.subSensorDescriptor[1].FS[2] = 500.0f;
+    pxSensor->sensorDescriptor.subSensorDescriptor[1].FS[3] = 1000.0f;
+    pxSensor->sensorDescriptor.subSensorDescriptor[1].FS[4] = 2000.0f;
+    pxSensor->sensorDescriptor.subSensorDescriptor[1].FS[5] = 4000.0f;
+    pxSensor->sensorDescriptor.subSensorDescriptor[1].FS[6] = COM_END_OF_LIST_FLOAT;
+
+    /* SUBSENSOR 1 STATUS */
+    pxSensor->sensorStatus.subSensorStatus[1].FS = 4000.0f;
+    pxSensor->sensorStatus.subSensorStatus[1].isActive = 0;
+    pxSensor->sensorStatus.subSensorStatus[1].sensitivity = 4.375f * pxSensor->sensorStatus.subSensorStatus[1].FS/125.0f;
+
+    _this->m_xSensorCommonParam.fODR = pxSensor->sensorStatus.ODR;
+    _this->m_xSensorCommonParam.pfFS[0] = pxSensor->sensorStatus.subSensorStatus[0].FS;
+    _this->m_xSensorCommonParam.pfFS[1] = pxSensor->sensorStatus.subSensorStatus[1].FS;
+    _this->m_xSensorCommonParam.pbSubSensorActive[0] = pxSensor->sensorStatus.subSensorStatus[0].isActive;
+    _this->m_xSensorCommonParam.pbSubSensorActive[1] = pxSensor->sensorStatus.subSensorStatus[1].isActive;
+
+		//TODO: STF.Porting - what to do with this?
+    // it seems used only for LOG_ERROR
+//    maxWriteTimeSensor[ism330dhcx_com_id] = 1000 * WRITE_BUFFER_SIZE_ISM330DHCX / (uint32_t)(ISM330DHCX_Init_Param.ODR * 12);
+  }
+
+  return xRes;
+}
+
+static boolean_t ISM330DHCXTaskSensorIsActive(const ISM330DHCXTask *_this) {
+  assert_param(_this);
+  boolean_t bRes = FALSE;
+
+  COM_Sensor_t *pxSensor = SDB_GetSensor(SDB_GetIstance(), _this->m_nDBID);
+  if (pxSensor != NULL) {
+    // check first the sensor status
+    if (pxSensor->sensorStatus.isActive) {
+      // check if at least one sub sensor is active
+      for (uint8_t i=0; i<pxSensor->sensorDescriptor.nSubSensors; ++i) {
+        if (pxSensor->sensorStatus.subSensorStatus[i].isActive) {
+          bRes = TRUE;
+          break;
+        }
+      }
+    }
+  }
+
+  return bRes;
 }
 
 

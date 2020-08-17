@@ -249,7 +249,7 @@ sys_error_code_t IIS3DWBTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_
   //TODO: STF - need to read the sensor configuration from a JSON file or from a default configuration.
   pObj->m_xSensorCommonParam.fODR = 26667.0f; // the only one ODR
   pObj->m_xSensorCommonParam.pfFS[0] = 4.0f;
-  pObj->m_xSensorCommonParam.subSensorActive[0] = FALSE;
+  pObj->m_xSensorCommonParam.pbSubSensorActive[0] = FALSE;
 
 
   *pvTaskCode = IIS3DWBTaskRun;

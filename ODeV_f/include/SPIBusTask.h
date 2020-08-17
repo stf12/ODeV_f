@@ -65,6 +65,12 @@ struct _SPIBusTask {
    * Task message queue. Read and write request are wrapped into message posted in this queue.
    */
   QueueHandle_t m_xInQueue;
+
+  /**
+   * Count the number of devices connected to the bus. It can be used in furter version to
+   * de-initialize the SPI IP in some of the PM state.
+   */
+  uint8_t m_nConnectedDevices;
 };
 
 
@@ -87,6 +93,16 @@ AManagedTaskEx *SPIBusTaskAlloc();
  * @return SYS_NO_ERROR_CODE is success, SYS_INVALID_PARAMETER_ERROR_CODE if pxBuff is NULL.
  */
 sys_error_code_t SPIBusTaskConnectDevice(SPIBusTask *_this, SPIBusIF *pxBusIF);
+
+/**
+ * Disconnect a device from the bus using its interface.
+ *
+ * @param _this [IN] specifies a task object.
+ * @param pxBusIF [IN] specifies the device interface to connect.
+ * @return SYS_NO_ERROR_CODE is success, SYS_INVALID_PARAMETER_ERROR_CODE if pxBuff is NULL.
+ */
+sys_error_code_t SPIBusTaskDisconnectDevice(SPIBusTask *_this, SPIBusIF *pxBusIF);
+
 
 
 // Inline functions definition

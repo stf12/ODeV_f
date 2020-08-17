@@ -58,7 +58,7 @@ struct _SensorInitParam
   /**
    * Status of the sub sensor.
    */
-  boolean_t subSensorActive[SENSOR_CFG_MAX_SUBSENSOR_COUNT];
+  boolean_t pbSubSensorActive[SENSOR_CFG_MAX_SUBSENSOR_COUNT];
 };
 
 #ifdef __cplusplus

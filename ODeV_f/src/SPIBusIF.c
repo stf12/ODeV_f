@@ -28,7 +28,6 @@
 // Private functions declaration
 // *****************************
 
-static int32_t SPIBusNullRW(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData, uint16_t nSize);
 
 // Private variables
 // *****************

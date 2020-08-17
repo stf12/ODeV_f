@@ -117,6 +117,28 @@ sys_error_code_t SPIBusTaskConnectDevice(SPIBusTask *_this, SPIBusIF *pxBusIF) {
   if (pxBusIF != NULL) {
     pxBusIF->m_xConnector.pfReadReg = SPIBusTaskRead;
     pxBusIF->m_xConnector.pfWriteReg = SPIBusTaskWrite;
+    _this->m_nConnectedDevices++;
+
+    SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("SPIBUS: connected device: %d\r\n", _this->m_nConnectedDevices));
+  }
+  else {
+    xRes = SYS_INVALID_PARAMETER_ERROR_CODE;
+    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INVALID_PARAMETER_ERROR_CODE);
+  }
+
+  return xRes;
+}
+
+sys_error_code_t SPIBusTaskDisconnectDevice(SPIBusTask *_this, SPIBusIF *pxBusIF) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+
+  if (pxBusIF != NULL) {
+    pxBusIF->m_xConnector.pfReadReg = SPIBusNullRW;
+    pxBusIF->m_xConnector.pfWriteReg = SPIBusNullRW;
+    _this->m_nConnectedDevices--;
+
+    SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("SPIBUS: connected device: %d\r\n", _this->m_nConnectedDevices));
   }
   else {
     xRes = SYS_INVALID_PARAMETER_ERROR_CODE;
@@ -160,8 +182,10 @@ sys_error_code_t SPIBusTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t
   if (pObj->m_xInQueue != NULL) {
 
 #ifdef DEBUG
-  vQueueAddToRegistry(pObj->m_xInQueue, "SPI_Q");
+    vQueueAddToRegistry(pObj->m_xInQueue, "SPI_Q");
 #endif
+
+    pObj->m_nConnectedDevices = 0;
 
     *pvTaskCode = SPIBusTaskRun;
     *pcName = "SPIBUS";

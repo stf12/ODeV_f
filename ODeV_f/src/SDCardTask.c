@@ -1,4 +1,5 @@
 /**
+#include <sensor_db.h>
  ******************************************************************************
  * @file    SDCardTask.c
  * @author  STMicroelectronics - AIS - MCD Team
@@ -29,7 +30,6 @@
 #include "sd_diskio.h"
 #include "hid_report_parser.h"
 #include "queue.h"
-#include "com_manager.h"
 #include "HSD_json.h"
 #include <string.h>
 #include <stdio.h>
@@ -564,7 +564,7 @@ static sys_error_code_t SDTReadJSON(SDCardTask *_this, char *serialized_string) 
   COM_Device_t *local_device;
   uint8_t ii;
   uint32_t size;
-  local_device = COM_GetDevice();
+  local_device = SDB_GetIstance();
   size = sizeof(COM_Device_t);
 
   memcpy(&_this->JSON_device, local_device, size);
@@ -587,7 +587,7 @@ static sys_error_code_t SDTCreateJSON(SDCardTask *_this, char **serialized_strin
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   COM_Device_t *device;
 
-  device = COM_GetDevice();
+  device = SDB_GetIstance();
   if (HSD_serialize_Device_JSON(device, serialized_string)) {
     xRes = SYS_SD_TASK_FILE_OP_ERROR_CODE;
     SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SD_TASK_FILE_OP_ERROR_CODE);
@@ -607,12 +607,13 @@ static sys_error_code_t SDTStartLogging(SDCardTask *_this) {
   COM_SensorStatus_t * sensor_status;
   COM_DeviceDescriptor_t * device_descriptor;
   COM_SensorDescriptor_t * sensor_descriptor;
+  COM_Device_t *pxSDB = SDB_GetIstance();
 
   uint32_t i = 0, dir_n = 0;
   char dir_name[sizeof(LOG_DIR_PREFIX)+4];
   char file_name[50];
 
-  device_descriptor = COM_GetDeviceDescriptor();
+  device_descriptor = SDB_GetDeviceDescriptor(pxSDB);
   dir_n = SDTGetLastDirNumber(_this);
   dir_n++;
 
@@ -627,10 +628,10 @@ static sys_error_code_t SDTStartLogging(SDCardTask *_this) {
   }
   else {
     for(i=0;i<device_descriptor->nSensor;i++) {
-      sensor_status = COM_GetSensorStatus(i);
+      sensor_status = SDB_GetSensorStatus(pxSDB, i);
 
       if(sensor_status->isActive) {
-        sensor_descriptor = COM_GetSensorDescriptor(i);
+        sensor_descriptor = SDB_GetSensorDescriptor(pxSDB, i);
         sprintf(file_name, "%s/%s", dir_name, sensor_descriptor->name);
 
         SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("SDC: open log file %s\r\n", file_name));
@@ -648,7 +649,7 @@ static sys_error_code_t SDTStartLogging(SDCardTask *_this) {
 
       // the sensor thread will start by their self.
 //      for(i=0;i<device_descriptor->nSensor;i++) {
-//        sensor_status = COM_GetSensorStatus(i);
+//        sensor_status = SDB_GetSensorStatus(i);
 //        if(sensor_status->isActive) {
 //          StartSensorThread(i); //TODO: STF - this create a link with the main.c
 //        }
@@ -744,15 +745,16 @@ static sys_error_code_t SDTCloseFiles(SDCardTask *_this) {
     char dir_name[sizeof(LOG_DIR_PREFIX)+4];
     char file_name[50];
     char* JSON_string = NULL;
+    COM_Device_t *pxSDB = SDB_GetIstance();
 
     UNUSED(_this);
 
-    device_descriptor = COM_GetDeviceDescriptor();
+    device_descriptor = SDB_GetDeviceDescriptor(pxSDB);
 
     /* Put all the sensors in "SUSPENDED" mode */
     //STF.Porting this must be done by each sensor task during the power mode switch.
 //    for(id=0; id<device_descriptor->nSensor; id++) {
-//      sensor_status = COM_GetSensorStatus(id);
+//      sensor_status = SDB_GetSensorStatus(id);
 //
 //      if(sensor_status->isActive) {
 //        SDM_StopSensorThread(id);
@@ -761,7 +763,7 @@ static sys_error_code_t SDTCloseFiles(SDCardTask *_this) {
 
     /* Flush remaining data and close the files  */
     for(id=0; id<device_descriptor->nSensor; id++) {
-      sensor_status = COM_GetSensorStatus(id);
+      sensor_status = SDB_GetSensorStatus(pxSDB, id);
 
       if(sensor_status->isActive) {
         SDTFlushBuffer(_this, id);
@@ -803,15 +805,16 @@ static sys_error_code_t SDTCloseFiles(SDCardTask *_this) {
 static sys_error_code_t SDTMemoryInit(SDCardTask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  COM_Device_t *pxSDB = SDB_GetIstance();
   COM_SensorStatus_t * sensor_status = NULL;
   COM_DeviceDescriptor_t * device_descriptor = NULL;
   uint32_t i;
 
-  device_descriptor = COM_GetDeviceDescriptor();
+  device_descriptor = SDB_GetDeviceDescriptor(pxSDB);
 
   for(i=0;i<device_descriptor->nSensor;i++)
   {
-    sensor_status = COM_GetSensorStatus(i);
+    sensor_status = SDB_GetSensorStatus(pxSDB, i);
     if(sensor_status->isActive)
     {
       _this->SD_WriteBuffer[i] = HSD_malloc(sensor_status->sdWriteBufferSize*2);
@@ -832,14 +835,15 @@ static sys_error_code_t SDTMemoryInit(SDCardTask *_this) {
 static sys_error_code_t SDTMemoryDeinit(SDCardTask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  COM_Device_t *pxSDB = SDB_GetIstance();
   COM_SensorStatus_t * sensor_status = NULL;
   COM_DeviceDescriptor_t * device_descriptor = NULL;
   uint32_t i = 0;
 
-  device_descriptor = COM_GetDeviceDescriptor();
+  device_descriptor = SDB_GetDeviceDescriptor(pxSDB);
 
   for(i=0; i<device_descriptor->nSensor; i++) {
-    sensor_status = COM_GetSensorStatus(i);
+    sensor_status = SDB_GetSensorStatus(pxSDB, i);
     if(sensor_status->isActive && _this->SD_WriteBuffer[i]!=0) {
       HSD_free(_this->SD_WriteBuffer[i]);
       _this->SD_WriteBuffer[i] = NULL;
@@ -853,9 +857,10 @@ static sys_error_code_t SDTFlushBuffer(SDCardTask *_this, uint32_t id) {
 	assert_param(_this);
 	sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   uint32_t buf_size = 0;
+  COM_Device_t *pxSDB = SDB_GetIstance();
   COM_SensorStatus_t * sensor_status = NULL;
 
-  sensor_status = COM_GetSensorStatus(id);
+  sensor_status = SDB_GetSensorStatus(pxSDB, id);
   buf_size = sensor_status->sdWriteBufferSize;
 
   if(_this->SD_WriteBufferIdx[id]>0 && _this->SD_WriteBufferIdx[id]<(buf_size-1)) {

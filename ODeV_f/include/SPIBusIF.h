@@ -142,6 +142,7 @@ inline uint8_t SPIBusIFGetWhoAmI(const SPIBusIF *_this);
 
 SPIBusConnector *SPISensorGetConnector(SPIBusIF *_this);
 
+int32_t SPIBusNullRW(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData, uint16_t nSize);
 
 // Inline function definition
 // **************************

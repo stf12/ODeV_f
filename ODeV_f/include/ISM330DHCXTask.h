@@ -34,7 +34,7 @@ extern "C" {
 #include "syserror.h"
 #include "AManagedTaskEx.h"
 #include "AManagedTaskEx_vtbl.h"
-#include <SPIBusIF.h>
+#include "SPIBusIF.h"
 #include "SensorsCommonParam.h"
 #include "ism330dhcx_reg.h"
 #include "SensorEventSrc.h"
@@ -75,6 +75,11 @@ struct _ISM330DHCXTask {
    * Specifies sensor parameters used to initialize the sensor.
    */
   SensorInitParam m_xSensorCommonParam;
+
+  /**
+   * Specifies the sensor ID to access the sensor configuration inside the sensor DB.
+   */
+  uint8_t m_nDBID;
 
   /**
    * Synchronization object used to send command to the task.

@@ -988,11 +988,11 @@ static sys_error_code_t AITaskStartImp(AITask *_this, const AICmdExecutionContex
   _this->m_nDataIdx = 0;
 
   // start sequence for the sensor and the rest of the app.
-//  const uint32_t nSensors = COM_GetDeviceDescriptor()->nSensor;
+//  const uint32_t nSensors = SDB_GetDeviceDescriptor()->nSensor;
 //  SM_TIM_Start();
 //
 //  for (int i = 0; i < nSensors; i++) {
-//    if(COM_GetSensorStatus(i)->isActive) {
+//    if(SDB_GetSensorStatus(i)->isActive) {
 //      StartSensorThread(i);
 //      sensor_first_dataReady[i] = 1;
 //    }
@@ -1016,10 +1016,10 @@ static sys_error_code_t AITaskStopImp(AITask *_this, const AICmdExecutionContext
   }
 
 //  // stop sequence for the sensor and the rest of the app.
-//  const uint32_t nSensors = COM_GetDeviceDescriptor()->nSensor;
+//  const uint32_t nSensors = SDB_GetDeviceDescriptor()->nSensor;
 //
 //  for (int i = 0; i < nSensors; i++) {
-//    if(COM_GetSensorStatus(i)->isActive) {
+//    if(SDB_GetSensorStatus(i)->isActive) {
 //      StopSensorThread(i);
 //      sensor_first_dataReady[i] = 0;
 //    }
