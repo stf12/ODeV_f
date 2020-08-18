@@ -55,48 +55,6 @@ extern "C" {
  */
 typedef struct _ISM330DHCXTask ISM330DHCXTask;
 
-/**
- *  ISM330DHCXTask internal structure.
- */
-struct _ISM330DHCXTask {
-  /**
-   * Base class object.
-   */
-  AManagedTaskEx super;
-
-  // Task variables should be added here.
-
-  /**
-   * SPI IF object used to connect the sensor task to the SPI bus.
-   */
-  SPIBusIF m_xSensorIF;
-
-  /**
-   * Specifies sensor parameters used to initialize the sensor.
-   */
-  SensorInitParam m_xSensorCommonParam;
-
-  /**
-   * Specifies the sensor ID to access the sensor configuration inside the sensor DB.
-   */
-  uint8_t m_nDBID;
-
-  /**
-   * Synchronization object used to send command to the task.
-   */
-  QueueHandle_t m_xInQueue;
-
-  /**
-   * Buffer to store the data read from the sensor
-   */
-  uint8_t m_pnSensorDataBuff[ISM330DHCX_GY_SAMPLES_PER_IT * 7];
-
-  /**
-   * ::IEventSrc interface implementation for this class.
-   */
-  IEventSrc *m_pxEventSrc;
-};
-
 
 // Public API declaration
 //***********************

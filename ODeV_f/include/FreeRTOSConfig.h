@@ -117,9 +117,9 @@
 #define configSUPPORT_STATIC_ALLOCATION          0
 #define configSUPPORT_DYNAMIC_ALLOCATION         1
 #if defined(DEBUG) || (SYS_DBG_ENABLE_TA4>=1)
-#define configTOTAL_HEAP_SIZE                    ((size_t)50*1024)
+#define configTOTAL_HEAP_SIZE                    ((size_t)200*1024)
 #else
-#define configTOTAL_HEAP_SIZE                    ((size_t)49*1024)
+#define configTOTAL_HEAP_SIZE                    ((size_t)195*1024)
 #endif
 #define configAPPLICATION_ALLOCATED_HEAP         1
 

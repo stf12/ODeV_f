@@ -232,12 +232,26 @@ sys_error_code_t AppPowerModeHelper_vtblDidEnterPowerMode(IAppPowerModeHelper *t
 
 //    GPIOB->BSRR = GPIO_PIN_6; //TODO: STF.Debug
     SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("PMH: RUN\r\n"));
+
+#if defined(DEBUG) || defined(SYS_DEBUG)
+    {
+      size_t nFreeHeapSize = xPortGetFreeHeapSize();
+      SYS_DEBUGF(SYS_DBG_LEVEL_SL, ("PMH: free heap = %i.\r\n", nFreeHeapSize));
+    }
+#endif
     break;
 
   case E_POWER_MODE_DATALOG:
 
 //    GPIOB->BSRR = GPIO_PIN_6; //TODO: STF.Debug
     SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("PMH: DATALOG\r\n"));
+
+#if defined(DEBUG) || defined(SYS_DEBUG)
+    {
+      size_t nFreeHeapSize = xPortGetFreeHeapSize();
+      SYS_DEBUGF(SYS_DBG_LEVEL_SL, ("PMH: free heap = %i.\r\n", nFreeHeapSize));
+    }
+#endif
     break;
 
   default:

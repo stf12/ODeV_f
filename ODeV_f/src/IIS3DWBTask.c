@@ -27,6 +27,7 @@
 #include "IIS3DWBTask_vtbl.h"
 #include "hid_report_parser.h"
 #include "SensorCommands.h"
+#include "sensor_db.h"
 #include "ISensorEventListener.h"
 #include "ISensorEventListener_vtbl.h"
 #include <string.h>
@@ -43,7 +44,7 @@
 #endif
 
 #ifndef IIS3DWB_TASK_CFG_IN_QUEUE_LENGTH
-#define IIS3DWB_TASK_CFG_IN_QUEUE_LENGTH          10
+#define IIS3DWB_TASK_CFG_IN_QUEUE_LENGTH          20
 #endif
 
 #define IIS3DWB_TASK_CFG_IN_QUEUE_ITEM_SIZE       sizeof(HIDReport)
@@ -58,6 +59,8 @@
 #define IIS3DWB_INT1_EXTI_IRQn                    EXTI15_10_IRQn
 #define IIS3DWB_INT1_EXTI_LINE                    EXTI_LINE_14
 
+#define IIS3DWB_WRITE_BUFFER_SIZE                 (uint32_t)(32000)
+
 #define SYS_DEBUGF(level, message)                SYS_DEBUGF3(SYS_DBG_IIS3DWB, level, message)
 
 
@@ -71,6 +74,49 @@ static const AManagedTaskEx_vtbl s_xIIS3DWBTask_vtbl = {
     IIS3DWBTask_vtblHandleError,
     IIS3DWBTask_vtblForceExecuteStep
 };
+
+/**
+ *  IIS3DWBTask internal structure.
+ */
+struct _IIS3DWBTask {
+  /**
+   * Base class object.
+   */
+  AManagedTaskEx super;
+
+  // Task variables should be added here.
+
+  /**
+   * SPI IF object used to connect the sensor task to the SPI bus.
+   */
+  SPIBusIF m_xSensorIF;
+
+  /**
+   * Specifies sensor parameters used to initialize the sensor.
+   */
+  SensorInitParam m_xSensorCommonParam;
+
+  /**
+   * Specifies the sensor ID to access the sensor configuration inside the sensor DB.
+   */
+  uint8_t m_nDBID;
+
+  /**
+   * Synchronization object used to send command to the task.
+   */
+  QueueHandle_t m_xInQueue;
+
+  /**
+   * Buffer to store the data read from the sensor
+   */
+  uint8_t m_pnSensorDataBuff[IIS3DWB_SAMPLES_PER_IT * 7];
+
+  /**
+   * ::IEventSrc interface implementation for this class.
+   */
+  IEventSrc *m_pxEventSrc;
+};
+
 
 /**
  * The only instance of the task object.
@@ -119,6 +165,21 @@ static sys_error_code_t IIS3DWBTaskSensorInit(IIS3DWBTask *_this);
  * @return SYS_NO_EROR_CODE if success, a task specific error code otherwise.
  */
 static sys_error_code_t IIS3DWBTaskSensorReadData(IIS3DWBTask *_this);
+
+/**
+ * Register the sensor with the global DB and initialize the default parameters.
+ *
+ * @param _this [IN] specifies a pointer to a task object.
+ * @return SYS_NO_ERROR_CODE if success, an error code otherwise
+ */
+static sys_error_code_t IIS3DWBTaskSensorRegisterInDB(IIS3DWBTask *_this);
+
+/**
+ * Check if the sensor is active. The sensor is active if at least one of the sub sensor is active.
+ * @param _this [IN] specifies a pointer to a task object.
+ * @return TRUE if the sensor is active, FALSE otherwise.
+ */
+static boolean_t IIS3DWBTaskSensorIsActive(const IIS3DWBTask *_this);
 
 /**
  * SPI CS Pin interrupt callback
@@ -245,12 +306,7 @@ sys_error_code_t IIS3DWBTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_
   IEventSrcInit(pObj->m_pxEventSrc);
 
   memset(pObj->m_pnSensorDataBuff, 0, sizeof(pObj->m_pnSensorDataBuff));
-
-  //TODO: STF - need to read the sensor configuration from a JSON file or from a default configuration.
-  pObj->m_xSensorCommonParam.fODR = 26667.0f; // the only one ODR
-  pObj->m_xSensorCommonParam.pfFS[0] = 4.0f;
-  pObj->m_xSensorCommonParam.pbSubSensorActive[0] = FALSE;
-
+  pObj->m_nDBID = 0xFF;
 
   *pvTaskCode = IIS3DWBTaskRun;
   *pcName = "IIS3DWB";
@@ -267,15 +323,16 @@ sys_error_code_t IIS3DWBTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPo
   IIS3DWBTask *pObj = (IIS3DWBTask*)_this;
 
   if (eNewPowerMode == E_POWER_MODE_DATALOG) {
-    //TODO: STF - I have to start the task only if the sensor is enabled!!!
-    HIDReport xReport = {
-        .sensorReport.reportId = HID_REPORT_ID_SENSOR_CMD,
-        .sensorReport.nCmdID = SENSOR_CMD_ID_START
-    };
+    if (IIS3DWBTaskSensorIsActive(pObj)) {
+      HIDReport xReport = {
+          .sensorReport.reportId = HID_REPORT_ID_SENSOR_CMD,
+          .sensorReport.nCmdID = SENSOR_CMD_ID_START
+      };
 
-    if (xQueueSendToBack(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100)) != pdTRUE) {
-      xRes = SYS_APP_TASK_REPORT_LOST_ERROR_CODE;
-      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_REPORT_LOST_ERROR_CODE);
+      if (xQueueSendToBack(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100)) != pdTRUE) {
+        xRes = SYS_APP_TASK_REPORT_LOST_ERROR_CODE;
+        SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_REPORT_LOST_ERROR_CODE);
+      }
     }
 
     SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("IIS3DWB: -> DATALOG\r\n"));
@@ -318,8 +375,20 @@ sys_error_code_t IIS3DWBTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerM
       .nData = 0
   };
 
-  if (eActivePowerMode == E_POWER_MODE_RUN) {
-    xRes = IIS3DWBTaskPostReportToFront(pObj, (HIDReport*)&xReport);
+  if ((eActivePowerMode == E_POWER_MODE_RUN) || (eActivePowerMode == E_POWER_MODE_DATALOG)) {
+    uint8_t nCount = 3;
+    while(nCount) {
+      xRes = IIS3DWBTaskPostReportToFront(pObj, (HIDReport*)&xReport);
+      if (SYS_IS_ERROR_CODE(xRes)) {
+        // we are in a power mode switch but we can't resume the task because the in queue is full!
+        // try to reset the queue
+        nCount--;
+        xQueueReset(pObj->m_xInQueue);
+      }
+      else {
+        nCount = 0;
+      }
+    }
   }
   else {
     vTaskResume(_this->m_xThaskHandle);
@@ -357,10 +426,16 @@ static sys_error_code_t IIS3DWBTaskExecuteStepRun(IIS3DWBTask *_this) {
       }
       break;
 
+    case HID_REPORT_ID_IIS3DWB:
+      // date ready but we are in RUN (no datalog, no AI) so we simple skip the repot.
+      break;
+
     default:
       // unwanted report
       xRes = SYS_APP_TASK_UNKNOWN_REPORT_ERROR_CODE;
       SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_UNKNOWN_REPORT_ERROR_CODE);
+
+      SYS_DEBUGF(SYS_DBG_LEVEL_WARNING, ("IIS3DWB: unexpected report in Run: %i\r\n", xReport.reportID));
     }
   }
 
@@ -397,6 +472,7 @@ static sys_error_code_t IIS3DWBTaskExecuteStepDatalog(IIS3DWBTask *_this) {
       if (xReport.sensorReport.nCmdID == SENSOR_CMD_ID_START) {
         xRes = IIS3DWBTaskSensorInit(_this);
         if (!SYS_IS_ERROR_CODE(xRes)) {
+          // enable the IRQs
           HAL_NVIC_EnableIRQ(IIS3DWB_INT1_EXTI_IRQn);
         }
       }
@@ -407,6 +483,7 @@ static sys_error_code_t IIS3DWBTaskExecuteStepDatalog(IIS3DWBTask *_this) {
       xRes = SYS_APP_TASK_UNKNOWN_REPORT_ERROR_CODE;
       SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_UNKNOWN_REPORT_ERROR_CODE);
 
+      SYS_DEBUGF(SYS_DBG_LEVEL_WARNING, ("IIS3DWB: unexpected report in Datalog: %i\r\n", xReport.reportID));
       break;
     }
   }
@@ -422,6 +499,11 @@ static void IIS3DWBTaskRun(void *pParams) {
 
   // At this point all system has been initialized.
   // Execute task specific delayed one time initialization.
+  xRes = IIS3DWBTaskSensorRegisterInDB(_this);
+  if (SYS_IS_ERROR_CODE(xRes)) {
+    SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("IIS3DWB: unable to register with DB\r\n"));
+    sys_error_handler();
+  }
 
 
   for (;;) {
@@ -607,6 +689,92 @@ static sys_error_code_t IIS3DWBTaskSensorReadData(IIS3DWBTask *_this) {
   return xRes;
 }
 
+static sys_error_code_t IIS3DWBTaskSensorRegisterInDB(IIS3DWBTask *_this) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
+  COM_Device_t *pxSDB = SDB_GetIstance();
+
+  int32_t nID = SDB_AddSensor(pxSDB);
+  if (nID != -1) {
+    xRes = SYS_NO_ERROR_CODE;
+    _this->m_nDBID = nID;
+
+//    COM_DeviceDescriptor_t *tempDeviceDescriptor = SDB_GetDeviceDescriptor(pxSDB);
+//    get_unique_id(tempDeviceDescriptor->serialNumber);
+//    strcpy(tempDeviceDescriptor->alias, "STWIN_001");
+
+      /* IIS3DWB */
+
+    COM_Sensor_t *pxSensor = SDB_GetSensor(pxSDB, _this->m_nDBID);
+
+    /* SENSOR DESCRIPTOR */
+    strcpy(pxSensor->sensorDescriptor.name, "IIS3DWB");
+    pxSensor->sensorDescriptor.dataType = DATA_TYPE_INT16;
+    pxSensor->sensorDescriptor.ODR[0] = 26667.0f;
+    pxSensor->sensorDescriptor.ODR[1] = COM_END_OF_LIST_FLOAT;  /* Terminate list */
+    pxSensor->sensorDescriptor.samplesPerTimestamp[0] = 0;
+    pxSensor->sensorDescriptor.samplesPerTimestamp[1] = 1000;
+    pxSensor->sensorDescriptor.nSubSensors = 1;
+
+    /* SENSOR STATUS */
+    pxSensor->sensorStatus.ODR = 26667.0f;
+    pxSensor->sensorStatus.measuredODR = 0.0f;
+    pxSensor->sensorStatus.initialOffset = 0.0f;
+    pxSensor->sensorStatus.samplesPerTimestamp = 1000;
+    pxSensor->sensorStatus.isActive = 1;
+    pxSensor->sensorStatus.usbDataPacketSize = 3000;
+    pxSensor->sensorStatus.sdWriteBufferSize = IIS3DWB_WRITE_BUFFER_SIZE;
+    pxSensor->sensorStatus.comChannelNumber = -1;
+
+    /* SUBSENSOR 0 DESCRIPTOR */
+    pxSensor->sensorDescriptor.subSensorDescriptor[0].id = 0;
+    pxSensor->sensorDescriptor.subSensorDescriptor[0].sensorType = COM_TYPE_ACC;
+    pxSensor->sensorDescriptor.subSensorDescriptor[0].dataPerSample = 3;
+    strcpy(pxSensor->sensorDescriptor.subSensorDescriptor[0].unit, "g");
+    pxSensor->sensorDescriptor.subSensorDescriptor[0].FS[0] = 2.0f;
+    pxSensor->sensorDescriptor.subSensorDescriptor[0].FS[1] = 4.0f;
+    pxSensor->sensorDescriptor.subSensorDescriptor[0].FS[2] = 8.0f;
+    pxSensor->sensorDescriptor.subSensorDescriptor[0].FS[3] = 16.0f;
+    pxSensor->sensorDescriptor.subSensorDescriptor[0].FS[4] = COM_END_OF_LIST_FLOAT;
+
+    /* SUBSENSOR 0 STATUS */
+    pxSensor->sensorStatus.subSensorStatus[0].FS = 16.0f;
+    pxSensor->sensorStatus.subSensorStatus[0].isActive = 1;
+    pxSensor->sensorStatus.subSensorStatus[0].sensitivity = 0.061f *  pxSensor->sensorStatus.subSensorStatus[0].FS/2;
+
+    _this->m_xSensorCommonParam.fODR = pxSensor->sensorStatus.ODR;
+    _this->m_xSensorCommonParam.pfFS[0] = pxSensor->sensorStatus.subSensorStatus[0].FS;
+    _this->m_xSensorCommonParam.pbSubSensorActive[0] = pxSensor->sensorStatus.subSensorStatus[0].isActive;
+
+    //TODO: STF.Porting - what to do with this?
+    // it seems used only for LOG_ERROR
+//    maxWriteTimeSensor[iis3dwb_com_id] = 1000 * WRITE_BUFFER_SIZE_IIS3DWB / (uint32_t)(IIS3DWB_Init_Param.ODR * 6);
+  }
+
+  return xRes;
+}
+
+static boolean_t IIS3DWBTaskSensorIsActive(const IIS3DWBTask *_this) {
+  assert_param(_this);
+  boolean_t bRes = FALSE;
+
+  COM_Sensor_t *pxSensor = SDB_GetSensor(SDB_GetIstance(), _this->m_nDBID);
+  if (pxSensor != NULL) {
+    // check first the sensor status
+    if (pxSensor->sensorStatus.isActive) {
+      // check if at least one sub sensor is active
+      for (uint8_t i=0; i<pxSensor->sensorDescriptor.nSubSensors; ++i) {
+        if (pxSensor->sensorStatus.subSensorStatus[i].isActive) {
+          bRes = TRUE;
+          break;
+        }
+      }
+    }
+  }
+
+  return bRes;
+}
+
 
 // CubeMX integration
 // ******************
@@ -617,7 +785,7 @@ void IIS3DWBTask_EXTI_Callback(uint16_t nPin) {
       .bDataReady = 1
   };
 
-  if (s_xTaskObj.m_xInQueue != NULL) {
+  if (s_xTaskObj.m_xInQueue != NULL && !AMTIsPowerModeSwitchPending((AManagedTask*)&s_xTaskObj)) {
     if (pdTRUE != xQueueSendToBackFromISR(s_xTaskObj.m_xInQueue, &xReport, NULL)) {
       // unable to send the report. Signal the error
       sys_error_handler();

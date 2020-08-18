@@ -76,6 +76,49 @@ static const AManagedTaskEx_vtbl s_xISM330DHCXTask_vtbl = {
 };
 
 /**
+ *  ISM330DHCXTask internal structure.
+ */
+struct _ISM330DHCXTask {
+  /**
+   * Base class object.
+   */
+  AManagedTaskEx super;
+
+  // Task variables should be added here.
+
+  /**
+   * SPI IF object used to connect the sensor task to the SPI bus.
+   */
+  SPIBusIF m_xSensorIF;
+
+  /**
+   * Specifies sensor parameters used to initialize the sensor.
+   */
+  SensorInitParam m_xSensorCommonParam;
+
+  /**
+   * Specifies the sensor ID to access the sensor configuration inside the sensor DB.
+   */
+  uint8_t m_nDBID;
+
+  /**
+   * Synchronization object used to send command to the task.
+   */
+  QueueHandle_t m_xInQueue;
+
+  /**
+   * Buffer to store the data read from the sensor
+   */
+  uint8_t m_pnSensorDataBuff[ISM330DHCX_GY_SAMPLES_PER_IT * 7];
+
+  /**
+   * ::IEventSrc interface implementation for this class.
+   */
+  IEventSrc *m_pxEventSrc;
+};
+
+
+/**
  * The only instance of the task object.
  */
 static ISM330DHCXTask s_xTaskObj;
@@ -124,7 +167,7 @@ static sys_error_code_t ISM330DHCXTaskSensorInit(ISM330DHCXTask *_this);
 static sys_error_code_t ISM330DHCXTaskSensorReadData(ISM330DHCXTask *_this);
 
 /**
- * Registerd the sensor with the global DB and initialize the default parameters.
+ * Register the sensor with the global DB and initialize the default parameters.
  *
  * @param _this [IN] specifies a pointer to a task object.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise
@@ -266,6 +309,7 @@ sys_error_code_t ISM330DHCXTask_vtblOnCreateTask(AManagedTask *_this, TaskFuncti
   IEventSrcInit(pObj->m_pxEventSrc);
 
   memset(pObj->m_pnSensorDataBuff, 0, sizeof(pObj->m_pnSensorDataBuff));
+  pObj->m_nDBID = 0xFF;
 
   *pvTaskCode = ISM330DHCXTaskRun;
   *pcName = "ISM330DHCX";
@@ -282,7 +326,6 @@ sys_error_code_t ISM330DHCXTask_vtblDoEnterPowerMode(AManagedTask *_this, const 
   ISM330DHCXTask *pObj = (ISM330DHCXTask*)_this;
 
   if (eNewPowerMode == E_POWER_MODE_DATALOG) {
-    //TODO: STF - I have to start the task only if the sensor is enabled!!!
     if (ISM330DHCXTaskSensorIsActive(pObj)) {
       HIDReport xReport = {
           .sensorReport.reportId = HID_REPORT_ID_SENSOR_CMD,
@@ -410,7 +453,6 @@ static sys_error_code_t ISM330DHCXTaskExecuteStepDatalog(ISM330DHCXTask *_this) 
 
     case HID_REPORT_ID_SENSOR_CMD:
       if (xReport.sensorReport.nCmdID == SENSOR_CMD_ID_START) {
-        // now I can use the sensor... let's initialize it.
         xRes = ISM330DHCXTaskSensorInit(_this);
         if (!SYS_IS_ERROR_CODE(xRes)) {
           // enable the IRQs
@@ -723,11 +765,10 @@ static sys_error_code_t ISM330DHCXTaskSensorRegisterInDB(ISM330DHCXTask *_this) 
     _this->m_nDBID = nID;
 
 //    COM_DeviceDescriptor_t *tempDeviceDescriptor = SDB_GetDeviceDescriptor(pxSDB);
-//     get_unique_id(tempDeviceDescriptor->serialNumber);
-//     strcpy(tempDeviceDescriptor->alias, "STWIN_001");
+//    get_unique_id(tempDeviceDescriptor->serialNumber);
+//    strcpy(tempDeviceDescriptor->alias, "STWIN_001");
 
       /* ISM330DHCX */
-
 
     COM_Sensor_t *pxSensor = SDB_GetSensor(pxSDB, _this->m_nDBID);
 
@@ -754,7 +795,7 @@ static sys_error_code_t ISM330DHCXTaskSensorRegisterInDB(ISM330DHCXTask *_this) 
     pxSensor->sensorStatus.measuredODR = 0.0f;
     pxSensor->sensorStatus.initialOffset = 0.0f;
     pxSensor->sensorStatus.samplesPerTimestamp = 0;
-    pxSensor->sensorStatus.isActive = 1;
+    pxSensor->sensorStatus.isActive = 0;
     pxSensor->sensorStatus.usbDataPacketSize = 2048;
     pxSensor->sensorStatus.sdWriteBufferSize = ISM330DHCX_WRITE_BUFFER_SIZE;
     pxSensor->sensorStatus.comChannelNumber = -1;
@@ -772,7 +813,7 @@ static sys_error_code_t ISM330DHCXTaskSensorRegisterInDB(ISM330DHCXTask *_this) 
 
     /* SUBSENSOR 0 STATUS */
     pxSensor->sensorStatus.subSensorStatus[0].FS = 16.0f;
-    pxSensor->sensorStatus.subSensorStatus[0].isActive = 1;
+    pxSensor->sensorStatus.subSensorStatus[0].isActive = 0;
     pxSensor->sensorStatus.subSensorStatus[0].sensitivity = 0.061f * pxSensor->sensorStatus.subSensorStatus[0].FS/2.0f;
 
       /* SUBSENSOR 1 DESCRIPTOR */
