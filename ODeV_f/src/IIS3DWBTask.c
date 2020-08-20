@@ -389,6 +389,10 @@ sys_error_code_t IIS3DWBTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerM
         nCount = 0;
       }
     }
+    if (uxQueueMessagesWaiting(pObj->m_xSensorIF.m_xSyncObj)) {
+      SPIBusIFNotifyIOComplete(&pObj->m_xSensorIF);
+    }
+    _this->m_xStatus.nDelayPowerModeSwitch = 0;
   }
   else {
     vTaskResume(_this->m_xThaskHandle);
