@@ -66,7 +66,7 @@
 
 
 /**
- * SDCardTask Driver virtual table.
+ * SDCardTask virtual table.
  */
 static const AManagedTaskEx_vtbl s_xSDCardTask_vtbl = {
     SDCardTask_vtblHardwareInit,
@@ -75,6 +75,22 @@ static const AManagedTaskEx_vtbl s_xSDCardTask_vtbl = {
     SDCardTask_vtblHandleError,
     SDCardTask_vtblForceExecuteStep
 };
+
+/**
+ * SDCardTask Sensor Event Listener IF virtual table.
+ */
+static const ISensorEventListener_vtbl s_xSDCardTaskSEL_vtbl = {
+    SDCardTaskSEL_vtblOnStatusChange,
+    SDCardTaskSEL_vtblSetOwner,
+    SDCardTaskSEL_vtblGetOwner,
+    SDCardTaskSEL_vtblOnNewDataReady
+};
+
+typedef struct _SDTSensorListener {
+  ISensorEventListener super;
+
+  void *m_pxOwner;
+} SDTSensorListener;
 
 /**
  *  SDCardTask internal structure.
@@ -101,12 +117,19 @@ struct _SDCardTask {
   uint8_t *SD_WriteBuffer[COM_MAX_SENSORS];
   uint32_t SD_WriteBufferIdx[COM_MAX_SENSORS];
 
+  boolean_t sensor_first_dataReady[COM_MAX_SENSORS];
+  float sensor_n_samples_acc[COM_MAX_SENSORS];
+  double old_time_stamp[COM_MAX_SENSORS];
+  uint16_t sensor_n_samples_to_timestamp[COM_MAX_SENSORS];
+
   COM_Device_t JSON_device;
 
   /**
    * Input queue used to send HID message to the task.
    */
   QueueHandle_t m_xInQueue;
+
+  SDTSensorListener m_xSensorListener;
 };
 
 /**
@@ -210,6 +233,8 @@ static sys_error_code_t SDTCloseFiles(SDCardTask *_this);
 
 static sys_error_code_t SDTFlushBuffer(SDCardTask *_this, uint32_t id);
 
+static sys_error_code_t SDTFillBuffer(SDCardTask *_this, uint8_t id, uint8_t *src, uint16_t srcSize);
+
 static inline sys_error_code_t SDTWriteBuffer(SDCardTask *_this, uint32_t id, uint8_t *buffer, uint32_t size);
 
 static inline sys_error_code_t SDTCloseFile(SDCardTask *_this, uint32_t id);
@@ -238,8 +263,15 @@ AManagedTaskEx *SDCardTaskAlloc() {
   AMTInitEx(&s_xTaskObj.super);
 
   s_xTaskObj.super.vptr = &s_xSDCardTask_vtbl;
+  s_xTaskObj.m_xSensorListener.super.vptr = &s_xSDCardTaskSEL_vtbl;
 
   return (AManagedTaskEx*)&s_xTaskObj;
+}
+
+IEventListener *SDCardTaskGetEventListenrIF(const SDCardTask *_this) {
+  assert_param(_this);
+
+  return (IEventListener*)&_this->m_xSensorListener;
 }
 
 // AManagedTask virtual functions definition
@@ -268,14 +300,17 @@ sys_error_code_t SDCardTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t
   // create the input queue
   pObj->m_xInQueue = xQueueCreate(SDC_TASK_CFG_IN_QUEUE_ITEM_COUNT, SDC_TASK_CFG_IN_QUEUE_ITEM_SIZE);
   if (pObj->m_xInQueue == NULL) {
-    xRes = SYS_AI_TASK_INIT_ERROR_CODE;
-    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_AI_TASK_INIT_ERROR_CODE);
+    xRes = SYS_SD_TASK_INIT_ERROR_CODE;
+    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SD_TASK_INIT_ERROR_CODE);
     return xRes;
   }
 
 #ifdef DEBUG
   vQueueAddToRegistry(pObj->m_xInQueue, "SDT_Q");
 #endif
+
+  // take the ownership of the Sensor Event IF
+  IEventListenerSetOwner((IEventListener*)&pObj->m_xSensorListener, pObj);
 
   *pvTaskCode = SDCardTaskRun;
   *pcName = "SDC";
@@ -342,6 +377,119 @@ sys_error_code_t SDCardTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMo
   return xRes;
 }
 
+// IIListener virtual functions definition
+// ***************************************
+
+sys_error_code_t SDCardTaskSEL_vtblOnStatusChange(IListener *_this) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  UNUSED(_this);
+
+  SYS_DEBUGF(SYS_DBG_LEVEL_WARNING, ("SDC.SEL: not implemented OnStatusChange.\r\n"));
+
+  return xRes;
+}
+
+
+// IEventListener virtual functions definition
+// *******************************************
+
+void SDCardTaskSEL_vtblSetOwner(IEventListener *_this, void *pxOwner) {
+  assert_param(_this);
+  SDTSensorListener *pObj = (SDTSensorListener*)_this;
+
+  pObj->m_pxOwner = pxOwner;
+}
+
+void *SDCardTaskSEL_vtblGetOwner(IEventListener *_this) {
+  assert_param(_this);
+  SDTSensorListener *pxObj = (SDTSensorListener*)_this;
+
+  return pxObj->m_pxOwner;
+}
+
+
+// ISensorEventListener virtual functions definition
+// *************************************************
+
+sys_error_code_t SDCardTaskSEL_vtblOnNewDataReady(IEventListener *_this, const SensorEvent *pxEvt) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  SDCardTask *pxOwner = (SDCardTask*)IEventListenerGetOwner(_this);
+  COM_Device_t *pxSDB = SDB_GetIstance();
+
+  if (pxOwner == NULL) {
+    return xRes;
+  }
+
+  COM_SensorStatus_t * tempStatus = SDB_GetSensorStatus(pxSDB, pxEvt->nSensorID);
+  COM_SensorDescriptor_t * tempDescriptor = SDB_GetSensorDescriptor(pxSDB, pxEvt->nSensorID);
+  COM_SubSensorDescriptor_t *tempSubSensorDescriptor = NULL;
+  uint16_t toSend = 0, nBytesPerSample = 0;
+
+  if (pxOwner->sensor_first_dataReady[pxEvt->nSensorID]) {
+    // Discard first set of sensor data
+    pxOwner->sensor_first_dataReady[pxEvt->nSensorID] = 0;
+    pxOwner->sensor_n_samples_acc[pxEvt->nSensorID] = 0.0f;
+    tempStatus->initialOffset = pxEvt->fTimeStamp;
+    pxOwner->old_time_stamp[pxEvt->nSensorID] = pxEvt->fTimeStamp;
+    pxOwner->sensor_n_samples_to_timestamp[pxEvt->nSensorID] = tempStatus->samplesPerTimestamp;
+  }
+  else {
+    if(tempDescriptor->dataType == DATA_TYPE_FLOAT || tempDescriptor->dataType == DATA_TYPE_INT32 || tempDescriptor->dataType == DATA_TYPE_UINT32)  {
+      nBytesPerSample = 4;
+    }
+    else if(tempDescriptor->dataType == DATA_TYPE_UINT16 || tempDescriptor->dataType == DATA_TYPE_INT16) {
+      nBytesPerSample = 2;
+    }
+    else if(tempDescriptor->dataType == DATA_TYPE_UINT8 || tempDescriptor->dataType == DATA_TYPE_INT8) {
+      nBytesPerSample = 1;
+    }
+
+    uint8_t totalDataPerSample = 0;
+
+    for (int i = 0; i < tempDescriptor->nSubSensors; i++) {
+      if (tempStatus->subSensorStatus[i].isActive) {
+        tempSubSensorDescriptor = SDB_GetSubSensorDescriptor(pxSDB, pxEvt->nSensorID, i);
+        totalDataPerSample += tempSubSensorDescriptor->dataPerSample;
+      }
+    }
+
+    nBytesPerSample *= totalDataPerSample;
+    pxOwner->sensor_n_samples_acc[pxEvt->nSensorID] = (float)(pxEvt->nDataSize / nBytesPerSample);
+    tempStatus->measuredODR = pxOwner->sensor_n_samples_acc[pxEvt->nSensorID]/(pxEvt->fTimeStamp - pxOwner->old_time_stamp[pxEvt->nSensorID]);
+    pxOwner->old_time_stamp[pxEvt->nSensorID] = pxEvt->fTimeStamp;
+    toSend = pxEvt->nDataSize/nBytesPerSample;
+
+    uint8_t *pnBuff = (uint8_t *)pxEvt->pData;
+    while (toSend > 0) {
+      if(toSend < pxOwner->sensor_n_samples_to_timestamp[pxEvt->nSensorID] || pxOwner->sensor_n_samples_to_timestamp[pxEvt->nSensorID] == 0) {
+        SDTFillBuffer(pxOwner, pxEvt->nSensorID , pnBuff, toSend * nBytesPerSample);
+
+        if(pxOwner->sensor_n_samples_to_timestamp[pxEvt->nSensorID] != 0) {
+          pxOwner->sensor_n_samples_to_timestamp[pxEvt->nSensorID] -= toSend;
+        }
+        toSend = 0;
+      }
+      else {
+        SDTFillBuffer(pxOwner, pxEvt->nSensorID, pnBuff, pxOwner->sensor_n_samples_to_timestamp[pxEvt->nSensorID] * nBytesPerSample);
+
+        pnBuff += pxOwner->sensor_n_samples_to_timestamp[pxEvt->nSensorID] * nBytesPerSample;
+        toSend -= pxOwner->sensor_n_samples_to_timestamp[pxEvt->nSensorID];
+
+        double newTS = pxEvt->fTimeStamp - ((1.0 / (double)tempStatus->measuredODR) * toSend);
+        SDTFillBuffer(pxOwner, pxEvt->nSensorID, (uint8_t *)&newTS, 8);
+        pxOwner->sensor_n_samples_to_timestamp[pxEvt->nSensorID] = tempStatus->samplesPerTimestamp;
+      }
+    }
+
+  }
+
+
+  return xRes;
+}
+
+
 // Private function definition
 // ***************************
 
@@ -395,7 +543,19 @@ static sys_error_code_t SDTExecuteStepDatalog(SDCardTask *_this) {
     case HID_REPORT_ID_SD_CMD:
       if (xReport.sdReport.nCmdID == SDT_CMD_ID_START) {
         // start the datalog??
-        // maybe better to get for the datalog during the PM transaction.
+        // maybe better to get ready for the data logging during the PM transaction.
+      }
+      else if(xReport.sdReport.nCmdID == SDT_CMD_ID_FIRST_HALF_DATA_READY) {
+        uint8_t sensor_id = xReport.sdReport.nParam;
+        COM_SensorStatus_t * sensor_status = SDB_GetSensorStatus(SDB_GetIstance(), sensor_id);
+        uint32_t buf_size = sensor_status->sdWriteBufferSize;
+        SDTWriteBuffer(_this, sensor_id, _this->SD_WriteBuffer[sensor_id], buf_size);
+      }
+      else if(xReport.sdReport.nCmdID == SDT_CMD_ID_SECOND_HALF_DATA_READY) {
+        uint8_t sensor_id = xReport.sdReport.nParam;
+        COM_SensorStatus_t * sensor_status = SDB_GetSensorStatus(SDB_GetIstance(), sensor_id);
+        uint32_t buf_size = sensor_status->sdWriteBufferSize;
+        SDTWriteBuffer(_this, sensor_id, (uint8_t*)(_this->SD_WriteBuffer[sensor_id] + buf_size), buf_size);
       }
       break;
 
@@ -645,15 +805,14 @@ static sys_error_code_t SDTStartLogging(SDCardTask *_this) {
     }
 
     if (!SYS_IS_ERROR_CODE(xRes)) {
-      SDTMemoryInit(_this); //
+      SDTMemoryInit(_this);
 
-      // the sensor thread will start by their self.
-//      for(i=0;i<device_descriptor->nSensor;i++) {
-//        sensor_status = SDB_GetSensorStatus(i);
-//        if(sensor_status->isActive) {
-//          StartSensorThread(i); //TODO: STF - this create a link with the main.c
-//        }
-//      }
+      for (int i=0; i<COM_MAX_SENSORS; ++i) {
+        _this->sensor_first_dataReady[i] = TRUE;
+        _this->old_time_stamp[i] = 0.0;
+        _this->sensor_n_samples_acc[i] = 0.0f;
+        _this->sensor_n_samples_to_timestamp[i] = 0;
+      }
     }
   }
 
@@ -875,6 +1034,52 @@ static sys_error_code_t SDTFlushBuffer(SDCardTask *_this, uint32_t id) {
   _this->SD_WriteBufferIdx[id] = 0;
 
 	return xRes;
+}
+
+static sys_error_code_t SDTFillBuffer(SDCardTask *_this, uint8_t id, uint8_t *src, uint16_t srcSize) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  uint8_t *dst = _this->SD_WriteBuffer[id];
+  uint32_t dstP, srcP = 0;
+  COM_SensorStatus_t * sensor_status = SDB_GetSensorStatus(SDB_GetIstance(), id);
+  uint32_t dstSize, sdBufSize;
+  HIDReport xReport = {
+      .sdReport.reportId = HID_REPORT_ID_SD_CMD,
+      .sdReport.nParam = id
+  };
+
+  dstP = _this->SD_WriteBufferIdx[id];
+  sdBufSize = sensor_status->sdWriteBufferSize;
+  dstSize = sdBufSize*2;
+
+  /* byte per byte copy */
+  while(srcP < srcSize) {
+    dst[dstP] = src[srcP];
+    dstP++;
+    srcP++;
+    if(dstP >= dstSize) {
+      dstP = 0;
+    }
+  }
+
+  if((_this->SD_WriteBufferIdx[id] < (dstSize/2)) && (dstP >= (dstSize/2))) {
+    // first half full
+    xReport.sdReport.nCmdID = SDT_CMD_ID_FIRST_HALF_DATA_READY;
+
+  }
+  else if(dstP < _this->SD_WriteBufferIdx[id]) {
+    // second half full
+    xReport.sdReport.nCmdID = SDT_CMD_ID_SECOND_HALF_DATA_READY;
+  }
+
+  if (pdTRUE != xQueueSendToBack(_this->m_xInQueue, &xReport, pdMS_TO_TICKS(50))) {
+    xRes = SYS_SD_TASK_DATA_LOST_ERROR_CODE;
+    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SD_TASK_DATA_LOST_ERROR_CODE);
+  }
+
+  _this->SD_WriteBufferIdx[id] = dstP;
+
+  return xRes;
 }
 
 

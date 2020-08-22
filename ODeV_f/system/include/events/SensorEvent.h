@@ -62,6 +62,11 @@ struct _SensorEvent {
      * Timestamp
      */
     double fTimeStamp;
+
+    /**
+     * Specifies the sensor ID in the sensor DB.
+     */
+    uint16_t nSensorID;
 };
 
 
@@ -74,14 +79,25 @@ struct _SensorEvent {
  * @param _this [IN] specifies a pointer to the object.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
  */
-inline sys_error_code_t SensorEventInit(IEvent *_this, const IEventSrc *pSource, const uint8_t * pData, uint16_t nDataSize, double fTimeStamp);
+
+/**
+ *
+ * @param _this [IN] Initialize the interface ISensorEvent. It should be called after the object allocation and before using the object.
+ * @param pSource [IN] specifies the source of the event.
+ * @param pData [IN] specifies the buffer containing the raw data form the sensor.
+ * @param nDataSize [IN] specifies the size in byt of the data coming from the sensor.
+ * @param fTimeStamp [IN] specifies the timestamp of the data.
+ * @param nSensorID [IN] specifies the ID of the sensor in the sensor DB.
+ * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
+ */
+inline sys_error_code_t SensorEventInit(IEvent *_this, const IEventSrc *pSource, const uint8_t * pData, uint16_t nDataSize, double fTimeStamp, uint16_t nSensorID);
 
 
 // Inline functions definition
 // ***************************
 
 SYS_DEFINE_INLINE
-sys_error_code_t SensorEventInit(IEvent *_this, const IEventSrc *pSource, const uint8_t * pData, uint16_t nDataSize, double fTimeStamp) {
+sys_error_code_t SensorEventInit(IEvent *_this, const IEventSrc *pSource, const uint8_t * pData, uint16_t nDataSize, double fTimeStamp, uint16_t nSensorID) {
   assert_param(_this);
   SensorEvent *pObj = (SensorEvent*)_this;
 
@@ -89,6 +105,7 @@ sys_error_code_t SensorEventInit(IEvent *_this, const IEventSrc *pSource, const 
   pObj->pData = pData;
   pObj->nDataSize = nDataSize;
   pObj->fTimeStamp = fTimeStamp;
+  pObj->nSensorID = nSensorID;
 
   return SYS_NO_ERROR_CODE;
 }

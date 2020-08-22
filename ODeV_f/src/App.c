@@ -110,11 +110,16 @@ sys_error_code_t SysOnStartApplication(ApplicationContext *pAppContext) {
 //  //connect the sensor task to the bus.
   SPIBusTaskConnectDevice((SPIBusTask*)s_pxSPIBusObj, ISM330DHCXTaskGetSensorIF((ISM330DHCXTask*)s_pxISM330DHCXObj));
   SPIBusTaskConnectDevice((SPIBusTask*)s_pxSPIBusObj, IIS3DWBTaskGetSensorIF((IIS3DWBTask*)s_pxIIS3DWBObj));
-//
-//  //add the AI task to the sensors
-//  IEventListener *pxListener = AITaskGetEventListenrIF((AITask*)s_pxPDMObj);
+
+  //add the AI task to the sensors as event listener
+  IEventListener *pxListener = AITaskGetEventListenrIF((AITask*)s_pxPDMObj);
 //  IEventSrcAddEventListener(ISM330DHCXTaskGetEventSrcIF((ISM330DHCXTask*)s_pxISM330DHCXObj), pxListener);
 //  IEventSrcAddEventListener(IIS3DWBTaskGetEventSrcIF((IIS3DWBTask*)s_pxIIS3DWBObj), pxListener);
+
+  //add the SD task to the sensors as event listener
+  pxListener = SDCardTaskGetEventListenrIF((SDCardTask*)s_pxSDCardObj);
+  IEventSrcAddEventListener(ISM330DHCXTaskGetEventSrcIF((ISM330DHCXTask*)s_pxISM330DHCXObj), pxListener);
+  IEventSrcAddEventListener(IIS3DWBTaskGetEventSrcIF((IIS3DWBTask*)s_pxIIS3DWBObj), pxListener);
 
   return SYS_NO_ERROR_CODE;
 }

@@ -37,6 +37,16 @@ sys_error_code_t SDCardTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPow
 sys_error_code_t SDCardTask_vtblHandleError(AManagedTask *_this, SysEvent xError); ///< @sa AMTHandleError
 sys_error_code_t SDCardTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMode eActivePowerMode); ///< @sa AMTExForceExecuteStep
 
+// IIListener virtual functions
+sys_error_code_t SDCardTaskSEL_vtblOnStatusChange(IListener *_this);                                   ///< @sa IListenerOnStatusChange
+
+// IEventListener virtual functions
+void SDCardTaskSEL_vtblSetOwner(IEventListener *_this, void *pxOwner);                                 ///< @sa IEventListenerSetOwner
+void *SDCardTaskSEL_vtblGetOwner(IEventListener *_this);                                               ///< @sa IEventListenerGetOwner
+
+// ISensorEventListener virtual functions
+sys_error_code_t SDCardTaskSEL_vtblOnNewDataReady(IEventListener *_this, const SensorEvent *pxEvt);   ///< @sa ISensorEventListenerOnNewDataReady
+
 #ifdef __cplusplus
 }
 #endif

@@ -446,7 +446,7 @@ static sys_error_code_t ISM330DHCXTaskExecuteStepDatalog(ISM330DHCXTask *_this) 
       if (!SYS_IS_ERROR_CODE(xRes)) {
         // notify the listeners...
         SensorEvent xEvt;
-        SensorEventInit((IEvent*)&xEvt, _this->m_pxEventSrc, _this->m_pnSensorDataBuff, ISM330DHCX_GY_SAMPLES_PER_IT * 6, 0);
+        SensorEventInit((IEvent*)&xEvt, _this->m_pxEventSrc, _this->m_pnSensorDataBuff, ISM330DHCX_GY_SAMPLES_PER_IT * 6, 0, _this->m_nDBID);
         IEventSrcSendEvent(_this->m_pxEventSrc, (IEvent*)&xEvt, NULL);
       }
       break;
@@ -795,7 +795,7 @@ static sys_error_code_t ISM330DHCXTaskSensorRegisterInDB(ISM330DHCXTask *_this) 
     pxSensor->sensorStatus.measuredODR = 0.0f;
     pxSensor->sensorStatus.initialOffset = 0.0f;
     pxSensor->sensorStatus.samplesPerTimestamp = 0;
-    pxSensor->sensorStatus.isActive = 0;
+    pxSensor->sensorStatus.isActive = 1;
     pxSensor->sensorStatus.usbDataPacketSize = 2048;
     pxSensor->sensorStatus.sdWriteBufferSize = ISM330DHCX_WRITE_BUFFER_SIZE;
     pxSensor->sensorStatus.comChannelNumber = -1;
@@ -813,7 +813,7 @@ static sys_error_code_t ISM330DHCXTaskSensorRegisterInDB(ISM330DHCXTask *_this) 
 
     /* SUBSENSOR 0 STATUS */
     pxSensor->sensorStatus.subSensorStatus[0].FS = 16.0f;
-    pxSensor->sensorStatus.subSensorStatus[0].isActive = 0;
+    pxSensor->sensorStatus.subSensorStatus[0].isActive = 1;
     pxSensor->sensorStatus.subSensorStatus[0].sensitivity = 0.061f * pxSensor->sensorStatus.subSensorStatus[0].FS/2.0f;
 
       /* SUBSENSOR 1 DESCRIPTOR */

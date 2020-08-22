@@ -467,7 +467,7 @@ static sys_error_code_t IIS3DWBTaskExecuteStepDatalog(IIS3DWBTask *_this) {
       if (!SYS_IS_ERROR_CODE(xRes)) {
         // notify the listeners...
         SensorEvent xEvt;
-        SensorEventInit((IEvent*)&xEvt, _this->m_pxEventSrc, _this->m_pnSensorDataBuff, IIS3DWB_SAMPLES_PER_IT * 6, 0);
+        SensorEventInit((IEvent*)&xEvt, _this->m_pxEventSrc, _this->m_pnSensorDataBuff, IIS3DWB_SAMPLES_PER_IT * 6, 0, _this->m_nDBID);
         IEventSrcSendEvent(_this->m_pxEventSrc, (IEvent*)&xEvt, NULL);
       }
       break;

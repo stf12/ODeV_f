@@ -34,10 +34,14 @@ extern "C" {
 #include "syserror.h"
 #include "AManagedTaskEx.h"
 #include "AManagedTaskEx_vtbl.h"
+#include "ISensorEventListener.h"
+#include "ISensorEventListener_vtbl.h"
 
 // Command ID. These are all commands supported by a sensor task.
-#define SDT_CMD_ID_START                ((uint16_t)0x0001)              ///< START command ID.
-#define SDT_CMD_ID_STOP                 ((uint16_t)0x0002)              ///< STOP command ID.
+#define SDT_CMD_ID_START                    ((uint16_t)0x0001)              ///< START command ID.
+#define SDT_CMD_ID_STOP                     ((uint16_t)0x0002)              ///< STOP command ID.
+#define SDT_CMD_ID_FIRST_HALF_DATA_READY    ((uint16_t)0x0003)              ///< FIRST HALF DATA_READY command ID.
+#define SDT_CMD_ID_SECOND_HALF_DATA_READY   ((uint16_t)0x0004)              ///< SECOND HALF DATA_READY command ID.
 
 
 /**
@@ -57,6 +61,13 @@ typedef struct _SDCardTask SDCardTask;
  */
 AManagedTaskEx *SDCardTaskAlloc();
 
+/**
+ * Get the ::ISensorEventListener interface of the task object.
+ *
+ * @param _this  [IN] specifies a pointer to the task object.
+ * @return a pointer to the ::ISensorEventListener of the task object.
+ */
+IEventListener *SDCardTaskGetEventListenrIF(const SDCardTask *_this);
 
 // Inline functions definition
 // ***************************

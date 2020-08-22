@@ -48,7 +48,7 @@ extern "C" {
 #define SYS_DBG_HW                         SYS_DBG_ON                 ///< Hello World task debug control byte
 #define SYS_DBG_SPIBUS                     SYS_DBG_ON                 ///< SPIBus task debug control byte
 #define SYS_DBG_ISM330DHCX                 SYS_DBG_ON                 ///< ISM330DHCX sensor task debug control byte
-#define SYS_DBG_IIS3DWB                    SYS_DBG_ON                 ///< IIS3DWB sensor task debug control byte
+#define SYS_DBG_IIS3DWB                    SYS_DBG_OFF                 ///< IIS3DWB sensor task debug control byte
 #define SYS_DBG_AI                         SYS_DBG_ON                 ///< AI task debug control byte
 #define SYS_DBG_UTIL                       SYS_DBG_ON                 ///< Utility task debug control byte
 #define SYS_DBG_SDC                        SYS_DBG_ON                 ///< SDCARD task debug control byte
