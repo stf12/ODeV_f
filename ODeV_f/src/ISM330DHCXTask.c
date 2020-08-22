@@ -373,13 +373,19 @@ sys_error_code_t ISM330DHCXTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPow
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   ISM330DHCXTask *pObj = (ISM330DHCXTask*)_this;
-  struct internalReportFE_t xReport = {
-      .reportId = HID_REPORT_ID_FORCE_STEP,
-      .nData = 0
+
+  HIDReport xReport = {
+      .internalReportFE.reportId = HID_REPORT_ID_FORCE_STEP,
+      .internalReportFE.nData = 0
   };
 
   if ((eActivePowerMode == E_POWER_MODE_RUN) || (eActivePowerMode == E_POWER_MODE_DATALOG)) {
-    xRes = ISM330DHCXTaskPostReportToFront(pObj, (HIDReport*)&xReport);
+    if (AMTExIsTaskInactive(_this)) {
+      xRes = ISM330DHCXTaskPostReportToFront(pObj, (HIDReport*)&xReport);
+    }
+    else {
+      _this->m_xStatus.nDelayPowerModeSwitch = 0;
+    }
   }
   else {
     vTaskResume(_this->m_xThaskHandle);

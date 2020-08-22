@@ -370,29 +370,35 @@ sys_error_code_t IIS3DWBTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerM
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   IIS3DWBTask *pObj = (IIS3DWBTask*)_this;
 
-  struct internalReportFE_t xReport = {
-      .reportId = HID_REPORT_ID_FORCE_STEP,
-      .nData = 0
+  HIDReport xReport = {
+      .internalReportFE.reportId = HID_REPORT_ID_FORCE_STEP,
+      .internalReportFE.nData = 0
   };
 
   if ((eActivePowerMode == E_POWER_MODE_RUN) || (eActivePowerMode == E_POWER_MODE_DATALOG)) {
-    uint8_t nCount = 3;
-    while(nCount) {
+//    uint8_t nCount = 3;
+//    while(nCount) {
+//      xRes = IIS3DWBTaskPostReportToFront(pObj, (HIDReport*)&xReport);
+//      if (SYS_IS_ERROR_CODE(xRes)) {
+//        // we are in a power mode switch but we can't resume the task because the in queue is full!
+//        // try to reset the queue
+//        nCount--;
+//        xQueueReset(pObj->m_xInQueue);
+//      }
+//      else {
+//        nCount = 0;
+//      }
+//    }
+//    if (uxQueueMessagesWaiting(pObj->m_xSensorIF.m_xSyncObj)) {
+//      SPIBusIFNotifyIOComplete(&pObj->m_xSensorIF);
+//    }
+//    _this->m_xStatus.nDelayPowerModeSwitch = 0;
+    if (AMTExIsTaskInactive(_this)) {
       xRes = IIS3DWBTaskPostReportToFront(pObj, (HIDReport*)&xReport);
-      if (SYS_IS_ERROR_CODE(xRes)) {
-        // we are in a power mode switch but we can't resume the task because the in queue is full!
-        // try to reset the queue
-        nCount--;
-        xQueueReset(pObj->m_xInQueue);
-      }
-      else {
-        nCount = 0;
-      }
     }
-    if (uxQueueMessagesWaiting(pObj->m_xSensorIF.m_xSyncObj)) {
-      SPIBusIFNotifyIOComplete(&pObj->m_xSensorIF);
+    else {
+      _this->m_xStatus.nDelayPowerModeSwitch = 0;
     }
-    _this->m_xStatus.nDelayPowerModeSwitch = 0;
   }
   else {
     vTaskResume(_this->m_xThaskHandle);
@@ -431,7 +437,7 @@ static sys_error_code_t IIS3DWBTaskExecuteStepRun(IIS3DWBTask *_this) {
       break;
 
     case HID_REPORT_ID_IIS3DWB:
-      // date ready but we are in RUN (no datalog, no AI) so we simple skip the repot.
+      // date ready but we are in RUN (no datalog, no AI) so we simple skip the report.
       break;
 
     default:
