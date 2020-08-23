@@ -987,17 +987,6 @@ static sys_error_code_t AITaskStartImp(AITask *_this, const AICmdExecutionContex
   _this->m_nSignalCount = 0;
   _this->m_nDataIdx = 0;
 
-  // start sequence for the sensor and the rest of the app.
-//  const uint32_t nSensors = SDB_GetDeviceDescriptor()->nSensor;
-//  SM_TIM_Start();
-//
-//  for (int i = 0; i < nSensors; i++) {
-//    if(SDB_GetSensorStatus(i)->isActive) {
-//      StartSensorThread(i);
-//      sensor_first_dataReady[i] = 1;
-//    }
-//  }
-
   if (pxContext->nTimerPeriodMS) {
     // start the software stop timer
     xTimerChangePeriod(_this->m_xStopTimer, pdMS_TO_TICKS(pxContext->nTimerPeriodMS), pdMS_TO_TICKS(200));
@@ -1021,7 +1010,7 @@ static sys_error_code_t AITaskStopImp(AITask *_this, const AICmdExecutionContext
 //  for (int i = 0; i < nSensors; i++) {
 //    if(SDB_GetSensorStatus(i)->isActive) {
 //      StopSensorThread(i);
-//      sensor_first_dataReady[i] = 0;
+//      m_pnSensorFirstDataReady[i] = 0;
 //    }
 //  }
 //
