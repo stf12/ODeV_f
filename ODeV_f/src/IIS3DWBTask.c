@@ -30,6 +30,7 @@
 #include "sensor_db.h"
 #include "ISensorEventListener.h"
 #include "ISensorEventListener_vtbl.h"
+#include "UtilTask.h"
 #include <string.h>
 #include "sysdebug.h"
 
@@ -115,6 +116,21 @@ struct _IIS3DWBTask {
    * ::IEventSrc interface implementation for this class.
    */
   IEventSrc *m_pxEventSrc;
+
+  /**
+   * Specifies the time stamp in tick.
+   */
+  uint32_t m_nTimeStampTick;
+
+  /**
+   * Used during the time stamp computation to manage the overflow of the hardware timer.
+   */
+  uint32_t m_nOldTimeStampTick;
+
+  /**
+   * Specifies the time stamp linked with the sensor data.
+   */
+  uint64_t m_nTimeStamp;
 };
 
 
@@ -307,6 +323,9 @@ sys_error_code_t IIS3DWBTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_
 
   memset(pObj->m_pnSensorDataBuff, 0, sizeof(pObj->m_pnSensorDataBuff));
   pObj->m_nDBID = 0xFF;
+  pObj->m_nTimeStampTick = 0;
+  pObj->m_nOldTimeStampTick = 0;
+  pObj->m_nTimeStamp = 0;
 
   *pvTaskCode = IIS3DWBTaskRun;
   *pcName = "IIS3DWB";
@@ -333,6 +352,12 @@ sys_error_code_t IIS3DWBTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPo
         xRes = SYS_APP_TASK_REPORT_LOST_ERROR_CODE;
         SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_REPORT_LOST_ERROR_CODE);
       }
+
+
+      // reset the variables for the time stamp computation.
+      pObj->m_nTimeStampTick = 0;
+      pObj->m_nOldTimeStampTick = 0;
+      pObj->m_nTimeStamp = 0;
     }
 
     SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("IIS3DWB: -> DATALOG\r\n"));
@@ -471,9 +496,21 @@ static sys_error_code_t IIS3DWBTaskExecuteStepDatalog(IIS3DWBTask *_this) {
       SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("IIS3DWB: new data.\r\n"));
       xRes = IIS3DWBTaskSensorReadData(_this);
       if (!SYS_IS_ERROR_CODE(xRes)) {
+        // update the time stamp
+        uint32_t nPeriod = 0;
+        if (_this->m_nTimeStampTick >= _this->m_nOldTimeStampTick) {
+          nPeriod = _this->m_nTimeStampTick - _this->m_nOldTimeStampTick;
+        }
+        else {
+          // overflow of the hw timer
+          nPeriod = _this->m_nTimeStampTick + (0xFFFFFFFF -_this->m_nOldTimeStampTick);
+        }
+        _this->m_nOldTimeStampTick = _this->m_nTimeStampTick;
+        _this->m_nTimeStamp += nPeriod;
         // notify the listeners...
+        double fTimeStamp = (double)_this->m_nTimeStamp/(double)(SystemCoreClock);
         SensorEvent xEvt;
-        SensorEventInit((IEvent*)&xEvt, _this->m_pxEventSrc, _this->m_pnSensorDataBuff, IIS3DWB_SAMPLES_PER_IT * 6, 0, _this->m_nDBID);
+        SensorEventInit((IEvent*)&xEvt, _this->m_pxEventSrc, _this->m_pnSensorDataBuff, IIS3DWB_SAMPLES_PER_IT * 6, fTimeStamp, _this->m_nDBID);
         IEventSrcSendEvent(_this->m_pxEventSrc, (IEvent*)&xEvt, NULL);
       }
       break;
@@ -668,20 +705,7 @@ static sys_error_code_t IIS3DWBTaskSensorReadData(IIS3DWBTask *_this) {
   iis3dwb_read_reg(pxSensorDrv, IIS3DWB_FIFO_STATUS2, &nReg1, 1);
   fifo_level = ((nReg1 & 0x03) << 8) + nReg0;
 
-  //TODO: STF.Debug - need to add the timestamp
   if((nReg1) & 0x80  && (fifo_level >= IIS3DWB_SAMPLES_PER_IT) ) {
-//    if(tim_value >= tim_value_old)
-//    {
-//      period = tim_value - tim_value_old;
-//    }
-//    else
-//    {
-//      period = tim_value + (0xFFFFFFFF - tim_value_old);
-//    }
-//
-//    tim_value_old = tim_value;
-//    ts_iis3dwb +=  period;
-
     iis3dwb_read_reg(pxSensorDrv, IIS3DWB_FIFO_DATA_OUT_TAG, (uint8_t *)_this->m_pnSensorDataBuff, IIS3DWB_SAMPLES_PER_IT * 7);
 
     /* Arrange Data */
@@ -693,7 +717,6 @@ static sys_error_code_t IIS3DWBTaskSensorReadData(IIS3DWBTask *_this) {
       *p16dest++ = *p16src++;
       *p16dest++ = *p16src++;
     }
-//    IIS3DWB_Data_Ready((uint8_t *)iis3dwb_mem, IIS3DWB_SAMPLES_PER_IT * 6, (double)ts_iis3dwb/(double)SystemCoreClock);
   }
 
   return xRes;
@@ -801,4 +824,5 @@ void IIS3DWBTask_EXTI_Callback(uint16_t nPin) {
       sys_error_handler();
     }
   }
+  s_xTaskObj.m_nTimeStampTick = UtilGetTimeStamp();
 }

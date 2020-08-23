@@ -25,6 +25,8 @@
 
 #include "UtilTask.h"
 #include "UtilTask_vtbl.h"
+#include "UtilityDriver.h"
+#include "UtilityDriver_vtbl.h"
 #include "HSD_json.h"
 #include "hid_report_parser.h"
 #include "mx.h"
@@ -77,6 +79,11 @@ struct _UtilTask {
   AManagedTaskEx super;
 
   // Task variables should be added here.
+
+  /**
+   * Specifies the driver used by the task. It is an instance of ::UtilityDriver
+   */
+  IDriver *m_pxDriver;
 
   /**
    * Input queue used by other task to request services.
@@ -133,17 +140,38 @@ AManagedTaskEx *UtilTaskAlloc() {
   return (AManagedTaskEx*)&s_xTaskObj;
 }
 
+uint32_t UtilTaskGetTimeStamp(UtilTask *_this) {
+  assert_param(_this);
+
+  return UtilityDrvGetTimeStamp((UtilityDriver*)_this->m_pxDriver);
+}
+
+uint32_t UtilGetTimeStamp() {
+  return UtilityDrvGetTimeStamp((UtilityDriver*)s_xTaskObj.m_pxDriver);
+}
+
 // AManagedTask virtual functions definition
 // ***********************************************
 
 sys_error_code_t UtilTask_vtblHardwareInit(AManagedTask *_this, void *pParams) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  UtilTask *pObj = (UtilTask*)_this;
+  UtilTask *pObj = (UtilTask*)_this;
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-  UNUSED(_this);
+  pObj->m_pxDriver = UtilityDriverAlloc();
+  if (pObj->m_pxDriver == NULL) {
+    SYS_DEBUGF(SYS_DBG_LEVEL_SEVERE, ("UTIL task: unable to alloc driver object.\r\n"));
+    xRes = SYS_GET_LAST_LOW_LEVEL_ERROR_CODE();
+  }
+  else {
+    xRes = IDrvInit(pObj->m_pxDriver, NULL);
+    if (SYS_IS_ERROR_CODE(xRes)) {
+      SYS_DEBUGF(SYS_DBG_LEVEL_SEVERE, ("UTIL task: error during driver initialization\r\n"));
+    }
+  }
 
+  //TODO: STF -  Need to move into UtilityDriver
   __HAL_RCC_GPIOE_CLK_ENABLE();
 
   // Initialize PE0 (USER_BUTTON)
@@ -189,7 +217,10 @@ sys_error_code_t UtilTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t *
 sys_error_code_t UtilTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  UtilTask *pObj = (UtilTask*)_this;
+  UtilTask *pObj = (UtilTask*)_this;
+
+  // propagate the call to the driver object.
+  IDrvDoEnterPowerMode(pObj->m_pxDriver, eActivePowerMode, eNewPowerMode);
 
   return xRes;
 }

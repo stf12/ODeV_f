@@ -54,6 +54,22 @@ typedef struct _UtilTask UtilTask;
  */
 AManagedTaskEx *UtilTaskAlloc();
 
+/**
+ * Get the time stamp. It is defined only when the system is in E_POWER_MODE_DATALOG
+ *
+ * @param _this [IN] specifies a pointer to a task object.
+ * @return the system time stamp in tick.
+ */
+uint32_t UtilTaskGetTimeStamp(UtilTask *_this);
+
+/**
+ * The same as UtilTaskGetTimeStamp() but without a task object. It implicitly uses the only
+ * the only instance of ::UtilTask.
+ *
+ * @return the system time stamp in tick.
+ */
+uint32_t UtilGetTimeStamp();
+
 
 // Inline functions definition
 // ***************************

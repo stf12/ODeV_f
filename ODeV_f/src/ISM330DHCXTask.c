@@ -30,6 +30,7 @@
 #include "sensor_db.h"
 #include "ISensorEventListener.h"
 #include "ISensorEventListener_vtbl.h"
+#include "UtilTask.h"
 #include <string.h>
 #include "sysdebug.h"
 
@@ -115,6 +116,21 @@ struct _ISM330DHCXTask {
    * ::IEventSrc interface implementation for this class.
    */
   IEventSrc *m_pxEventSrc;
+
+  /**
+   * Specifies the time stamp in tick.
+   */
+  uint32_t m_nTimeStampTick;
+
+  /**
+   * Used during the time stamp computation to manage the overflow of the hardware timer.
+   */
+  uint32_t m_nOldTimeStampTick;
+
+  /**
+   * Specifies the time stamp linked with the sensor data.
+   */
+  uint64_t m_nTimeStamp;
 };
 
 
@@ -310,6 +326,9 @@ sys_error_code_t ISM330DHCXTask_vtblOnCreateTask(AManagedTask *_this, TaskFuncti
 
   memset(pObj->m_pnSensorDataBuff, 0, sizeof(pObj->m_pnSensorDataBuff));
   pObj->m_nDBID = 0xFF;
+  pObj->m_nTimeStampTick = 0;
+  pObj->m_nOldTimeStampTick = 0;
+  pObj->m_nTimeStamp = 0;
 
   *pvTaskCode = ISM330DHCXTaskRun;
   *pcName = "ISM330DHCX";
@@ -336,6 +355,11 @@ sys_error_code_t ISM330DHCXTask_vtblDoEnterPowerMode(AManagedTask *_this, const 
         xRes = SYS_APP_TASK_REPORT_LOST_ERROR_CODE;
         SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_REPORT_LOST_ERROR_CODE);
       }
+
+      // reset the variables for the time stamp computation.
+      pObj->m_nTimeStampTick = 0;
+      pObj->m_nOldTimeStampTick = 0;
+      pObj->m_nTimeStamp = 0;
     }
 
     SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("ISM330DHCX: -> DATALOG\r\n"));
@@ -450,10 +474,24 @@ static sys_error_code_t ISM330DHCXTaskExecuteStepDatalog(ISM330DHCXTask *_this) 
       SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("ISM330DHCX: new data.\r\n"));
       xRes = ISM330DHCXTaskSensorReadData(_this);
       if (!SYS_IS_ERROR_CODE(xRes)) {
+        // update the time stamp
+        uint32_t nPeriod = 0;
+        if (_this->m_nTimeStampTick >= _this->m_nOldTimeStampTick) {
+          nPeriod = _this->m_nTimeStampTick - _this->m_nOldTimeStampTick;
+        }
+        else {
+          // overflow of the hw timer
+          nPeriod = _this->m_nTimeStampTick + (0xFFFFFFFF -_this->m_nOldTimeStampTick);
+        }
+        _this->m_nOldTimeStampTick = _this->m_nTimeStampTick;
+        _this->m_nTimeStamp += nPeriod;
         // notify the listeners...
+        double fTimeStamp = (double)_this->m_nTimeStamp/(double)(SystemCoreClock);
         SensorEvent xEvt;
-        SensorEventInit((IEvent*)&xEvt, _this->m_pxEventSrc, _this->m_pnSensorDataBuff, ISM330DHCX_GY_SAMPLES_PER_IT * 6, 0, _this->m_nDBID);
+        SensorEventInit((IEvent*)&xEvt, _this->m_pxEventSrc, _this->m_pnSensorDataBuff, ISM330DHCX_GY_SAMPLES_PER_IT * 6, fTimeStamp, _this->m_nDBID);
         IEventSrcSendEvent(_this->m_pxEventSrc, (IEvent*)&xEvt, NULL);
+
+        SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("ISM330DHCX: ts = %f\r\n", (float)fTimeStamp));
       }
       break;
 
@@ -716,9 +754,9 @@ static sys_error_code_t ISM330DHCXTaskSensorReadData(ISM330DHCXTask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.m_xConnector;
-
   uint8_t nReg0 = 0;
   uint8_t nReg1 = 0;
+
 
   /* Check FIFO_WTM_IA anf fifo level. We do not use PID in order to avoid reading one register twice */
   ism330dhcx_read_reg(pxSensorDrv, ISM330DHCX_FIFO_STATUS1, &nReg0, 1);
@@ -726,18 +764,7 @@ static sys_error_code_t ISM330DHCXTaskSensorReadData(ISM330DHCXTask *_this) {
 
   uint16_t fifo_level = ((nReg1 & 0x03) << 8) + nReg0;
 
-  //TODO: STF.Debug - need to add the timestamp
   if((nReg1) & 0x80  && (fifo_level >= ISM330DHCX_GY_SAMPLES_PER_IT) ) {
-//    if(tim_value >= tim_value_old) {
-//      period = tim_value - tim_value_old;
-//    }
-//    else {
-//      period = tim_value + (0xFFFFFFFF - tim_value_old);
-//    }
-//
-//    tim_value_old = tim_value;
-//    ts_ism330dhcx += period;
-
     ism330dhcx_read_reg(pxSensorDrv, ISM330DHCX_FIFO_DATA_OUT_TAG, _this->m_pnSensorDataBuff, ISM330DHCX_GY_SAMPLES_PER_IT * 7);
 
     if(_this->m_pnSensorDataBuff[0]>>3 == 0x02 || !(_this->m_xSensorCommonParam.pbSubSensorActive[0]) || !(_this->m_xSensorCommonParam.pbSubSensorActive[1])) {
@@ -893,6 +920,7 @@ void ISM330DHCXTask_EXTI_Callback(uint16_t nPin) {
       // unable to send the report. Signal the error
       sys_error_handler();
     }
+    s_xTaskObj.m_nTimeStampTick = UtilGetTimeStamp();
   }
 }
 
