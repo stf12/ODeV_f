@@ -1,0 +1,1196 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2410</x>
+      <y>1270</y>
+      <w>540</w>
+      <h>210</h>
+    </coordinates>
+    <panel_attributes>SPIBusTask
+--
+-ConnectedDevices: uint8_t
+--
++Alloc(): AManagedTaskEx*
++ConnectDevice(pxBusIF:SPIBusIF*): sys_error_code_t
++DisconnectDevice(pxBusIF:SPIBusIF*): sys_error_code_t
+--
+-Run(pParams:void*)
+-ExecuteStepRun(): sys_erro_code_t
+-Write(pxSensor:void*, nRegAddr:uint8_t, pnData:uint8_t*, nSize:uint16_t): uint32_t
+-Read(pxSensor:void*, nRegAddr:uint8_t, pnData:uint8_t*, nSize:uint16_t): uint32_t
+--
+Responsibilities
+--Dispatch SPI messages between MCU and the connected sensors
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2610</x>
+      <y>1170</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>/AManagedTaskEx/
+bg=#b4bcde</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2670</x>
+      <y>1190</y>
+      <w>30</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2940</x>
+      <y>1360</y>
+      <w>280</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;260.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3200</x>
+      <y>1290</y>
+      <w>640</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>SPIMasterDriver
+--
++Alloc(): IIODriver*
++WriteRead(pnTxDataBuffer:uint8_t, pnRxDataBuffer:uint8_t, nDataSize:uint16_t): sys_error_code_t
++TransmitRegAddr(nRegAddr:uint8_t, nTimeoutMS:uint16_t): sys_error_code_t
++SelectDevice(xDeviceGPIOPort:GPIO_TypeDef*, nDeviceGPIOPin:uint16_t): sys_error_code_t
++DeselectDevice(xDeviceGPIOPort:GPIO_TypeDef*, nDeviceGPIOPin:uint16_t): sys_error_code_t
+--
+Responsibilities
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3470</x>
+      <y>1170</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>/IIODriver/
+bg=#b4bcde</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3530</x>
+      <y>1190</y>
+      <w>30</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3990</x>
+      <y>1350</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>SemaphoreHandle
+fg=green</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>3830</x>
+      <y>1350</y>
+      <w>180</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m2=SyncObj</panel_attributes>
+    <additional_attributes>10.0;10.0;160.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>3200</x>
+      <y>1470</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>QueueHandle_t
+fg=green</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2940</x>
+      <y>1380</y>
+      <w>280</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m2=InQueue</panel_attributes>
+    <additional_attributes>10.0;10.0;130.0;10.0;130.0;110.0;260.0;110.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1820</x>
+      <y>1610</y>
+      <w>580</w>
+      <h>250</h>
+    </coordinates>
+    <panel_attributes>SPIBusIF
+--
+-WhoAmI: uint8_t
+-SSPinPort: GPIO_TypeDef*
+-SSPin: uint16_t
+--
++Init(nWhoAmI:uint8_t, pxSSPinPort:GPIO_TypeDef*, nSSPin:uint16_t): sys_error_code_t
++WaitIOComplete(): sys_error_code_t
++NotifyIOComplete(): sys_error_code_t
++SetHandle(pxHandle:void*): sys_error_code_t
++GetHandle(): void*
++SetWhoAmI(nWhoAmI:uint8_t): sys_error_code_t
++GetWhoAmI(): uint8_t
+--
+Responsibilities
+--Implement the relationship between a device and the SPI bus
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>2150</x>
+      <y>1930</y>
+      <w>250</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>SPIBusConnector
+--
++WriteReg: SPIBusWriteF
++ReadReg: SPIBusReadF
++Handle: void*
+--
+Responsibilities
+--Connect a device to the bus through
+  the Read and Write functions.
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2130</x>
+      <y>1850</y>
+      <w>220</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m2=Connector
+group=1</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0;140.0;50.0;140.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1970</x>
+      <y>1930</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>SemaphoreHandle
+fg=green
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2030</x>
+      <y>1850</y>
+      <w>130</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m2=SyncObj
+group=1</panel_attributes>
+    <additional_attributes>110.0;10.0;110.0;50.0;10.0;50.0;10.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1580</x>
+      <y>960</y>
+      <w>400</w>
+      <h>370</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Sensor&gt;&gt;
+IIS3DWBTask
+--
+-DBID: uint8_t
+-SensorDataBuff: uint8_t*
+-TimeStampTick: uint32_t
+-OldTimeStampTick: uint32_t
+-TimeStamp: uint64_t
+--
++Alloc(): AmanagetTaskEx*
++GetSensorIF(): SPIBusIF*
++GetEventSrcIF(): IEventSrc*
+--
+-Run(pParams:void*)
+-ExecuteStepRun(): sys_erro_code_t
+-ExecuteStepDatalog(): sys_erro_code_t
+-SensorInit(): sys_error_code_t
+-SensorReadData(): sys_error_code_t
+-SensorRegisterInDB(): sys_error_code_t
+-SensorIsActive(): boolean_t
+-PostReportToFront(pxReport:HIDReport*): sys_error_code_t
+--
+Responsibilities
+--Read data from the sensor
+--Read the sensor congiguration from a DB
+group=2</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1710</x>
+      <y>870</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>/AManagedTaskEx/
+bg=#b4bcde
+group=2</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1770</x>
+      <y>890</y>
+      <w>30</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+group=2</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1210</x>
+      <y>1010</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>QueueHandle_t
+fg=green
+group=2</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1340</x>
+      <y>1020</y>
+      <w>260</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m2=InQueue
+group=2</panel_attributes>
+    <additional_attributes>240.0;10.0;120.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1140</x>
+      <y>1070</y>
+      <w>210</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>SensorInitParam
+--
++ODR: float
++FS: float*
++SubSensorActive: boolean_t*
+
+group=2</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1340</x>
+      <y>1020</y>
+      <w>260</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m2=SensorCommonParam
+group=2</panel_attributes>
+    <additional_attributes>240.0;10.0;150.0;10.0;150.0;100.0;10.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLInterface</id>
+    <coordinates>
+      <x>1980</x>
+      <y>960</y>
+      <w>160</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>IEventSrc
+--
+Init
+AddEventListener
+RemoveEventListener
+GetMaxListenerCount
+SendEvent
+group=2</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLInterface</id>
+    <coordinates>
+      <x>540</x>
+      <y>100</y>
+      <w>140</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>SensorEventListener
+--
+OnNewDataReady
+group=6</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1770</x>
+      <y>1320</y>
+      <w>660</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..n
+m2=0..1
+                 
+                 
+                                                                             connected to &gt;</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;60.0;640.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>2100</x>
+      <y>1370</y>
+      <w>30</w>
+      <h>260</h>
+    </coordinates>
+    <panel_attributes>lt=.</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;240.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>600</x>
+      <y>870</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>/AManagedTaskEx/
+bg=#b4bcde
+group=3</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>660</x>
+      <y>890</y>
+      <w>30</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+group=3</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>100</x>
+      <y>1010</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>QueueHandle_t
+fg=green
+group=3</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>230</x>
+      <y>1020</y>
+      <w>260</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m2=InQueue
+group=3</panel_attributes>
+    <additional_attributes>240.0;10.0;120.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>30</x>
+      <y>1070</y>
+      <w>210</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>SensorInitParam
+--
++ODR: float
++FS: float*
++SubSensorActive: boolean_t*
+
+group=3</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>230</x>
+      <y>1020</y>
+      <w>260</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m2=SensorCommonParam
+group=3</panel_attributes>
+    <additional_attributes>240.0;10.0;150.0;10.0;150.0;100.0;10.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLInterface</id>
+    <coordinates>
+      <x>870</x>
+      <y>960</y>
+      <w>160</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>IEventSrc
+--
+Init
+AddEventListener
+RemoveEventListener
+GetMaxListenerCount
+SendEvent
+group=3</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>470</x>
+      <y>960</y>
+      <w>400</w>
+      <h>370</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Sensor&gt;&gt;
+ISM330DHCXTask
+--
+-DBID: uint8_t
+-SensorDataBuff: uint8_t*
+-TimeStampTick: uint32_t
+-OldTimeStampTick: uint32_t
+-TimeStamp: uint64_t
+--
++Alloc(): AmanagetTaskEx*
++GetSensorIF(): SPIBusIF*
++GetEventSrcIF(): IEventSrc*
+--
+-Run(pParams:void*)
+-ExecuteStepRun(): sys_erro_code_t
+-ExecuteStepDatalog(): sys_erro_code_t
+-SensorInit(): sys_error_code_t
+-SensorReadData(): sys_error_code_t
+-SensorRegisterInDB(): sys_error_code_t
+-SensorIsActive(): boolean_t
+-PostReportToFront(pxReport:HIDReport*): sys_error_code_t
+--
+Responsibilities
+--Read data from the sensor
+--Read the sensor congiguration from a DB
+group=3</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>660</x>
+      <y>1320</y>
+      <w>1770</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..n
+m2=0..1
+                 
+                 
+                                                                             connected to &gt;</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;60.0;1750.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>620</x>
+      <y>1690</y>
+      <w>140</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>SensorEvtSrc
+--
++Alloc(): IEventSrc
+group=5</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>620</x>
+      <y>1600</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>/AEventSrc/
+bg=#b4bcde
+group=5</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>680</x>
+      <y>1620</y>
+      <w>30</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+group=5</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>930</x>
+      <y>1660</y>
+      <w>150</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>SensorEvent
+--
++Data: const uint8_t*
++Datasize: uint16_t
++TimeStamp: float
++SensorID: uint16_t
+group=5</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>750</x>
+      <y>1700</y>
+      <w>200</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..n
+generate &gt;
+group=5</panel_attributes>
+    <additional_attributes>10.0;20.0;180.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>930</x>
+      <y>1600</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>/IEvent/
+bg=#b4bcde
+group=5</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>990</x>
+      <y>1620</y>
+      <w>30</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+group=5</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;40.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>40</x>
+      <y>1690</y>
+      <w>430</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>ISensorEventListener
+--
++OnNewDataReady(pxEvt:const SensorEvent*): sys_error_code_t
+group=5</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>460</x>
+      <y>1700</y>
+      <w>180</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..n
+m2=0..n
+&lt; notify
+group=5</panel_attributes>
+    <additional_attributes>160.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>190</x>
+      <y>1600</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>/IEventListener/
+bg=#b4bcde
+group=5</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>250</x>
+      <y>1620</y>
+      <w>30</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+group=5</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>30</x>
+      <y>2020</y>
+      <w>580</w>
+      <h>300</h>
+    </coordinates>
+    <panel_attributes>SensorDB
+--
++GetIstances(): SensorDB*
++GetDeviceDescriptor(): DeviceDescriptor*
++GetSensor(sensorID:uint8_t): Sensor*
++AddSensor(): uint32_t
++GetSensorDescriptor(sensorID:uint8_t): SensorDescriptor
++GetSensorStatus(sensorID:uint8_t): SensorStatus
++SetSensorStatus(sensorID:uint8_t, source: const COM_SensorStatus_t*)
++GetSubSensorDescriptor(sensorID:uint8_t, subSensorID:uint8_t): SubSensorDescriptor
++GetSubSensorStatus(sensorID:uint8_t, subSensorID:uint8_t): SubSensorStatus
++IsFsLegal(value:float, sensorID:uint8_t, subSensorID:uint8_t): boolean_t
++IsOdrLegal(value:float, sensorID:uint8_t, subSensorID:uint8_t): boolean_t
++GetSubSensorNumber(sensorID:uint8_t): uint8_t
+--
+Responsibilities
+--Store in RAM the information about the sensors in the device.
+group=4</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>600</x>
+      <y>2060</y>
+      <w>190</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m2=1
+group=4</panel_attributes>
+    <additional_attributes>10.0;10.0;170.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>600</x>
+      <y>2160</y>
+      <w>190</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=0..n
+group=4</panel_attributes>
+    <additional_attributes>10.0;10.0;170.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>770</x>
+      <y>2030</y>
+      <w>160</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>DeviceDescriptor
+--
++SerialNumber: char*
++Alias: char*
++Sensors: uitn32_t
+group=4</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>770</x>
+      <y>2160</y>
+      <w>160</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>Sensor
+group=4</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>920</x>
+      <y>2160</y>
+      <w>200</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m2=1
+group=4</panel_attributes>
+    <additional_attributes>10.0;10.0;180.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1100</x>
+      <y>2090</y>
+      <w>230</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>SensorDescriptor
+--
++ID: uint8_t
++Name: char*
++DataType: uint8_t
++ODR: float*
++SamplePerTimestamp: uint16_t*
++SubSensors:uint8_t
+
+group=4</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1100</x>
+      <y>2250</y>
+      <w>230</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>SensorStatus
+--
++ODR: float
++MeasuredODR: float
++InitialOffset:float
++SamplesPerTimeStamp: uint16_t
++IsActive: boolean_t
++UsbDataPacketSize: uint16_t
++SdWriteBufferSize: uint32_t
++CommChannelNumber:uint16_t
+group=4</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>920</x>
+      <y>2160</y>
+      <w>200</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m2=1..n
+group=4</panel_attributes>
+    <additional_attributes>10.0;10.0;100.0;10.0;100.0;130.0;180.0;130.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1320</x>
+      <y>2160</y>
+      <w>200</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m2=1..n
+group=4</panel_attributes>
+    <additional_attributes>10.0;10.0;180.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1500</x>
+      <y>2100</y>
+      <w>230</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>SubSensorDescriptor
+--
++ID: uint8_t
++SensorType: uint8_t
++DataPerSample: uint8_t
++Unit: char*
++FS: float*
+
+
+group=4</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1500</x>
+      <y>2300</y>
+      <w>230</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>SubSensorStatus
+--
++FS: float
++Sensitivity: float
++IsActive: boolean_t
+
+group=4</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1320</x>
+      <y>2330</y>
+      <w>200</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m2=1..n
+group=4</panel_attributes>
+    <additional_attributes>10.0;10.0;180.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>0</x>
+      <y>100</y>
+      <w>540</w>
+      <h>580</h>
+    </coordinates>
+    <panel_attributes>SDCardTask
+--
+-SDPath: char*
+-SDWriteBuffer: uint8_t**
+-SDWriteBufferIdx: uint32_t*
+-SensorFirstDataReady: boolean_t*
+-SensorNSamplesAcc: float*
+-OldTimeStamp: double*
+-SensorNSamplesToTimestamp: uint16_t*
+--
++Alloc(): AManagedTaskEx*
++GetEventListenerIF(): IEventListener*
+--
+-Run(pParams:void*)
+-ExecuteStepRun(): sys_erro_code_t
+-ExecuteStepDatalog(): sys_erro_code_t
+-SD_Init(): sys_error_code_t
+-SD_DeInit(): sys_error_code_t
+-SDTMemoryInit(): sys_error_code_t
+-SDTMemoryDeinit(): sys_error_code_t
+-RuntimeInit(): sys_error_code_t
+-StartLogging(): sys_error_code_t
+-StopLogging(): sys_error_code_t
+-ReadJSON(serialized_string:char*): sys_error_code_t
+-CreateJSON(serialized_string:char*): sys_error_code_t
+-GetLastDirNumber(): uint32_t
+-OpenFile(id:uint32_t, sensorName:const char*): sys_error_code_t
+-CloseFile(id:uint32_t): sys_error_code_t
+-CloseFiles(): sys_error_code_t
+-FlushBuffer(id:uint32_t): sys_error_code_t
+-FillBuffer(id:uint8_t, src:uint8_t*, srcSize:uint16_t): sys_error_code_t
+-WriteBuffer(id:uint32_t, buffer:uint8_t*, size:uint32_t): sys_error_code_t
+-WriteConfigBuffer(id:uint32_t, buffer:uint8_t*, size:uint32_t): sys_error_code_t
+-PostReportToFront(pxReport:HIDReport*): sys_error_code_t
+--
+Responsibilities
+-- Create the log file in the SDCARD for each sensor.
+-- Read/Write the device configuratoin from/to a log file.
+group=6</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>190</x>
+      <y>0</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>/AManagedTaskEx/
+bg=#b4bcde
+group=6</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>250</x>
+      <y>20</y>
+      <w>30</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-
+group=6</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>530</x>
+      <y>360</y>
+      <w>190</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+group=6</panel_attributes>
+    <additional_attributes>10.0;10.0;170.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>700</x>
+      <y>360</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>FATFS
+bg=#E0FFFF
+group=6</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>700</x>
+      <y>410</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>FIL
+bg=#E0FFFF
+group=6</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>530</x>
+      <y>360</y>
+      <w>190</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m2=3+
+group=6</panel_attributes>
+    <additional_attributes>10.0;10.0;100.0;10.0;100.0;60.0;170.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>530</x>
+      <y>360</y>
+      <w>190</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m2=InQueue
+group=6</panel_attributes>
+    <additional_attributes>10.0;10.0;100.0;10.0;100.0;110.0;170.0;110.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>700</x>
+      <y>460</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>QueueHandle_t
+fg=green
+group=6</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>870</x>
+      <y>90</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>HDS_json</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1100</x>
+      <y>90</y>
+      <w>100</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Library&gt;&gt;
+Parson
+fg=red</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>960</x>
+      <y>80</y>
+      <w>160</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=-
+uses &gt;</panel_attributes>
+    <additional_attributes>10.0;20.0;140.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1640</x>
+      <y>430</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>UtilTask</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1620</x>
+      <y>320</y>
+      <w>140</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>/AManagedTaskEx/
+bg=#b4bcde</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1680</x>
+      <y>340</y>
+      <w>30</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;90.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1730</x>
+      <y>430</y>
+      <w>130</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;110.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1840</x>
+      <y>430</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>UtilityDriver</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1840</x>
+      <y>320</y>
+      <w>100</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>/IDriver/
+bg=#b4bcde</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1880</x>
+      <y>340</y>
+      <w>30</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;90.0</additional_attributes>
+  </element>
+</diagram>

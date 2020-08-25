@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLDeployment</id>
+    <coordinates>
+      <x>180</x>
+      <y>160</y>
+      <w>110</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;hardware&gt;&gt;
+STM32 board
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLDeployment</id>
+    <coordinates>
+      <x>180</x>
+      <y>100</y>
+      <w>110</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;firmware&gt;&gt;
+MCU
+fg=blue
+bg=yellow
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLDeployment</id>
+    <coordinates>
+      <x>180</x>
+      <y>40</y>
+      <w>110</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;software&gt;&gt;
+PC / Cloud
+group=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>800</x>
+      <y>360</y>
+      <w>200</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;Component&gt;&gt;
+Sensor
+
+(Data producer)
+fg=blue
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>880</x>
+      <y>520</y>
+      <w>60</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=)-[v]
+0..n</panel_attributes>
+    <additional_attributes>20.0;20.0;20.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>890</x>
+      <y>460</y>
+      <w>30</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=[v]-()
+</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>800</x>
+      <y>580</y>
+      <w>200</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;Component&gt;&gt;
+BUS
+fg=blue
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>720</x>
+      <y>400</y>
+      <w>100</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=)-[&gt;]</panel_attributes>
+    <additional_attributes>20.0;20.0;80.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>800</x>
+      <y>770</y>
+      <w>200</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;Component&gt;&gt;
+IP Driver
+
+(I2C, SPI, etc.)
+fg=blue
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>890</x>
+      <y>680</y>
+      <w>30</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>lt=[^]-[v]</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;90.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>470</x>
+      <y>730</y>
+      <w>200</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;Component&gt;&gt;
+DB
+
+(Database with
+sensor configuration,
+sensor descriptor,
+device descriptor,
+etc.)
+fg=blue
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>470</x>
+      <y>360</y>
+      <w>200</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;Component&gt;&gt;
+Data Consumer
+
+(AI engine,
+Data logger,
+Data streamer)
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>660</x>
+      <y>400</y>
+      <w>80</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=[&gt;]-()
+</panel_attributes>
+    <additional_attributes>10.0;20.0;60.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>470</x>
+      <y>580</y>
+      <w>200</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>symbol=component
+&lt;&lt;Component&gt;&gt;
+UI
+
+(cloud based,
+CLI, etc.)</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
