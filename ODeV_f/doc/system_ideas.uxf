@@ -5,7 +5,7 @@
     <id>UMLDeployment</id>
     <coordinates>
       <x>180</x>
-      <y>160</y>
+      <y>170</y>
       <w>110</w>
       <h>50</h>
     </coordinates>
@@ -18,7 +18,7 @@ group=1</panel_attributes>
     <id>UMLDeployment</id>
     <coordinates>
       <x>180</x>
-      <y>100</y>
+      <y>110</y>
       <w>110</w>
       <h>50</h>
     </coordinates>
@@ -33,7 +33,7 @@ group=1</panel_attributes>
     <id>UMLDeployment</id>
     <coordinates>
       <x>180</x>
-      <y>40</y>
+      <y>50</y>
       <w>110</w>
       <h>50</h>
     </coordinates>
@@ -46,7 +46,7 @@ group=1</panel_attributes>
     <id>UMLGeneric</id>
     <coordinates>
       <x>800</x>
-      <y>360</y>
+      <y>370</y>
       <w>200</w>
       <h>110</h>
     </coordinates>
@@ -56,38 +56,41 @@ Sensor
 
 (Data producer)
 fg=blue
-bg=yellow</panel_attributes>
+bg=yellow
+group=2</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>880</x>
-      <y>520</y>
+      <y>530</y>
       <w>60</w>
       <h>80</h>
     </coordinates>
     <panel_attributes>lt=)-[v]
-0..n</panel_attributes>
+0..n
+group=2</panel_attributes>
     <additional_attributes>20.0;20.0;20.0;60.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>890</x>
-      <y>460</y>
+      <y>470</y>
       <w>30</w>
       <h>80</h>
     </coordinates>
     <panel_attributes>lt=[v]-()
-</panel_attributes>
+
+group=2</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
       <x>800</x>
-      <y>580</y>
+      <y>590</y>
       <w>200</w>
       <h>110</h>
     </coordinates>
@@ -95,25 +98,27 @@ bg=yellow</panel_attributes>
 &lt;&lt;Component&gt;&gt;
 BUS
 fg=blue
-bg=yellow</panel_attributes>
+bg=yellow
+group=2</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>720</x>
-      <y>400</y>
+      <y>410</y>
       <w>100</w>
       <h>50</h>
     </coordinates>
-    <panel_attributes>lt=)-[&gt;]</panel_attributes>
+    <panel_attributes>lt=)-[&gt;]
+group=2</panel_attributes>
     <additional_attributes>20.0;20.0;80.0;20.0</additional_attributes>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
       <x>800</x>
-      <y>770</y>
+      <y>780</y>
       <w>200</w>
       <h>110</h>
     </coordinates>
@@ -123,25 +128,27 @@ IP Driver
 
 (I2C, SPI, etc.)
 fg=blue
-bg=yellow</panel_attributes>
+bg=yellow
+group=2</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>890</x>
-      <y>680</y>
+      <y>690</y>
       <w>30</w>
       <h>110</h>
     </coordinates>
-    <panel_attributes>lt=[^]-[v]</panel_attributes>
+    <panel_attributes>lt=[^]-[v]
+group=2</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;90.0</additional_attributes>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
       <x>470</x>
-      <y>730</y>
+      <y>740</y>
       <w>200</w>
       <h>150</h>
     </coordinates>
@@ -155,14 +162,15 @@ sensor descriptor,
 device descriptor,
 etc.)
 fg=blue
-bg=yellow</panel_attributes>
+bg=yellow
+group=2</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
       <x>470</x>
-      <y>360</y>
+      <y>370</y>
       <w>200</w>
       <h>120</h>
     </coordinates>
@@ -173,26 +181,28 @@ Data Consumer
 (AI engine,
 Data logger,
 Data streamer)
-</panel_attributes>
+
+group=2</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>660</x>
-      <y>400</y>
+      <y>410</y>
       <w>80</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=[&gt;]-()
-</panel_attributes>
+
+group=2</panel_attributes>
     <additional_attributes>10.0;20.0;60.0;20.0</additional_attributes>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
       <x>470</x>
-      <y>580</y>
+      <y>590</y>
       <w>200</w>
       <h>110</h>
     </coordinates>
@@ -201,7 +211,8 @@ Data streamer)
 UI
 
 (cloud based,
-CLI, etc.)</panel_attributes>
+CLI, etc.)
+group=2</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>
