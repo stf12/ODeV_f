@@ -205,7 +205,7 @@ static sys_error_code_t SDTRuntimeInit(SDCardTask *_this);
 
 /**
  * Create the file and folder in the SDCARD to store the data.
- * reate teh memory buffers to handle the sensor data.
+ * Create the memory buffers to handle the sensor data.
  *
  * @param _this [IN] specifies a pointer to a task object.
  * @return SYS_NO_ERROR_CODE if success, an error code otherwise.
@@ -571,6 +571,7 @@ static void SDCardTaskRun(void *pParams) {
   SDCardTask *_this = (SDCardTask*)pParams;
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("SDC: start.\r\n"));
+  SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("SDC: SDB size=%d.\r\n", sizeof(COM_Device_t)));
 
   xRes = SDTRuntimeInit(_this);
   if(SYS_IS_ERROR_CODE(xRes)) {
@@ -726,6 +727,9 @@ static sys_error_code_t SDTReadJSON(SDCardTask *_this, char *serialized_string) 
   local_device = SDB_GetIstance();
   size = sizeof(COM_Device_t);
 
+  //TODO: STF - m_xJSONDevice (56 bytes) is used only here:
+  // 1. Why we need a local copy instead of using the global instance?
+  // 2. If we need a copy then memcpy is not good because it copy the pointer from the global instance
   memcpy(&_this->m_xJSONDevice, local_device, size);
   HSD_ParseDevice(serialized_string, &_this->m_xJSONDevice);
 
