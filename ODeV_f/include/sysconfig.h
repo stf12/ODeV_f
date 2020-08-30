@@ -46,6 +46,7 @@
 // ****************************
 
 #define USE_HAL_SPI_REGISTER_CALLBACKS            1
+#define USE_HAL_I2C_REGISTER_CALLBACKS            1
 
 // Services configuration
 // **********************

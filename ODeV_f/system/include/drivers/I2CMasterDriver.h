@@ -5,7 +5,7 @@
  * @version 1.0.0
  * @date    Aug 26, 2020
  *
- * @brief   
+ * @brief
  *
  * <DESCRIPTIOM>
  *
@@ -59,9 +59,14 @@ struct _I2CMasterDriver {
   SemaphoreHandle_t m_xSyncObj;
 
   /**
-   *
+   * Specifies the address of the target device. All read and write operation are done with the device specified by this address.
    */
   uint16_t m_nTargetDeviceAddr;
+
+  /**
+   * Count the number of errors reported by the hardware IP.
+   */
+  uint16_t m_nIPErrors;
 };
 
 /**

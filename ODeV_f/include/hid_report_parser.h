@@ -44,6 +44,7 @@ extern "C" {
 
 #include "syserror.h"
 #include "SPIBusIF.h"
+#include "I2CBusIF.h"
 
 #define HID_REPORT_ID_ISM330DHCX                0x01  ///< Report coming from the ISM330DHCX sensor
 #define HID_REPORT_ID_IIS3DWB                   0x02  ///< Report coming from the IIS3DWB sensor
@@ -51,7 +52,9 @@ extern "C" {
 #define HID_REPORT_ID_SENSOR_CMD                0x04  ///< Sensor command encapsulated in a HID report.
 #define HID_REPORT_ID_SD_CMD                    0x05  ///< SDCARD command encapsulated in a HID report.
 #define HID_REPORT_ID_SPI_BUS_READ              0x06  ///< Command to read from the SPI bus
-#define HID_REPORT_ID_SPI_BUS_WRITE             0x07  ///< Command to write in teh SPI bus.
+#define HID_REPORT_ID_SPI_BUS_WRITE             0x07  ///< Command to write in the SPI bus.
+#define HID_REPORT_ID_I2C_BUS_READ              0x08  ///< Command to read from the I2C bus
+#define HID_REPORT_ID_I2C_BUS_WRITE             0x09  ///< Command to write in the I2C bus.
 #define HID_REPORT_ID_FORCE_STEP                0xFE  ///< Special ID used by the INIT task to force the execution of ManagedTaskEx step.
 
 typedef union _HIDReport {
@@ -119,7 +122,7 @@ typedef union _HIDReport {
   } sdReport;
 
   //--------------------------------------------------------------------------------
-  //  SPI Read / Write command 06 (MCU --> MCU) - SPI Bus command
+  //  SPI Read / Write command 06 07 (MCU --> MCU) - SPI Bus command
   //--------------------------------------------------------------------------------
 
   struct spiIOReport_t
@@ -129,7 +132,20 @@ typedef union _HIDReport {
     uint16_t  nDataSize;
     uint8_t  *pnData;
     SPIBusIF *pxSensor;
- } spiIOReport;
+  } spiIOReport;
+
+ //--------------------------------------------------------------------------------
+ //  I2C Read / Write command 08 09 (MCU --> MCU) - SPI Bus command
+ //--------------------------------------------------------------------------------
+
+  struct i2cIOReport_t
+  {
+    uint8_t   reportId;                                // Report ID = 0x08 / 0x09 (8 / 9)
+    uint8_t   nRegAddr;
+    uint16_t  nDataSize;
+    uint8_t  *pnData;
+    I2CBusIF *pxSensor;
+  } i2cIOReport;
 
   //--------------------------------------------------------------------------------
   //  internalReport (MCU)

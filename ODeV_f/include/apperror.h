@@ -51,16 +51,21 @@ extern "C" {
 #define SYS_SPI_M_WRITE_READ_ERROR_CODE                        SYS_BASE_SPI_M_ERROR_CODE + 1
 #define SYS_SPI_M_WRITE_ERROR_CODE                             SYS_BASE_SPI_M_ERROR_CODE + 2
 
+// I2C Master error code
+#define SYS_BASE_I2C_M_ERROR_CODE                              SYS_BASE_SPI_M_ERROR_CODE
+#define SYS_I2C_M_READ_ERROR_CODE                              SYS_BASE_I2C_M_ERROR_CODE + 1
+#define SYS_I2C_M_WRITE_ERROR_CODE                             SYS_BASE_I2C_M_ERROR_CODE + 2
+
 
 // Service Level error code
 // ************************
 
 // IEventSrc error code
-#define SYS_BASE_IEVTSRC_ERROR_CODE                           SYS_BASE_SPI_M_ERROR_CODE + SYS_GROUP_ERROR_COUNT
-#define SYS_IEVTSRC_FULL_ERROR_CODE                           SYS_BASE_SPI_M_ERROR_CODE + 1
+#define SYS_BASE_IEVTSRC_ERROR_CODE                           SYS_BASE_I2C_M_ERROR_CODE + SYS_GROUP_ERROR_COUNT
+#define SYS_IEVTSRC_FULL_ERROR_CODE                           SYS_BASE_IEVTSRC_ERROR_CODE + 1
 
 // CircularBuffer error code
-#define SYS_CB_BASE_ERROR_CODE                                SYS_BASE_SPI_M_ERROR_CODE + SYS_GROUP_ERROR_COUNT
+#define SYS_CB_BASE_ERROR_CODE                                SYS_BASE_IEVTSRC_ERROR_CODE + SYS_GROUP_ERROR_COUNT
 #define SYS_CB_INVALID_ITEM_ERROR_CODE                        SYS_CB_BASE_ERROR_CODE + 1
 #define SYS_CB_FULL_ERROR_CODE                                SYS_CB_BASE_ERROR_CODE + 2
 #define SYS_CB_NO_READY_ITEM_ERROR_CODE                       SYS_CB_BASE_ERROR_CODE + 3
@@ -69,7 +74,7 @@ extern "C" {
 // *********************
 
 // Generic task error code
-#define SYS_BASE_APP_TASK_ERROR_CODE                           SYS_BASE_IEVTSRC_ERROR_CODE + SYS_GROUP_ERROR_COUNT
+#define SYS_BASE_APP_TASK_ERROR_CODE                           SYS_CB_BASE_ERROR_CODE + SYS_GROUP_ERROR_COUNT
 #define SYS_APP_TASK_UNKNOWN_REPORT_ERROR_CODE                 SYS_BASE_APP_TASK_ERROR_CODE +1
 #define SYS_APP_TASK_REPORT_LOST_ERROR_CODE                    SYS_BASE_APP_TASK_ERROR_CODE + 2
 
@@ -78,8 +83,13 @@ extern "C" {
 #define SYS_SPIBUS_TASK_IO_ERROR_CODE                          SYS_BASE_SPIBUS_TASK_ERROR_CODE + 1
 #define SYS_SPIBUS_TASK_RESUME_ERROR_CODE                      SYS_BASE_SPIBUS_TASK_ERROR_CODE + 2
 
+// I2C Bus task error code
+#define SYS_BASE_I2CBUS_TASK_ERROR_CODE                        SYS_BASE_SPIBUS_TASK_ERROR_CODE + SYS_GROUP_ERROR_COUNT
+#define SYS_I2CBUS_TASK_IO_ERROR_CODE                          SYS_BASE_I2CBUS_TASK_ERROR_CODE + 1
+#define SYS_I2CBUS_TASK_RESUME_ERROR_CODE                      SYS_BASE_I2CBUS_TASK_ERROR_CODE + 2
+
 // AI task error code
-#define SYS_AI_TASK_BASE_ERROR_CODE                           SYS_BASE_SPIBUS_TASK_ERROR_CODE + SYS_GROUP_ERROR_COUNT
+#define SYS_AI_TASK_BASE_ERROR_CODE                           SYS_BASE_I2CBUS_TASK_ERROR_CODE + SYS_GROUP_ERROR_COUNT
 #define SYS_AI_TASK_INIT_ERROR_CODE                           SYS_AI_TASK_BASE_ERROR_CODE + 1
 #define SYS_AI_TASK_INVALID_CMD_ERROR_CODE                    SYS_AI_TASK_BASE_ERROR_CODE + 2
 #define SYS_AI_TASK_CMD_ERROR_CODE                            SYS_AI_TASK_BASE_ERROR_CODE + 3
