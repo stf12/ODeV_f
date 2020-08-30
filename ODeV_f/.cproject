@@ -80,6 +80,7 @@
 									<listOptionValue builtIn="false" value="&quot;../system/include/stm32l4-hal&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/bsp/components/ism330dhcx&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/bsp/components/iis3dwb&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/bsp/components/hts221&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/freertos&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/src/freertos/portable/GCC/ARM_CM4F&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/trace_recorder/include&quot;"/>
@@ -201,6 +202,7 @@
 									<listOptionValue builtIn="false" value="&quot;../system/include/stm32l4-hal&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/bsp/components/ism330dhcx&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/bsp/components/iis3dwb&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../system/include/bsp/components/hts221&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/freertos&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/src/freertos/portable/GCC/ARM_CM4F&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../system/include/trace_recorder/include&quot;"/>

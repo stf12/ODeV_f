@@ -68,6 +68,10 @@ uint16_t HidReportGetSize(uint8_t nReportID) {
     nSize = sizeof(struct i2cIOReport_t);
     break;
 
+  case HID_REPORT_ID_HTS221:
+    nSize = sizeof (struct hts221Report_t);
+    break;
+
   default:
     nSize = sizeof(struct internalReportFE_t);
   }

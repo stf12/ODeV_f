@@ -55,6 +55,7 @@ extern "C" {
 #define HID_REPORT_ID_SPI_BUS_WRITE             0x07  ///< Command to write in the SPI bus.
 #define HID_REPORT_ID_I2C_BUS_READ              0x08  ///< Command to read from the I2C bus
 #define HID_REPORT_ID_I2C_BUS_WRITE             0x09  ///< Command to write in the I2C bus.
+#define HID_REPORT_ID_HTS221                    0x0A  ///< Report coming from the HTS221 sensor
 #define HID_REPORT_ID_FORCE_STEP                0xFE  ///< Special ID used by the INIT task to force the execution of ManagedTaskEx step.
 
 typedef union _HIDReport {
@@ -146,6 +147,17 @@ typedef union _HIDReport {
     uint8_t  *pnData;
     I2CBusIF *pxSensor;
   } i2cIOReport;
+
+  //--------------------------------------------------------------------------------
+  //  SensorReport 10 (Device --> MCU) - Sensor HTS221
+  //--------------------------------------------------------------------------------
+
+  struct hts221Report_t
+  {
+    uint8_t  reportId;                                 // Report ID = 0x0A (10)
+    uint8_t  bDataReady : 1;                           // New sensor data ready
+    uint8_t  nReserved  : 7;                           // Reserved
+  } hys221Report;
 
   //--------------------------------------------------------------------------------
   //  internalReport (MCU)
