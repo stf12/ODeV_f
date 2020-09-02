@@ -24,8 +24,8 @@
 
 #include "CircularBuffer.h"
 #include <string.h>
-//#include "FreeRTOS.h"
-//#include "task.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 #define CB_ITEM_FREE   0x00  ///< Status of a circular buffer item: FREE.
 #define CB_ITEM_NEW    0x01  ///< Status of a circular buffer item: NEW
@@ -190,7 +190,7 @@ sys_error_code_t CBGetFreeItemFromHead(CircularBuffer *_this, CBItem **pxItem) {
     *pxItem = NULL;
     xRes = SYS_CB_FULL_ERROR_CODE;
   }
-  CBEnterCritical();
+  CBExitCritical();
 
   return xRes;
 }
@@ -269,24 +269,19 @@ CBItemData *CBGetItemData(CBItem *pxItem) {
 // ****************************
 
 static inline void CBEnterCritical() {
-//  if (SYS_IS_CALLED_FROM_ISR()) {
-//    taskENTER_CRITICAL_FROM_ISR();
-//  }
-//  else {
-//    taskENTER_CRITICAL();
-//  }
-
-  __disable_irq();
+  if (SYS_IS_CALLED_FROM_ISR()) {
+    taskENTER_CRITICAL_FROM_ISR();
+  }
+  else {
+    taskENTER_CRITICAL();
+  }
 }
 
 static inline void CBExitCritical() {
-//  if (SYS_IS_CALLED_FROM_ISR()) {
-//    taskEXIT_CRITICAL_FROM_ISR(0);
-//  }
-//  else {
-//    taskEXIT_CRITICAL();
-//  }
-
-  __enable_irq();
-  __ISB();
+  if (SYS_IS_CALLED_FROM_ISR()) {
+    taskEXIT_CRITICAL_FROM_ISR(0);
+  }
+  else {
+    taskEXIT_CRITICAL();
+  }
 }
