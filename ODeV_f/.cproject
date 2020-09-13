@@ -122,7 +122,7 @@
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="include"/>
 						<entry excluding="fatfs/src/option/unicode.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="middlewares"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="HTS221Task.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 						<entry excluding="src/freertos/portable/MemMang/heap_1.c|src/cmsis/startup_stm32l431xx.s|src/trace_recorder|src/freertos/portable/MemMang/heap_3.c|src/freertos/portable/MemMang/heap_2.c|src/freertos/portable/MemMang/heap_5.c|src/freertos/stream_buffer.c|src/cmsis/startup_stm32l452xx.s" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="system"/>
 					</sourceEntries>
 				</configuration>
@@ -243,7 +243,7 @@
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="include"/>
 						<entry excluding="fatfs/src/option/unicode.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="middlewares"/>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="HTS221Task.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 						<entry excluding="src/freertos/portable/MemMang/heap_1.c|src/cmsis/startup_stm32l431xx.s|src/trace_recorder|src/freertos/portable/MemMang/heap_3.c|src/freertos/portable/MemMang/heap_2.c|src/freertos/portable/MemMang/heap_5.c|src/freertos/stream_buffer.c|src/cmsis/startup_stm32l452xx.s" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="system"/>
 					</sourceEntries>
 				</configuration>
