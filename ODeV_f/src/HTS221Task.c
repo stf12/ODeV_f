@@ -107,7 +107,16 @@ struct _HTS221Task {
   /**
    * Buffer to store the data read from the sensor
    */
-  uint8_t m_pnSensorDataBuff[HTS221_GY_SAMPLES_PER_IT * 7];
+//  uint8_t m_pnSensorDataBuff[HTS221_GY_SAMPLES_PER_IT * 7];
+
+  float x0_t;
+  float y0_t;
+  float x1_t;
+  float y1_t;
+  float x0_h;
+  float y0_h;
+  float x1_h;
+  float y1_h;
 
   /**
    * ::IEventSrc interface implementation for this class.
@@ -311,11 +320,18 @@ sys_error_code_t HTS221Task_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t
   }
   IEventSrcInit(pObj->m_pxEventSrc);
 
-  memset(pObj->m_pnSensorDataBuff, 0, sizeof(pObj->m_pnSensorDataBuff));
   pObj->m_nDBID = 0xFF;
   pObj->m_nTimeStampTick = 0;
   pObj->m_nOldTimeStampTick = 0;
   pObj->m_nTimeStamp = 0;
+  pObj->x0_t = 0.0f;
+  pObj->y0_t = 0.0f;
+  pObj->x1_t = 0.0f;
+  pObj->y1_t = 0.0f;
+  pObj->x0_h = 0.0f;
+  pObj->y0_h = 0.0f;
+  pObj->x1_h = 0.0f;
+  pObj->y1_h = 0.0f;
 
   *pvTaskCode = HTS221TaskRun;
   *pcName = "HTS221";
@@ -599,10 +615,6 @@ static sys_error_code_t HTS221TaskSensorInit(HTS221Task *_this) {
 
   uint8_t nReg0 = 0;
   int32_t nRetVal = 0;
-  float x0_t=0, y0_t=0, x1_t=0, y1_t=0;
-  float x0_h=0, y0_h=0, x1_h=0, y1_h=0;
-  hts221_axis1bit16_t data_raw_humidity = {0};
-  hts221_axis1bit16_t data_raw_temperature = {0};
   hts221_axis1bit16_t coeff = {0};
 
   nRetVal = hts221_device_id_get(pxSensorDrv, (uint8_t *)&nReg0);
@@ -631,34 +643,35 @@ static sys_error_code_t HTS221TaskSensorInit(HTS221Task *_this) {
 
   /* Get calibration values (only first time) */
   hts221_temp_adc_point_0_get(pxSensorDrv, coeff.u8bit);
-  x0_t = (float)coeff.i16bit;
+  _this->x0_t = (float)coeff.i16bit;
 
   hts221_temp_deg_point_0_get(pxSensorDrv, coeff.u8bit);
-  y0_t = (float)coeff.u8bit[0];
+  _this->y0_t = (float)coeff.u8bit[0];
 
   hts221_temp_adc_point_1_get(pxSensorDrv, coeff.u8bit);
-  x1_t = (float)coeff.i16bit;
+  _this->x1_t = (float)coeff.i16bit;
 
   hts221_temp_deg_point_1_get(pxSensorDrv, coeff.u8bit);
-  y1_t = (float)coeff.u8bit[0];
+  _this->y1_t = (float)coeff.u8bit[0];
 
   hts221_hum_adc_point_0_get(pxSensorDrv, coeff.u8bit);
-  x0_h = (float)coeff.i16bit;
+  _this->x0_h = (float)coeff.i16bit;
 
   hts221_hum_rh_point_0_get(pxSensorDrv, coeff.u8bit);
-  y0_h = (float)coeff.u8bit[0];
+  _this->y0_h = (float)coeff.u8bit[0];
 
   hts221_hum_adc_point_1_get(pxSensorDrv, coeff.u8bit);
-  x1_h = (float)coeff.i16bit;
+  _this->x1_h = (float)coeff.i16bit;
 
   hts221_hum_rh_point_1_get(pxSensorDrv, coeff.u8bit);
-  y1_h = (float)coeff.u8bit[0];
+  _this->y1_h = (float)coeff.u8bit[0];
 
   /* Power Up */
   hts221_power_on_set(pxSensorDrv, PROPERTY_ENABLE);
 
-  hts221_temperature_raw_get(pxSensorDrv, data_raw_temperature.u8bit);
-  hts221_humidity_raw_get(pxSensorDrv, data_raw_humidity.u8bit);
+  //TODO: STF - why read the data now ??
+//  hts221_temperature_raw_get(pxSensorDrv, data_raw_temperature.u8bit);
+//  hts221_humidity_raw_get(pxSensorDrv, data_raw_humidity.u8bit);
 
   return xRes;
 }
@@ -669,13 +682,14 @@ static sys_error_code_t HTS221TaskSensorReadData(HTS221Task *_this) {
   stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.m_xConnector;
   uint8_t nReg0 = 0;
   uint8_t nReg1 = 0;
+  hts221_axis1bit16_t data_raw_humidity = {0};
+  hts221_axis1bit16_t data_raw_temperature = {0};
 
+  float dataOut[2] = {0.0f, 0.0f};
 
-  /* Check FIFO_WTM_IA anf fifo level. We do not use PID in order to avoid reading one register twice */
-  ism330dhcx_read_reg(pxSensorDrv, HTS221_FIFO_STATUS1, &nReg0, 1);
-  ism330dhcx_read_reg(pxSensorDrv, HTS221_FIFO_STATUS2, &nReg1, 1);
-
-  uint16_t fifo_level = ((nReg1 & 0x03) << 8) + nReg0;
+  hts221_temperature_raw_get(pxSensorDrv, data_raw_temperature.u8bit);
+  // Apply calibration */ /* To be optimized eventually
+  dataOut[0] = (((_this->y1_t - _this->y0_t) * (float)(data_raw_temperature.i16bit)) + ((_this->x1_t * _this->y0_t) - (_this->x0_t * _this->y1_t))) / (_this->x1_t - _this->x0_t);
 
   if((nReg1) & 0x80  && (fifo_level >= HTS221_GY_SAMPLES_PER_IT) ) {
     ism330dhcx_read_reg(pxSensorDrv, HTS221_FIFO_DATA_OUT_TAG, _this->m_pnSensorDataBuff, HTS221_GY_SAMPLES_PER_IT * 7);
