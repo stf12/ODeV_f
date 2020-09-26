@@ -33,8 +33,8 @@
 #include "NullErrorDelegate.h"
 #include "SysDefPowerModeHelper.h"
 #include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
+//#include "task.h"//TODO: STF.Port - threadx
+//#include "queue.h"//TODO: STF.Port - threadx
 #include "string.h"
 
 #ifndef INIT_TASK_CFG_STACK_SIZE

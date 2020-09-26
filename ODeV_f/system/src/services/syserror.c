@@ -30,7 +30,7 @@
 #include "systp.h"
 #include "syserror.h"
 #include "FreeRTOS.h"
-#include "task.h"
+//#include "task.h" //TODO: STF.Port - threadx
 
 sys_error_t g_nSysError = {0};
 

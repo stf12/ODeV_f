@@ -39,7 +39,7 @@ extern "C" {
 #include "IDriver.h"
 #include "IDriverVtbl.h"
 #include "FreeRTOS.h"
-#include "semphr.h"
+//#include "semphr.h"//TODO: STF.Port - threadx
 
 
 #define LD4_Pin                         GPIO_PIN_5

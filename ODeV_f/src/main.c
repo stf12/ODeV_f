@@ -30,7 +30,7 @@
 
 #include <stdio.h>
 #include <sysinit.h>
-#include "task.h"
+//#include "task.h" //TODO: STF.Port - threadx
 
 
 // Forward function declaration

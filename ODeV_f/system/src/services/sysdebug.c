@@ -33,8 +33,8 @@
 #include "stdio.h"
 #include "stdint.h"
 #include "FreeRTOS.h"
-#include "semphr.h"
-#include "task.h"
+//#include "semphr.h" //TODO: STF.Port - threadx
+//#include "task.h" //TODO: STF.Port - threadx
 
 
 /**

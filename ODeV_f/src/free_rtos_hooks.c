@@ -30,7 +30,7 @@
  */
 
 #include "FreeRTOS.h"
-#include "task.h"
+//#include "task.h" //TODO: STF.Port - threadx
 #include "sysdebug.h"
 #include "stm32l4xx_hal.h"
 
