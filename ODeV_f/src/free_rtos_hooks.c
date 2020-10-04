@@ -32,7 +32,7 @@
 #include "FreeRTOS.h"
 //#include "task.h" //TODO: STF.Port - threadx
 #include "sysdebug.h"
-#include "stm32l4xx_hal.h"
+#include "stm32f4xx_hal.h"
 
 #define SYS_DEBUGF(level, message)      SYS_DEBUGF3(SYS_DBG_APP, level, message)
 
