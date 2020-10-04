@@ -64,22 +64,10 @@ extern "C" {
 // Debug HArdware configuration
 // ****************************
 
-// PINs used as Test Point
-#define SYS_DBG_TP1_PORT                GPIOH
-#define SYS_DBG_TP1_PIN                 GPIO_PIN_1
-#define SYS_DBG_TP2_PORT                GPIOH
-#define SYS_DBG_TP2_PIN                 GPIO_PIN_0
-
-
-// UART for printf retargeting
-#define UART_TX_PIN                     GPIO_PIN_2
-#define UART_TX_GPIO_PORT               GPIOA
-#define UART_RX_PIN                     GPIO_PIN_3
-#define UART_RX_GPIO_PORT               GPIOA
-
 // Debug Configuration options.
 // ****************************************************
 #include <stdint.h>
+#include "stm32_pin_ip_mapping_mx.h"
 #include "sysdebug_config.h"
 
 

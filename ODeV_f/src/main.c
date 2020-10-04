@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <sysinit.h>
 //#include "task.h" //TODO: STF.Port - threadx
+#include "tx_api.h"
 
 
 // Forward function declaration
@@ -43,7 +44,8 @@ int main()
   // System initialization.
   SysInit(FALSE);
 
-  vTaskStartScheduler();
+//  vTaskStartScheduler(); //TODO: STF.Port - threadx
+  tx_kernel_enter();
 
   while (1);
 }

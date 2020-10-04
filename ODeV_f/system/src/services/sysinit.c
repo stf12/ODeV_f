@@ -35,10 +35,11 @@
 #include "FreeRTOS.h"
 //#include "task.h"//TODO: STF.Port - threadx
 //#include "queue.h"//TODO: STF.Port - threadx
+#include "tx_api.h"
 #include "string.h"
 
 #ifndef INIT_TASK_CFG_STACK_SIZE
-#define INIT_TASK_CFG_STACK_SIZE               (configMINIMAL_STACK_SIZE * 2)
+#define INIT_TASK_CFG_STACK_SIZE               (140)
 #endif
 #define INIT_TASK_CFG_PRIORITY                 (configMAX_PRIORITIES - 1)
 #define INIT_TASK_CFG_QUEUE_ITEM_SIZE          sizeof(SysEvent)
@@ -65,7 +66,7 @@ struct _System{
   /**
    * Specifies the Init task handle.
    */
-  TaskHandle_t m_xInitTask;
+  TX_THREAD m_xInitTask;
 
   /**
    * Specifies the queue used to serialize the system request made by the application tasks.
@@ -84,6 +85,11 @@ struct _System{
    * Specifies the application specific power mode helper object.
    */
   IAppPowerModeHelper *m_pxAppPowerModeHelper;
+
+  /**
+   *
+   */
+  void *pvFirstUnusedMemory;
 
 #if INIT_TASK_CFG_ENABLE_BOOT_IF == 1
   /**
@@ -128,9 +134,9 @@ extern void SysPowerConfig();
 /**
  * INIT task control loop. The INIT task is in charge of the system initialization.
  *
- * @param pParams not used.
+ * @param thread_input not used.
  */
-static void InitTaskRun(void *pParams);
+static void InitTaskRun(ULONG thread_input);
 
 
 // Public API definition
@@ -213,10 +219,16 @@ sys_error_code_t SysInit(boolean_t bEnableBootIF) {
 
   // Create the INIT task to complete the system initialization
   // after RTOS is started.
-  if (xTaskCreate(InitTaskRun, "INIT", INIT_TASK_CFG_STACK_SIZE, NULL, INIT_TASK_CFG_PRIORITY, &s_xTheSystem.m_xInitTask) != pdPASS) {
-    xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
-    SYS_SET_SERVICE_LEVEL_ERROR_CODE(xRes);
-  }
+
+  // This is the case for FreeRTOS.
+//  if (xTaskCreate(InitTaskRun, "INIT", INIT_TASK_CFG_STACK_SIZE, NULL, INIT_TASK_CFG_PRIORITY, &s_xTheSystem.m_xInitTask) != pdPASS) {
+//    xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
+//    SYS_SET_SERVICE_LEVEL_ERROR_CODE(xRes);
+//  }
+
+  // ThreadX use a different approach. After the scheduler is started, it will call the following function
+  // that the application code must overwrite:
+  // void tx_application_define(void *first_unused_memory)
 
   return xRes;
 }
@@ -302,10 +314,10 @@ __weak IAppPowerModeHelper *SysGetPowerModeHelper() {
  *
  * @param pParams not used
  */
-static void InitTaskRun(void *pParams) {
+static void InitTaskRun(ULONG thread_input) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   BaseType_t xRtosRes;
-  UNUSED(pParams);
+  UNUSED(thread_input);
 
   vTaskSuspendAll();
 
@@ -328,12 +340,13 @@ static void InitTaskRun(void *pParams) {
     SYS_DEBUGF(SYS_DBG_LEVEL_WARNING, ("INIT: start after WWDG reset!\r\n"));
   }
   // Check if the system has resumed from the Option Byte loading occurred
-  if (__HAL_RCC_GET_FLAG(RCC_FLAG_OBLRST) != RESET) {
-    HAL_FLASH_OB_Lock();
-    HAL_FLASH_Lock();
-
-    SYS_DEBUGF(SYS_DBG_LEVEL_WARNING, ("INIT: start after OB reset!\r\n"));
-  }
+  //TODO: STF.Port - threadx - Check the Option Bytes for F4
+//  if (__HAL_RCC_GET_FLAG(RCC_FLAG_OBLRST) != RESET) {
+//    HAL_FLASH_OB_Lock();
+//    HAL_FLASH_Lock();
+//
+//    SYS_DEBUGF(SYS_DBG_LEVEL_WARNING, ("INIT: start after OB reset!\r\n"));
+//  }
 
   // check the reset flags
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("INIT: reset flags: 0x%x\r\n", READ_BIT(RCC->CSR, 0xFF000000)));
@@ -511,3 +524,22 @@ static void InitTaskRun(void *pParams) {
 }
 
 
+// ThreadX integration
+// *******************
+
+void tx_application_define(void *first_unused_memory) {
+  UINT nRes = TX_SUCCESS;
+  // create the INIT task.
+
+  //  if (xTaskCreate(InitTaskRun, "INIT", INIT_TASK_CFG_STACK_SIZE, NULL, INIT_TASK_CFG_PRIORITY, &s_xTheSystem.m_xInitTask) != pdPASS) {
+  //    xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
+  //    SYS_SET_SERVICE_LEVEL_ERROR_CODE(xRes);
+  //  }
+
+  s_xTheSystem.pvFirstUnusedMemory = first_unused_memory;
+  nRes = tx_thread_create(&s_xTheSystem.m_xInitTask, "INIT", InitTaskRun, ODEV_MAGIC_NUMBER, s_xTheSystem.pvFirstUnusedMemory, INIT_TASK_CFG_STACK_SIZE * 4, INIT_TASK_CFG_PRIORITY, 3, TX_NO_TIME_SLICE, TX_AUTO_START);
+  if (nRes != TX_SUCCESS) {
+    sys_error_handler();
+  }
+  s_xTheSystem.pvFirstUnusedMemory += INIT_TASK_CFG_STACK_SIZE * 4;
+}

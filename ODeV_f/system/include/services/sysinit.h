@@ -50,6 +50,8 @@
  extern "C" {
 #endif
 
+#define ODEV_MAGIC_NUMBER  (12744)
+
 /**
  * It initialize the minimum set of resources, hardware and software, in order to start the scheduler,
  * and create the INIT task.

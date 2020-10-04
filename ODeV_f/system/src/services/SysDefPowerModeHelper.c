@@ -186,7 +186,9 @@ sys_error_code_t SysDefPowerModeHelper_vtblDidEnterPowerMode(IAppPowerModeHelper
 //      PWR->SCR = SKP_PRWR_SCR_CWUF_1_5;
 
       SystemClock_Backup();
-      HAL_PWREx_EnterSTOP1Mode(PWR_STOPENTRY_WFI);
+//      HAL_PWREx_EnterSTOP1Mode(PWR_STOPENTRY_WFI); //TODO: STF.Port - threadx
+      // on STM32F4 the low power mode is different
+      HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
 
       // The MCU has exited the STOP mode
       // reset the WWDG

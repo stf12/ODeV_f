@@ -32,6 +32,8 @@
 #include "systp.h"
 #include "stdio.h"
 #include "stdint.h"
+#include "usart.h"
+#include "tim.h"
 #include "FreeRTOS.h"
 //#include "semphr.h" //TODO: STF.Port - threadx
 //#include "task.h" //TODO: STF.Port - threadx
@@ -58,8 +60,6 @@ uint8_t g_sys_dbg_min_level = SYS_DBG_LEVEL_VERBOSE;
 #define SYS_DBG_IS_CALLED_FROM_ISR() ((SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0 ? 1 : 0)
 
 static SemaphoreHandle_t s_xMutex = NULL;
-static UART_HandleTypeDef s_xUartHandle;
-static TIM_HandleTypeDef s_xTim6Handle;
 
 uint32_t g_ulHighFrequencyTimerTicks = 0;
 
@@ -68,10 +68,6 @@ static void SysDebugSetupRunTimeStatsTimer();
 void null_lockfn();
 void SysDebugLock();
 void SysDebugUnlock();
-
-extern void sys_error_handler(void);
-extern void MX_USART2_UART_Init(UART_HandleTypeDef* uartHandle);
-extern void MX_TIM6_Init(TIM_HandleTypeDef* tim_baseHandle);
 
 
 xDebugLockUnlockFnType xSysDebugLockFn = null_lockfn;
@@ -152,12 +148,12 @@ __attribute__((weak))
 #endif
 int SysDebugHardwareInit() {
 
-  MX_USART2_UART_Init(&s_xUartHandle);
+  SYS_DBG_USART_MX_INIT();
 
 #ifdef DEBUG
   // Debug TP1 and TP2 configuration
   GPIO_InitTypeDef GPIO_InitStruct;
-  __HAL_RCC_GPIOH_CLK_ENABLE();
+  SYS_DBG_TP_CLK_ENABLE();
 
   HAL_GPIO_WritePin(SYS_DBG_TP1_PORT, SYS_DBG_TP1_PIN|SYS_DBG_TP2_PIN, GPIO_PIN_RESET);
   GPIO_InitStruct.Pin = SYS_DBG_TP1_PIN|SYS_DBG_TP2_PIN;
@@ -173,36 +169,22 @@ int SysDebugHardwareInit() {
 }
 
 void SysDebugSetupRunTimeStatsTimer() {
-  MX_TIM6_Init(&s_xTim6Handle);
+  SYS_DBG_TIM_INIT();
 }
 
 void SysDebugStartRunTimeStatsTimer() {
-  HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
-  HAL_TIM_Base_Start_IT(&s_xTim6Handle);
+  HAL_NVIC_EnableIRQ(SYS_DBG_TIM_IRQ_N);
+  HAL_TIM_Base_Start_IT(&SYS_DBG_TIM);
 }
 
 int SysDebugLowLevelPutchar(int x) {
-  if(HAL_UART_Transmit(&s_xUartHandle, (uint8_t*)&x, 1, 5000)!= HAL_OK) {
+  if(HAL_UART_Transmit(&SYS_DBG_USART, (uint8_t*)&x, 1, 5000)!= HAL_OK) {
     return -1;
   }
 
 //  ITM_SendChar(x);
 
   return x;
-}
-
-// CubeMx integration
-// ******************
-
-void TIM6_DAC_IRQHandler(void) {
-    // TIM Update event
-  if(__HAL_TIM_GET_FLAG(&s_xTim6Handle, TIM_FLAG_UPDATE) != RESET) {
-    if(__HAL_TIM_GET_IT_SOURCE(&s_xTim6Handle, TIM_IT_UPDATE) != RESET) {
-      __HAL_TIM_CLEAR_IT(&s_xTim6Handle, TIM_IT_UPDATE);
-      // handle the update event.
-      g_ulHighFrequencyTimerTicks++;
-    }
-  }
 }
 
 #endif // SYS_DEBUG
