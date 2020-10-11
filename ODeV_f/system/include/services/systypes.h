@@ -41,6 +41,7 @@ typedef enum {
 	TRUE  = !FALSE
 } boolean_t;
 
+typedef void (*tx_entry_function_t)(unsigned long nParam);
 
 #ifdef __cplusplus
 }

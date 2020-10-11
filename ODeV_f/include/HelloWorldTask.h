@@ -40,7 +40,7 @@ extern "C" {
 #include "systp.h"
 #include "syserror.h"
 #include "AManagedTask.h"
-#include "AManagedTaskVtbl.h"
+#include "AManagedTask_vtbl.h"
 #include "IDriver.h"
 #include "IDriverVtbl.h"
 

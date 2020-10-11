@@ -41,7 +41,7 @@ extern "C" {
 #include "FreeRTOS.h"
 //#include "task.h" //TODO: STF.Port - threadx
 
-#include "AManagedTaskVtbl.h"
+#include "AManagedTask_vtbl.h"
 
 /**
  * Create  type name for _IManagedTask_vtb.

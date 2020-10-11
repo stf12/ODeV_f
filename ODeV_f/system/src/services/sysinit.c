@@ -41,7 +41,7 @@
 #ifndef INIT_TASK_CFG_STACK_SIZE
 #define INIT_TASK_CFG_STACK_SIZE               (140)
 #endif
-#define INIT_TASK_CFG_PRIORITY                 (configMAX_PRIORITIES - 1)
+#define INIT_TASK_CFG_PRIORITY                 (0) // with ThreadX the task priority are from MAX=0 to MIN=app_defined
 #define INIT_TASK_CFG_QUEUE_ITEM_SIZE          sizeof(SysEvent)
 #ifndef INIT_TASK_CFG_QUEUE_LENGTH
 #define INIT_TASK_CFG_QUEUE_LENGTH             16
@@ -50,6 +50,10 @@
 
 #ifndef INIT_TASK_CFG_ENABLE_BOOT_IF
 #define INIT_TASK_CFG_ENABLE_BOOT_IF           0
+#endif
+
+#ifndef INIT_TASK_CFG_HEAP_SYZE
+#define INIT_TASK_CFG_HEAP_SYZE                4096
 #endif
 
 #define SYS_DEBUGF(level, message) 			        SYS_DEBUGF3(SYS_DBG_INIT, level, message)
@@ -74,7 +78,8 @@ struct _System{
    * - Power Mode Switch.
    * - Error.
    */
-  QueueHandle_t m_xSysQueue;
+  QueueHandle_t m_xSysQueue_;
+  TX_QUEUE m_xSysQueue;
 
   /**
    * Specifies the application specific error manager delegate object.
@@ -98,6 +103,16 @@ struct _System{
   IBoot *m_pxAppBootIF;
 #endif
 
+  /**
+   * System memory pool control block.
+   */
+  TX_BYTE_POOL m_xSysMemPool;
+
+  /**
+   * System heap. This memory block is used to create the system byte pool.
+   * This is a convenient way to handle the memory allocation at application level.
+   */
+  uint8_t m_pnHeap[INIT_TASK_CFG_HEAP_SYZE];
 };
 
 
@@ -108,14 +123,6 @@ struct _System{
  * The only instance of System object.
  */
 static System s_xTheSystem;
-
-#if( configAPPLICATION_ALLOCATED_HEAP == 1 )
-/**
- * The FreeRTOS HEAP is allocated by the application so the system can initialize the heap memory at startup
- * in order to prevent some SRAM retention strange issue.
- */
-uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
-#endif
 
 
 // Private function declaration
@@ -243,10 +250,10 @@ sys_error_code_t SysPostEvent(SysEvent xEvent) {
   }
 
   if (SYS_IS_CALLED_FROM_ISR()) {
-    xResult = xQueueSendToBackFromISR(s_xTheSystem.m_xSysQueue, &xEvent, NULL);
+    xResult = xQueueSendToBackFromISR(s_xTheSystem.m_xSysQueue_, &xEvent, NULL);
   }
   else {
-    xResult = xQueueSendToBack(s_xTheSystem.m_xSysQueue, &xEvent, pdMS_TO_TICKS(50));
+    xResult = xQueueSendToBack(s_xTheSystem.m_xSysQueue_, &xEvent, pdMS_TO_TICKS(50));
   }
 
   if (xResult == errQUEUE_FULL) {
@@ -267,7 +274,8 @@ sys_error_code_t SysTaskErrorHandler(AManagedTask *pxTask) {
 
   // TODO: STF - how to handle the shutdown of the task?
 
-  vTaskSuspend(pxTask->m_xThaskHandle);
+//  vTaskSuspend(pxTask->m_xThaskHandle);
+  tx_thread_suspend(&pxTask->m_xThaskHandle);
 
   return xRes;
 }
@@ -282,10 +290,10 @@ void SysResetAEDCounter() {
 
 boolean_t SysEventsPending() {
   if (SYS_IS_CALLED_FROM_ISR()) {
-    return uxQueueMessagesWaitingFromISR(s_xTheSystem.m_xSysQueue) > 0;
+    return uxQueueMessagesWaitingFromISR(s_xTheSystem.m_xSysQueue_) > 0;
   }
   else {
-    return uxQueueMessagesWaiting(s_xTheSystem.m_xSysQueue) > 0;
+    return uxQueueMessagesWaiting(s_xTheSystem.m_xSysQueue_) > 0;
   }
 }
 
@@ -321,17 +329,30 @@ static void InitTaskRun(ULONG thread_input) {
 
   vTaskSuspendAll();
 
-  // Create the queue for the system message.
-  s_xTheSystem.m_xSysQueue = xQueueCreate(INIT_TASK_CFG_QUEUE_LENGTH, INIT_TASK_CFG_QUEUE_ITEM_SIZE);
-  if (s_xTheSystem.m_xSysQueue == NULL) {
-    // if s_xSysQueue is NULL then the execution is blocked by sys_error_handler().
-    // see bugtabs4 #5265 (WGID:201282)
+  // allocate the system memory pool
+  if (TX_SUCCESS != tx_byte_pool_create(&s_xTheSystem.m_xSysMemPool, "SYS_MEM_POOL", s_xTheSystem.m_pnHeap, INIT_TASK_CFG_HEAP_SYZE)) {
+    // if the memory pool allocation fails then the execution is blocked
     sys_error_handler();
   }
 
-#ifdef DEBUG
-    vQueueAddToRegistry(s_xTheSystem.m_xSysQueue, "SYS_Q");
-#endif
+  CHAR *pcMemory = NULL;
+  // Create the queue for the system messages.
+  if (TX_SUCCESS != tx_byte_allocate(&s_xTheSystem.m_xSysMemPool, (VOID **)&pcMemory, INIT_TASK_CFG_QUEUE_ITEM_SIZE * INIT_TASK_CFG_QUEUE_LENGTH, TX_NO_WAIT)) {
+    sys_error_handler();
+  }
+  tx_queue_create(&s_xTheSystem.m_xSysQueue, "SYS_Q", INIT_TASK_CFG_QUEUE_ITEM_SIZE / sizeof(uint32_t), pcMemory, INIT_TASK_CFG_QUEUE_ITEM_SIZE * INIT_TASK_CFG_QUEUE_LENGTH);
+
+  // Create the queue for the system message.
+//  s_xTheSystem.m_xSysQueue_ = xQueueCreate(INIT_TASK_CFG_QUEUE_LENGTH, INIT_TASK_CFG_QUEUE_ITEM_SIZE);
+//  if (s_xTheSystem.m_xSysQueue_ == NULL) {
+//    // if s_xSysQueue is NULL then the execution is blocked by sys_error_handler().
+//    // see bugtabs4 #5265 (WGID:201282)
+//    sys_error_handler();
+//  }
+//
+//#ifdef DEBUG
+//    vQueueAddToRegistry(s_xTheSystem.m_xSysQueue_, "SYS_Q");
+//#endif
 
   // Check if the system has resumed from WWDG reset
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_WWDGRST) != RESET) {
@@ -404,20 +425,26 @@ static void InitTaskRun(ULONG thread_input) {
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("DONE.\r\n"));
 
   // Create the application tasks
-  TaskFunction_t pvTaskCode;
-  const char *pcName;
-  unsigned short nStackDepth;
-  void *pTaskParams;
-  UBaseType_t xPriority;
+  tx_entry_function_t pvTaskCode;
+  const CHAR *pcName;
+  VOID *pvStackStart;
+  ULONG nStackSize;
+  UINT nPriority;
+  UINT nPreemptThreshold;
+  ULONG nTimeSlice;
+  ULONG nAutoStart;
+  ULONG nParams;
 
   pTask = ACGetFirstTask(&xContext);
   while (pTask != NULL && !SYS_IS_ERROR_CODE(xRes)) {
-    xRes = AMTOnCreateTask(pTask, &pvTaskCode, &pcName, &nStackDepth, &pTaskParams, &xPriority);
+    xRes = AMTOnCreateTask(pTask, &pvTaskCode, &pcName, &pvStackStart, &nStackSize, &nPriority, &nPreemptThreshold, &nTimeSlice, &nAutoStart, &nParams);
     if (SYS_IS_ERROR_CODE(xRes)) {
       SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INIT_TASK_FAILURE_ERROR_CODE);
       SYS_DEBUGF(SYS_DBG_LEVEL_SEVERE, ("INIT: system failure.\r\n"));
     } else {
-      xRtosRes = xTaskCreate(pvTaskCode, pcName, nStackDepth, pTaskParams, xPriority, &pTask->m_xThaskHandle);
+//      xRtosRes = xTaskCreate(pvTaskCode, pcName, nStackDepth, pTaskParams, xPriority, &pTask->m_xThaskHandle);
+      xRtosRes = tx_thread_create(&pTask->m_xThaskHandle, pcName, pvTaskCode, nParams, pvStackStart, nStackSize,
+          nPriority, nPreemptThreshold, nTimeSlice, nAutoStart);
       if(xRtosRes != pdPASS) {
         SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INIT_TASK_FAILURE_ERROR_CODE);
         SYS_DEBUGF(SYS_DBG_LEVEL_SEVERE, ("INIT: unable to create task %s.\r\n", pcName));
@@ -447,7 +474,7 @@ static void InitTaskRun(ULONG thread_input) {
   // wait for a system level power mode request
   SysEvent xEvent;
   for (;;) {
-    if (pdTRUE == xQueueReceive(s_xTheSystem.m_xSysQueue, &xEvent, portMAX_DELAY)) {
+    if (pdTRUE == xQueueReceive(s_xTheSystem.m_xSysQueue_, &xEvent, portMAX_DELAY)) {
       EPowerMode eActivePowerMode = IapmhGetActivePowerMode(s_xTheSystem.m_pxAppPowerModeHelper);
       // check if it is a system error event
       if (SYS_IS_ERROR_EVENT(xEvent)) {
@@ -537,7 +564,7 @@ void tx_application_define(void *first_unused_memory) {
   //  }
 
   s_xTheSystem.pvFirstUnusedMemory = first_unused_memory;
-  nRes = tx_thread_create(&s_xTheSystem.m_xInitTask, "INIT", InitTaskRun, ODEV_MAGIC_NUMBER, s_xTheSystem.pvFirstUnusedMemory, INIT_TASK_CFG_STACK_SIZE * 4, INIT_TASK_CFG_PRIORITY, 3, TX_NO_TIME_SLICE, TX_AUTO_START);
+  nRes = tx_thread_create(&s_xTheSystem.m_xInitTask, "INIT", InitTaskRun, ODEV_MAGIC_NUMBER, s_xTheSystem.pvFirstUnusedMemory, INIT_TASK_CFG_STACK_SIZE * 4, INIT_TASK_CFG_PRIORITY, INIT_TASK_CFG_PRIORITY, TX_NO_TIME_SLICE, TX_AUTO_START);
   if (nRes != TX_SUCCESS) {
     sys_error_handler();
   }
