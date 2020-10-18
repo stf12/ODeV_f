@@ -49,7 +49,7 @@ typedef struct _AManagedTask_vtbl AManagedTask_vtbl;
 
 struct _AManagedTask_vtbl {
   sys_error_code_t (*HardwareInit)(AManagedTask *_this, void *pParams);
-  sys_error_code_t (*OnCreateTask)(AManagedTask *_this, tx_entry_function_t *pvTaskCode, const CHAR **pcName, VOID **pvStackStart, ULONG *pnStackSize, UINT *pnPriority, UINT *pnPreemptThreshold, ULONG *pnTimeSlice, ULONG *pnAutoStart, ULONG *pnParams);
+  sys_error_code_t (*OnCreateTask)(AManagedTask *_this, tx_entry_function_t *pvTaskCode, CHAR **pcName, VOID **pvStackStart, ULONG *pnStackSize, UINT *pnPriority, UINT *pnPreemptThreshold, ULONG *pnTimeSlice, ULONG *pnAutoStart, ULONG *pnParams);
   sys_error_code_t (*DoEnterPowerMode)(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
   sys_error_code_t (*HandleError)(AManagedTask *_this, SysEvent xError);
 };
@@ -128,7 +128,7 @@ sys_error_code_t AMTHardwareInit(AManagedTask *_this, void *pParams) {
 }
 
 SYS_DEFINE_INLINE
-inline sys_error_code_t AMTOnCreateTask(AManagedTask *_this, tx_entry_function_t *pvTaskCode, const CHAR **pcName,
+inline sys_error_code_t AMTOnCreateTask(AManagedTask *_this, tx_entry_function_t *pvTaskCode, CHAR **pcName,
     VOID **pvStackStart, ULONG *pnStackSize,
     UINT *pnPriority, UINT *pnPreemptThreshold,
     ULONG *pnTimeSlice, ULONG *pnAutoStart,

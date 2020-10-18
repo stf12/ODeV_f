@@ -297,6 +297,18 @@ boolean_t SysEventsPending() {
   }
 }
 
+void *SysAlloc(size_t nSize) {
+  void *pcMemory = NULL;
+  if (TX_SUCCESS != tx_byte_allocate(&s_xTheSystem.m_xSysMemPool, (VOID **)&pcMemory, nSize, TX_NO_WAIT)) {
+    pcMemory = NULL;
+  }
+  return pcMemory;
+}
+
+void SysFree(void *pvData) {
+  tx_byte_release(pvData);
+}
+
 __weak IApplicationErrorDelegate *SysGetErrorDelegate() {
 
   return NullAEDAlloc();
@@ -324,7 +336,7 @@ __weak IAppPowerModeHelper *SysGetPowerModeHelper() {
  */
 static void InitTaskRun(ULONG thread_input) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  BaseType_t xRtosRes;
+  UINT nRtosRes = TX_SUCCESS;
   UNUSED(thread_input);
 
   vTaskSuspendAll();
@@ -426,7 +438,7 @@ static void InitTaskRun(ULONG thread_input) {
 
   // Create the application tasks
   tx_entry_function_t pvTaskCode;
-  const CHAR *pcName;
+  CHAR *pcName;
   VOID *pvStackStart;
   ULONG nStackSize;
   UINT nPriority;
@@ -442,10 +454,16 @@ static void InitTaskRun(ULONG thread_input) {
       SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INIT_TASK_FAILURE_ERROR_CODE);
       SYS_DEBUGF(SYS_DBG_LEVEL_SEVERE, ("INIT: system failure.\r\n"));
     } else {
+      if(pvStackStart == NULL) {
+        // allocate the task stack in the system memory pool
+        nRtosRes = tx_byte_allocate(&s_xTheSystem.m_xSysMemPool, &pvStackStart, nStackSize, TX_NO_WAIT);
+      }
 //      xRtosRes = xTaskCreate(pvTaskCode, pcName, nStackDepth, pTaskParams, xPriority, &pTask->m_xThaskHandle);
-      xRtosRes = tx_thread_create(&pTask->m_xThaskHandle, pcName, pvTaskCode, nParams, pvStackStart, nStackSize,
-          nPriority, nPreemptThreshold, nTimeSlice, nAutoStart);
-      if(xRtosRes != pdPASS) {
+      if (nRtosRes == TX_SUCCESS) {
+        nRtosRes = tx_thread_create(&pTask->m_xThaskHandle, pcName, pvTaskCode, nParams, pvStackStart, nStackSize,
+            nPriority, nPreemptThreshold, nTimeSlice, nAutoStart);
+      }
+      if(nRtosRes != TX_SUCCESS) {
         SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INIT_TASK_FAILURE_ERROR_CODE);
         SYS_DEBUGF(SYS_DBG_LEVEL_SEVERE, ("INIT: unable to create task %s.\r\n", pcName));
       }
@@ -460,7 +478,8 @@ static void InitTaskRun(ULONG thread_input) {
 
 #if defined(DEBUG) || defined(SYS_DEBUG)
   if (SYS_DBG_LEVEL_SL >= g_sys_dbg_min_level) {
-    size_t nFreeHeapSize = xPortGetFreeHeapSize();
+    ULONG nFreeHeapSize = 0;
+    tx_byte_pool_info_get(&s_xTheSystem.m_xSysMemPool, TX_NULL, &nFreeHeapSize, TX_NULL, TX_NULL, TX_NULL, TX_NULL);
     SYS_DEBUGF(SYS_DBG_LEVEL_SL, ("INIT: free heap = %i.\r\n", nFreeHeapSize));
     SYS_DEBUGF(SYS_DBG_LEVEL_SL, ("INIT: SystemCoreClock = %iHz.\r\n", SystemCoreClock));
   }
@@ -474,7 +493,8 @@ static void InitTaskRun(ULONG thread_input) {
   // wait for a system level power mode request
   SysEvent xEvent;
   for (;;) {
-    if (pdTRUE == xQueueReceive(s_xTheSystem.m_xSysQueue_, &xEvent, portMAX_DELAY)) {
+//    if (pdTRUE == xQueueReceive(s_xTheSystem.m_xSysQueue_, &xEvent, portMAX_DELAY)) { TODO: STF.Port ThreadX
+    if (TX_SUCCESS == tx_queue_receive(&s_xTheSystem.m_xSysQueue, &xEvent, TX_WAIT_FOREVER)) {
       EPowerMode eActivePowerMode = IapmhGetActivePowerMode(s_xTheSystem.m_pxAppPowerModeHelper);
       // check if it is a system error event
       if (SYS_IS_ERROR_EVENT(xEvent)) {

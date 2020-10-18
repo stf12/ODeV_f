@@ -57,7 +57,7 @@ sys_error_code_t SysLoadApplicationContext(ApplicationContext *pAppContext) {
 
   // Add the task object to the context.
   xRes = ACAddTask(pAppContext, s_pxHelloWorldObj);
-  xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxPushButtonObj);
+//  xRes = ACAddTask(pAppContext, (AManagedTask*)s_pxPushButtonObj);
 
 
   return xRes;

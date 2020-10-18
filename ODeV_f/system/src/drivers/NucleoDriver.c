@@ -75,7 +75,7 @@ static HardwareResources s_xHardwareResources;
 // *********************
 
 IDriver *NucleoDriverAlloc() {
-  IDriver *pNewObj = (IDriver*)pvPortMalloc(sizeof(NucleoDriver));
+  IDriver *pNewObj = (IDriver*)SysAlloc(sizeof(NucleoDriver));
 
   if (pNewObj == NULL) {
     SYS_SET_LOW_LEVEL_ERROR_CODE(SYS_OUT_OF_MEMORY_ERROR_CODE);
@@ -115,10 +115,10 @@ sys_error_code_t NucleoDriver_vtblInit(IDriver *_this, void *pParams) {
   // Configure the software resource
   pObj->m_bPB1Pressed = HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) != GPIO_PIN_SET;
   pObj->m_xSyncObj = xSemaphoreCreateBinary();
-  if (pObj == NULL) {
-    xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
-    SYS_SET_LOW_LEVEL_ERROR_CODE(xRes);
-  }
+//  if (pObj == NULL) {
+//    xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
+//    SYS_SET_LOW_LEVEL_ERROR_CODE(xRes);
+//  }
 
   return xRes;
 }

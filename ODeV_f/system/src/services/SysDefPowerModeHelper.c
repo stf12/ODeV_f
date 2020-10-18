@@ -73,7 +73,7 @@ extern void SystemClock_Restore(void);
 // *********************
 
 IAppPowerModeHelper *SysDefPowerModeHelperAlloc() {
-  IAppPowerModeHelper *pNewObj = (IAppPowerModeHelper*)pvPortMalloc(sizeof(SysDefPowerModeHelper));
+  IAppPowerModeHelper *pNewObj = (IAppPowerModeHelper*)SysAlloc(sizeof(SysDefPowerModeHelper));
 
   if (pNewObj == NULL) {
     SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_OUT_OF_MEMORY_ERROR_CODE);

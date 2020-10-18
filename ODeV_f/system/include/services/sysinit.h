@@ -144,6 +144,9 @@ IBoot *SysGetBootIF();
  */
 IAppPowerModeHelper *SysGetPowerModeHelper();
 
+void *SysAlloc(size_t nSize);
+void SysFree(void *pvData);
+
 #ifdef __cplusplus
 }
 #endif

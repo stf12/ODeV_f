@@ -36,7 +36,7 @@
 // See also http://stackoverflow.com/questions/26503235/c-inline-function-and-gcc
 #if defined (__GNUC__)
 extern sys_error_code_t AMTHardwareInit(AManagedTask *this, void *pParams);
-extern sys_error_code_t AMTOnCreateTask(AManagedTask *_this, tx_entry_function_t *pvTaskCode, const CHAR **pcName, VOID **pvStackStart, ULONG *pnStackSize, UINT *pnPriority, UINT *pnPreemptThreshold, ULONG *pnTimeSlice, ULONG *pnAutoStart, ULONG *pnParams);
+extern sys_error_code_t AMTOnCreateTask(AManagedTask *_this, tx_entry_function_t *pvTaskCode, CHAR **pcName, VOID **pvStackStart, ULONG *pnStackSize, UINT *pnPriority, UINT *pnPreemptThreshold, ULONG *pnTimeSlice, ULONG *pnAutoStart, ULONG *pnParams);
 extern sys_error_code_t AMTDoEnterPowerMode(AManagedTask *this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
 extern sys_error_code_t AMTHandleError(AManagedTask *this, SysEvent xError);
 extern sys_error_code_t AMTInit(AManagedTask *this);

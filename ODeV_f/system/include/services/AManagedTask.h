@@ -84,7 +84,7 @@ inline sys_error_code_t AMTHardwareInit(AManagedTask *_this, void *pParams);
  * @param pcName [OUT] used by the application to specify a descriptive name for the task.
  * @param pvStackStart [OUT] used by the application to specify the start address of the stack. If it is NULL, the the stack is allocated in the system main memory pool.
  * @param pnStackSize [OUT] used by the application to specify the task stack size.
- * @param pnPriority [OUT] used by the application to specify the task priority. Legal values range from 0 through (TX_MAX_PRIORITES-1), where a value of 0 represents the highest priority.
+ * @param pnPriority [OUT] used by the application to specify the task priority. Legal values range from 0 through (TX_MAX_PRIORITIES-1), where a value of 0 represents the highest priority.
  * @param pnPreemptThreshold [OUT] used by the application to specify the task preemptive threshold.
  *        Highest priority level (0 through (TX_MAX_PRIORITIES-1)) of disabled preemption. Only priorities higher than this
  *        level are allowed to preempt this thread. This value must be less than or equal to the specified priority.
@@ -100,7 +100,7 @@ inline sys_error_code_t AMTHardwareInit(AManagedTask *_this, void *pParams);
  * @return \a SYS_NO_ERROR_CODE if success, a task specific error code otherwise. If the function
  * fails the task creation process is stopped.
  */
-inline sys_error_code_t AMTOnCreateTask(AManagedTask *_this, tx_entry_function_t *pvTaskCode, const CHAR **pcName,
+inline sys_error_code_t AMTOnCreateTask(AManagedTask *_this, tx_entry_function_t *pvTaskCode, CHAR **pcName,
     VOID **pvStackStart, ULONG *pnStackSize,
     UINT *pnPriority, UINT *pnPreemptThreshold,
     ULONG *pnTimeSlice, ULONG *pnAutoStart,
