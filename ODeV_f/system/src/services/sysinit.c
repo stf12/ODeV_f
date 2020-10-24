@@ -32,9 +32,6 @@
 #include "sysdebug.h"
 #include "NullErrorDelegate.h"
 #include "SysDefPowerModeHelper.h"
-#include "FreeRTOS.h"
-//#include "task.h"//TODO: STF.Port - threadx
-//#include "queue.h"//TODO: STF.Port - threadx
 #include "tx_api.h"
 #include "string.h"
 
@@ -78,7 +75,6 @@ struct _System{
    * - Power Mode Switch.
    * - Error.
    */
-  QueueHandle_t m_xSysQueue_;
   TX_QUEUE m_xSysQueue;
 
   /**
@@ -242,7 +238,7 @@ sys_error_code_t SysInit(boolean_t bEnableBootIF) {
 
 sys_error_code_t SysPostEvent(SysEvent xEvent) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  BaseType_t xResult;
+  UINT nResult = TX_SUCCESS;
 
   if (SYS_IS_ERROR_EVENT(xEvent)) {
     // notify the error delegate to allow a first response to critical errors.
@@ -250,13 +246,14 @@ sys_error_code_t SysPostEvent(SysEvent xEvent) {
   }
 
   if (SYS_IS_CALLED_FROM_ISR()) {
-    xResult = xQueueSendToBackFromISR(s_xTheSystem.m_xSysQueue_, &xEvent, NULL);
+    // inside an ISR we cannot wait
+    nResult = tx_queue_send(&s_xTheSystem.m_xSysQueue, &xEvent, TX_NO_WAIT);
   }
   else {
-    xResult = xQueueSendToBack(s_xTheSystem.m_xSysQueue_, &xEvent, pdMS_TO_TICKS(50));
+    nResult = tx_queue_send(&s_xTheSystem.m_xSysQueue, &xEvent, SYS_MS_TO_TICKS(50));
   }
 
-  if (xResult == errQUEUE_FULL) {
+  if (nResult == TX_SUCCESS) {
     SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INIT_TASK_POWER_MODE_NOT_ENABLE_ERROR_CODE);
     xRes = SYS_INIT_TASK_POWER_MODE_NOT_ENABLE_ERROR_CODE;
   }
@@ -289,12 +286,11 @@ void SysResetAEDCounter() {
 }
 
 boolean_t SysEventsPending() {
-  if (SYS_IS_CALLED_FROM_ISR()) {
-    return uxQueueMessagesWaitingFromISR(s_xTheSystem.m_xSysQueue_) > 0;
-  }
-  else {
-    return uxQueueMessagesWaiting(s_xTheSystem.m_xSysQueue_) > 0;
-  }
+  ULONG nEnqueued = 0;
+  UINT nResult = tx_queue_info_get(&s_xTheSystem.m_xSysQueue, TX_NULL, &nEnqueued, TX_NULL, TX_NULL, TX_NULL, TX_NULL);
+  assert_param(nResult);
+
+  return nEnqueued > 0;
 }
 
 void *SysAlloc(size_t nSize) {
@@ -339,7 +335,9 @@ static void InitTaskRun(ULONG thread_input) {
   UINT nRtosRes = TX_SUCCESS;
   UNUSED(thread_input);
 
-  vTaskSuspendAll();
+//  vTaskSuspendAll();
+  // to suspend all tasks, they are created with auto_start set to 0.
+  // At the end of the system initialization all tasks with auto_start set to 1 are resumed.
 
   // allocate the system memory pool
   if (TX_SUCCESS != tx_byte_pool_create(&s_xTheSystem.m_xSysMemPool, "SYS_MEM_POOL", s_xTheSystem.m_pnHeap, INIT_TASK_CFG_HEAP_SYZE)) {
@@ -353,18 +351,6 @@ static void InitTaskRun(ULONG thread_input) {
     sys_error_handler();
   }
   tx_queue_create(&s_xTheSystem.m_xSysQueue, "SYS_Q", INIT_TASK_CFG_QUEUE_ITEM_SIZE / sizeof(uint32_t), pcMemory, INIT_TASK_CFG_QUEUE_ITEM_SIZE * INIT_TASK_CFG_QUEUE_LENGTH);
-
-  // Create the queue for the system message.
-//  s_xTheSystem.m_xSysQueue_ = xQueueCreate(INIT_TASK_CFG_QUEUE_LENGTH, INIT_TASK_CFG_QUEUE_ITEM_SIZE);
-//  if (s_xTheSystem.m_xSysQueue_ == NULL) {
-//    // if s_xSysQueue is NULL then the execution is blocked by sys_error_handler().
-//    // see bugtabs4 #5265 (WGID:201282)
-//    sys_error_handler();
-//  }
-//
-//#ifdef DEBUG
-//    vQueueAddToRegistry(s_xTheSystem.m_xSysQueue_, "SYS_Q");
-//#endif
 
   // Check if the system has resumed from WWDG reset
   if (__HAL_RCC_GET_FLAG(RCC_FLAG_WWDGRST) != RESET) {
@@ -458,10 +444,12 @@ static void InitTaskRun(ULONG thread_input) {
         // allocate the task stack in the system memory pool
         nRtosRes = tx_byte_allocate(&s_xTheSystem.m_xSysMemPool, &pvStackStart, nStackSize, TX_NO_WAIT);
       }
-//      xRtosRes = xTaskCreate(pvTaskCode, pcName, nStackDepth, pTaskParams, xPriority, &pTask->m_xThaskHandle);
       if (nRtosRes == TX_SUCCESS) {
+        if (nAutoStart == TX_AUTO_START) {
+          pTask->m_xStatus.nAutoStart = 1;
+        }
         nRtosRes = tx_thread_create(&pTask->m_xThaskHandle, pcName, pvTaskCode, nParams, pvStackStart, nStackSize,
-            nPriority, nPreemptThreshold, nTimeSlice, nAutoStart);
+            nPriority, nPreemptThreshold, nTimeSlice, TX_DONT_START);
       }
       if(nRtosRes != TX_SUCCESS) {
         SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INIT_TASK_FAILURE_ERROR_CODE);
@@ -485,7 +473,14 @@ static void InitTaskRun(ULONG thread_input) {
   }
 #endif
 
-  xTaskResumeAll();
+  // xTaskResumeAll(); Resume all tasks created with auto_start set to 1.
+  pTask = ACGetFirstTask(&xContext);
+  while (pTask != NULL && !SYS_IS_ERROR_CODE(xRes)) {
+    if (pTask->m_xStatus.nAutoStart) {
+      tx_thread_resume(&pTask->m_xThaskHandle);
+    }
+    pTask = ACGetNextTask(&xContext, pTask);
+  }
 
   // After the system initialization the INIT task is used to implement some system call
   // because it is the owner of the Application Context.
@@ -493,7 +488,6 @@ static void InitTaskRun(ULONG thread_input) {
   // wait for a system level power mode request
   SysEvent xEvent;
   for (;;) {
-//    if (pdTRUE == xQueueReceive(s_xTheSystem.m_xSysQueue_, &xEvent, portMAX_DELAY)) { TODO: STF.Port ThreadX
     if (TX_SUCCESS == tx_queue_receive(&s_xTheSystem.m_xSysQueue, &xEvent, TX_WAIT_FOREVER)) {
       EPowerMode eActivePowerMode = IapmhGetActivePowerMode(s_xTheSystem.m_pxAppPowerModeHelper);
       // check if it is a system error event
@@ -543,7 +537,7 @@ static void InitTaskRun(ULONG thread_input) {
             }
 
             if (bDelayPowerModeSwitch == TRUE) {
-              vTaskDelay(pdMS_TO_TICKS(INIT_TASK_CFG_PM_SWITCH_DELAY_MS));
+              tx_thread_sleep(SYS_MS_TO_TICKS(INIT_TASK_CFG_PM_SWITCH_DELAY_MS));
             }
 
           } while (bDelayPowerModeSwitch == TRUE);
@@ -555,7 +549,7 @@ static void InitTaskRun(ULONG thread_input) {
           for (; pTask!=NULL; pTask=ACGetNextTask(&xContext, pTask)) {
             pTask->m_xStatus.nPowerModeSwitchDone = 0;
             pTask->m_xStatus.nPowerModeSwitchPending = 0;
-            vTaskResume(pTask->m_xThaskHandle);
+            tx_thread_resume(&pTask->m_xThaskHandle);
           }
         }
         else {
@@ -577,12 +571,6 @@ static void InitTaskRun(ULONG thread_input) {
 void tx_application_define(void *first_unused_memory) {
   UINT nRes = TX_SUCCESS;
   // create the INIT task.
-
-  //  if (xTaskCreate(InitTaskRun, "INIT", INIT_TASK_CFG_STACK_SIZE, NULL, INIT_TASK_CFG_PRIORITY, &s_xTheSystem.m_xInitTask) != pdPASS) {
-  //    xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
-  //    SYS_SET_SERVICE_LEVEL_ERROR_CODE(xRes);
-  //  }
-
   s_xTheSystem.pvFirstUnusedMemory = first_unused_memory;
   nRes = tx_thread_create(&s_xTheSystem.m_xInitTask, "INIT", InitTaskRun, ODEV_MAGIC_NUMBER, s_xTheSystem.pvFirstUnusedMemory, INIT_TASK_CFG_STACK_SIZE * 4, INIT_TASK_CFG_PRIORITY, INIT_TASK_CFG_PRIORITY, TX_NO_TIME_SLICE, TX_AUTO_START);
   if (nRes != TX_SUCCESS) {

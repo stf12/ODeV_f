@@ -119,6 +119,7 @@ sys_error_code_t AMTInitEx(AManagedTaskEx *_this) {
   _this->m_xStatus.nPowerModeSwitchDone = 0;
   _this->m_xStatus.nIsTaskStillRunning = 0;
   _this->m_xStatus.nErrorCount = 0;
+  _this->m_xStatus.nAutoStart = 0;
   _this->m_xStatus.nReserved = 1; // this identifies the task as an AManagedTaskEx.
   pObj->m_xStatusEx.nIsWaitingNoTimeout = 0;
   pObj->m_xStatusEx.nUnused = 0;

@@ -187,6 +187,10 @@ static sys_error_code_t HelloWorldTaskExecuteStepRun(HelloWorldTask *this) {
 static void HelloWorldTaskRun(ULONG nParams) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   HelloWorldTask *this = (HelloWorldTask*)nParams;
+  // define the vaiable to store the primary mask.
+  // It is used in the port layer of ThreadX by TX_DISABLE and TX_RESOTRE
+  // to implement a critical section.
+  TX_INTERRUPT_SAVE_AREA
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("HW: start.\r\n"));
 
@@ -195,25 +199,25 @@ static void HelloWorldTaskRun(ULONG nParams) {
     // check if there is a pending power mode switch request
     if (this->super.m_xStatus.nPowerModeSwitchPending == 1) {
       // clear the power mode switch delay because the task is ready to switch.
-      taskENTER_CRITICAL();
+      TX_DISABLE;
         this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-      taskEXIT_CRITICAL();
-      vTaskSuspend(NULL);
+      TX_RESTORE;
+      tx_thread_suspend(&this->super.m_xThaskHandle);
     }
     else {
       switch (AMTGetSystemPowerMode()) {
       case E_POWER_MODE_RUN:
-        taskENTER_CRITICAL();
+        TX_DISABLE;
           this->super.m_xStatus.nDelayPowerModeSwitch = 1;
-        taskEXIT_CRITICAL();
+        TX_RESTORE;
         xRes = HelloWorldTaskExecuteStepRun(this);
-        taskENTER_CRITICAL();
+        TX_DISABLE;
           this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-        taskEXIT_CRITICAL();
+        TX_RESTORE;
         break;
 
       case E_POWER_MODE_SLEEP_1:
-        vTaskDelay(pdMS_TO_TICKS(100));
+        tx_thread_sleep(AMT_MS_TO_TICKS(100));
         break;
       }
     }

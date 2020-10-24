@@ -38,8 +38,6 @@ extern "C" {
 #include "systypes.h"
 #include "syserror.h"
 #include "systp.h"
-//#include "FreeRTOS.h"
-//#include "task.h" //TODO: STF.Port - threadx
 #include "tx_api.h"
 
 /**
@@ -84,7 +82,13 @@ typedef struct _AMTStatus {
   /**
    * Count the error occurred during the task execution.
    */
-  uint8_t nErrorCount: 3;
+  uint8_t nErrorCount: 2;
+
+  /**
+   * Specify if the task has been created suspended. It depends on the pnAutoStart parameter passed
+   * during the task creation.
+   */
+  uint8_t nAutoStart: 1;
 
   uint8_t nReserved : 1;
 } AMTStatus;
@@ -155,6 +159,7 @@ sys_error_code_t AMTInit(AManagedTask *_this) {
   _this->m_xStatus.nPowerModeSwitchDone = 0;
   _this->m_xStatus.nIsTaskStillRunning = 0;
   _this->m_xStatus.nErrorCount = 0;
+  _this->m_xStatus.nAutoStart = 0;
   _this->m_xStatus.nReserved = 0;
 
   return SYS_NO_ERROR_CODE;
@@ -168,7 +173,7 @@ EPowerMode AMTGetSystemPowerMode() {
 SYS_DEFINE_INLINE
 sys_error_code_t AMTNotifyIsStillRunning(AManagedTask *_this, sys_error_code_t nStepError) {
 
-  if (SYS_IS_ERROR_CODE(nStepError) && (_this->m_xStatus.nErrorCount < MT_MAX_ERROR_COUNT)) {
+  if (SYS_IS_ERROR_CODE(nStepError) && (_this->m_xStatus.nErrorCount < MT_MAX_ERROR_COUNT - 1)) {
     _this->m_xStatus.nErrorCount++;
   }
   if (_this->m_xStatus.nErrorCount < MT_ALLOWED_ERROR_COUNT) {
@@ -192,7 +197,9 @@ SYS_DEFINE_INLINE
 void AMTReportErrOnStepExecution(AManagedTask *_this, sys_error_code_t nStepError) {
   UNUSED(nStepError);
 
-  _this->m_xStatus.nErrorCount++;
+  if (_this->m_xStatus.nErrorCount < MT_MAX_ERROR_COUNT - 1) {
+    _this->m_xStatus.nErrorCount++;
+  }
 }
 
 

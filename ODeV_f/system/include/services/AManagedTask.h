@@ -36,13 +36,12 @@ extern "C" {
 #endif
 
 #include "syslowpower.h"
-//#include "FreeRTOS.h"
 #include "tx_api.h"
 
 /**
  * Specifies the maximum number of errors that can be tracked by a managed task.
  */
-#define MT_MAX_ERROR_COUNT       0x7
+#define MT_MAX_ERROR_COUNT       0x4
 
 #ifndef MT_ALLOWED_ERROR_COUNT
 /**
@@ -51,6 +50,8 @@ extern "C" {
  */
 #define MT_ALLOWED_ERROR_COUNT   0x2
 #endif
+
+#define AMT_MS_TO_TICKS( xTimeInMs ) ( (uint32_t) (((uint32_t )(xTimeInMs) * (uint32_t)TX_TIMER_TICKS_PER_SECOND) / (uint32_t)1000))
 
 
 /**

@@ -29,8 +29,7 @@
  */
 
 #include <stdio.h>
-#include <sysinit.h>
-//#include "task.h" //TODO: STF.Port - threadx
+#include "sysinit.h"
 #include "tx_api.h"
 
 
@@ -44,7 +43,6 @@ int main()
   // System initialization.
   SysInit(FALSE);
 
-//  vTaskStartScheduler(); //TODO: STF.Port - threadx
   tx_kernel_enter();
 
   while (1);
