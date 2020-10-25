@@ -106,7 +106,6 @@ struct _AManagedTask {
   /**
    * Specify the native ThreadX task handle.
    */
-//  TaskHandle_t m_xThaskHandle_;
   TX_THREAD m_xThaskHandle;
 
   /**
@@ -153,7 +152,6 @@ sys_error_code_t AMTHandleError(AManagedTask *_this, SysEvent xError) {
 SYS_DEFINE_INLINE
 sys_error_code_t AMTInit(AManagedTask *_this) {
   _this->m_pNext = NULL;
-//  _this->m_xThaskHandle = NULL;
   _this->m_xStatus.nDelayPowerModeSwitch = 1;
   _this->m_xStatus.nPowerModeSwitchPending = 0;
   _this->m_xStatus.nPowerModeSwitchDone = 0;

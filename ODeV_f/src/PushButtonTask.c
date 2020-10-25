@@ -36,14 +36,14 @@
 #include "NucleoDriver_vtbl.h"
 
 #ifndef PB_TASK_CFG_STACK_DEPTH
-#define PB_TASK_CFG_STACK_DEPTH      120
+#define PB_TASK_CFG_STACK_DEPTH      TX_MINIMUM_STACK
 #endif
 
 #ifndef PB_TASK_CFG_PRIORITY
-#define PB_TASK_CFG_PRIORITY         (tskIDLE_PRIORITY+2)
+#define PB_TASK_CFG_PRIORITY         (TX_MAX_PRIORITIES-2)
 #endif
 
-#define SYS_DEBUGF(level, message)      SYS_DEBUGF3(SYS_DBG_PB, level, message)
+#define SYS_DEBUGF(level, message)   SYS_DEBUGF3(SYS_DBG_PB, level, message)
 
 
 /**
@@ -77,9 +77,9 @@ static sys_error_code_t PushButtonTaskExecuteStepRun(PushButtonTask *_this);
 /**
  * Task control function.
  *
- * @param pParams .
+ * @param nParams .
  */
-static void PushButtonTaskRun(void *pParams);
+static void PushButtonTaskRun(ULONG nParams);
 
 
 // Inline function forward declaration
@@ -120,7 +120,12 @@ sys_error_code_t PushButtonTask_vtblHardwareInit(AManagedTask *_this, void *pPar
   return xRes;
 }
 
-sys_error_code_t PushButtonTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority) {
+sys_error_code_t PushButtonTask_vtblOnCreateTask(AManagedTask *_this, tx_entry_function_t *pvTaskCode, CHAR **pcName,
+    VOID **pvStackStart, ULONG *pnStackSize,
+    UINT *pnPriority, UINT *pnPreemptThreshold,
+    ULONG *pnTimeSlice, ULONG *pnAutoStart,
+    ULONG *pnParams)
+{
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   PushButtonTask *pObj = (PushButtonTask*)_this;
@@ -129,9 +134,12 @@ sys_error_code_t PushButtonTask_vtblOnCreateTask(AManagedTask *_this, TaskFuncti
 
   *pvTaskCode = PushButtonTaskRun;
   *pcName = "PB";
-  *pnStackDepth = PB_TASK_CFG_STACK_DEPTH;
-  *pParams = _this;
-  *pxPriority = PB_TASK_CFG_PRIORITY;
+  *pnStackSize = PB_TASK_CFG_STACK_DEPTH;
+  *pnParams = (ULONG)_this;
+  *pnPriority = PB_TASK_CFG_PRIORITY;
+  *pnPreemptThreshold = PB_TASK_CFG_PRIORITY;
+  *pnTimeSlice = TX_NO_TIME_SLICE;
+  *pnAutoStart = TX_AUTO_START;
 
   return xRes;
 }
@@ -194,9 +202,13 @@ static sys_error_code_t PushButtonTaskExecuteStepRun(PushButtonTask *_this) {
   return xRes;
 }
 
-static void PushButtonTaskRun(void *pParams) {
+static void PushButtonTaskRun(ULONG nParams) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  PushButtonTask *_this = (PushButtonTask*)pParams;
+  PushButtonTask *_this = (PushButtonTask*)nParams;
+  // define the vaiable to store the primary mask.
+  // It is used in the port layer of ThreadX by TX_DISABLE and TX_RESOTRE
+  // to implement a critical section.
+  TX_INTERRUPT_SAVE_AREA
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("PB: start.\r\n"));
 
@@ -215,18 +227,18 @@ static void PushButtonTaskRun(void *pParams) {
     else {
       switch (AMTGetSystemPowerMode()) {
       case E_POWER_MODE_RUN:
-        taskENTER_CRITICAL();
+        TX_DISABLE
           _this->super.m_xStatus.nDelayPowerModeSwitch = 1;
-        taskEXIT_CRITICAL();
+        TX_RESTORE
         xRes = PushButtonTaskExecuteStepRun(_this);
-        taskENTER_CRITICAL();
+        TX_DISABLE
           _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-        taskEXIT_CRITICAL();
+        TX_RESTORE
         break;
 
       case E_POWER_MODE_SLEEP_1:
         AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
-        vTaskSuspend(_this->super.m_xThaskHandle);
+        tx_thread_suspend(&_this->super.m_xThaskHandle);
         AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
         break;
       }

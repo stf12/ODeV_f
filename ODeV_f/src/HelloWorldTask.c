@@ -40,7 +40,7 @@
 #endif
 
 #ifndef HW_TASK_CFG_PRIORITY
-#define HW_TASK_CFG_PRIORITY            (TX_MAX_PRIORITIES-2)
+#define HW_TASK_CFG_PRIORITY            (TX_MAX_PRIORITIES-3)
 #endif
 
 #define SYS_DEBUGF(level, message)      SYS_DEBUGF3(SYS_DBG_HW, level, message)
@@ -76,7 +76,7 @@ static sys_error_code_t HelloWorldTaskExecuteStepRun(HelloWorldTask *this);
 /**
  * Task control function.
  *
- * @param pParams .
+ * @param nParams .
  */
 static void HelloWorldTaskRun(ULONG nParams);
 
