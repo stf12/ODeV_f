@@ -37,14 +37,14 @@ extern "C" {
 
 
 // IManagedTask virtual functions
-sys_error_code_t HelloWorldTask_vtblHardwareInit(AManagedTask *this, void *pParams); ///< @sa AMTHardwareInit
+sys_error_code_t HelloWorldTask_vtblHardwareInit(AManagedTask *_this, void *pParams); ///< @sa AMTHardwareInit
 sys_error_code_t HelloWorldTask_vtblOnCreateTask(AManagedTask *_this, tx_entry_function_t *pvTaskCode, CHAR **pcName,
     VOID **pvStackStart, ULONG *pnStackSize,
     UINT *pnPriority, UINT *pnPreemptThreshold,
     ULONG *pnTimeSlice, ULONG *pnAutoStart,
     ULONG *pnParams); ///< @sa AMTOnCreateTask
-sys_error_code_t HelloWorldTask_vtblDoEnterPowerMode(AManagedTask *this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode); ///< @sa AMTDoEnterPowerMode
-sys_error_code_t HelloWorldTask_vtblHandleError(AManagedTask *this, SysEvent xError); ///< @sa AMTHandleError
+sys_error_code_t HelloWorldTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode); ///< @sa AMTDoEnterPowerMode
+sys_error_code_t HelloWorldTask_vtblHandleError(AManagedTask *_this, SysEvent xError); ///< @sa AMTHandleError
 
 #ifdef __cplusplus
 }

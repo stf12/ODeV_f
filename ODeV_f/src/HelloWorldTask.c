@@ -106,10 +106,10 @@ AManagedTask *HelloWorldTaskAlloc() {
 // AManagedTask virtual functions definition
 // ***********************************************
 
-sys_error_code_t HelloWorldTask_vtblHardwareInit(AManagedTask *this, void *pParams) {
-  assert_param(this);
+sys_error_code_t HelloWorldTask_vtblHardwareInit(AManagedTask *_this, void *pParams) {
+  assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  HelloWorldTask *pObj = (HelloWorldTask*)this;
+  HelloWorldTask *pObj = (HelloWorldTask*)_this;
 
   pObj->m_pxDriver = NucleoDriverAlloc();
   if (pObj->m_pxDriver == NULL) {
@@ -134,7 +134,7 @@ sys_error_code_t HelloWorldTask_vtblOnCreateTask(AManagedTask *_this, tx_entry_f
 {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  HelloWorldTask *pObj = (HelloWorldTask*)this;
+//  HelloWorldTask *pObj = (HelloWorldTask*)_this;
 
 
   *pvTaskCode = HelloWorldTaskRun;
@@ -150,10 +150,10 @@ sys_error_code_t HelloWorldTask_vtblOnCreateTask(AManagedTask *_this, tx_entry_f
   return xRes;
 }
 
-sys_error_code_t HelloWorldTask_vtblDoEnterPowerMode(AManagedTask *this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
-  assert_param(this);
+sys_error_code_t HelloWorldTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
+  assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  HelloWorldTask *pObj = (HelloWorldTask*)this;
+  HelloWorldTask *pObj = (HelloWorldTask*)_this;
 
   if (eNewPowerMode == E_POWER_MODE_SLEEP_1) {
     NucleoDriverSetLed((NucleoDriver*)pObj->m_pxDriver, FALSE);
@@ -162,10 +162,10 @@ sys_error_code_t HelloWorldTask_vtblDoEnterPowerMode(AManagedTask *this, const E
   return xRes;
 }
 
-sys_error_code_t HelloWorldTask_vtblHandleError(AManagedTask *this, SysEvent xError) {
-  assert_param(this);
+sys_error_code_t HelloWorldTask_vtblHandleError(AManagedTask *_this, SysEvent xError) {
+  assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  HelloWorldTask *pObj = (HelloWorldTask*)this;
+//  HelloWorldTask *pObj = (HelloWorldTask*)_this;
 
   return xRes;
 }
@@ -174,19 +174,19 @@ sys_error_code_t HelloWorldTask_vtblHandleError(AManagedTask *this, SysEvent xEr
 // Private function definition
 // ***************************
 
-static sys_error_code_t HelloWorldTaskExecuteStepRun(HelloWorldTask *this) {
-  assert_param(this);
+static sys_error_code_t HelloWorldTaskExecuteStepRun(HelloWorldTask *_this) {
+  assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
   tx_thread_sleep(500);
-  NucleoDriverToggleLed((NucleoDriver*)this->m_pxDriver);
+  NucleoDriverToggleLed((NucleoDriver*)_this->m_pxDriver);
 
   return xRes;
 }
 
 static void HelloWorldTaskRun(ULONG nParams) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  HelloWorldTask *this = (HelloWorldTask*)nParams;
+  HelloWorldTask *_this = (HelloWorldTask*)nParams;
   // define the vaiable to store the primary mask.
   // It is used in the port layer of ThreadX by TX_DISABLE and TX_RESOTRE
   // to implement a critical section.
@@ -197,22 +197,22 @@ static void HelloWorldTaskRun(ULONG nParams) {
   for (;;) {
 
     // check if there is a pending power mode switch request
-    if (this->super.m_xStatus.nPowerModeSwitchPending == 1) {
+    if (_this->super.m_xStatus.nPowerModeSwitchPending == 1) {
       // clear the power mode switch delay because the task is ready to switch.
       TX_DISABLE;
-        this->super.m_xStatus.nDelayPowerModeSwitch = 0;
+        _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
       TX_RESTORE;
-      tx_thread_suspend(&this->super.m_xThaskHandle);
+      tx_thread_suspend(&_this->super.m_xThaskHandle);
     }
     else {
       switch (AMTGetSystemPowerMode()) {
       case E_POWER_MODE_RUN:
         TX_DISABLE;
-          this->super.m_xStatus.nDelayPowerModeSwitch = 1;
+          _this->super.m_xStatus.nDelayPowerModeSwitch = 1;
         TX_RESTORE;
-        xRes = HelloWorldTaskExecuteStepRun(this);
+        xRes = HelloWorldTaskExecuteStepRun(_this);
         TX_DISABLE;
-          this->super.m_xStatus.nDelayPowerModeSwitch = 0;
+          _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
         TX_RESTORE;
         break;
 
@@ -223,7 +223,7 @@ static void HelloWorldTaskRun(ULONG nParams) {
     }
 
     // notify the system that the task is working fine.
-    AMTNotifyIsStillRunning((AManagedTask*)this, xRes);
+    AMTNotifyIsStillRunning((AManagedTask*)_this, xRes);
 
 #if (SYS_TRACE > 1)
     if (xRes != SYS_NO_ERROR_CODE) {
