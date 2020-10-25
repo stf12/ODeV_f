@@ -29,7 +29,7 @@
  */
 
 #include "IDriver.h"
-#include "IDriverVtbl.h"
+#include "IDriver_vtbl.h"
 
 // GCC requires one function forward declaration in only one .c source
 // in order to manage the inline.

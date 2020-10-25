@@ -29,8 +29,8 @@
  ******************************************************************************
  */
 
-#ifndef INCLUDE_DRIVERS_IDRIVERVTBL_H_
-#define INCLUDE_DRIVERS_IDRIVERVTBL_H_
+#ifndef INCLUDE_DRIVERS_IDRIVER_VTBL_H_
+#define INCLUDE_DRIVERS_IDRIVER_VTBL_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,4 +99,4 @@ sys_error_code_t IDrvRead(IDriver *_this, uint8_t *pDataBuffer, uint16_t nDataSi
 #endif
 
 
-#endif /* INCLUDE_DRIVERS_IDRIVERVTBL_H_ */
+#endif /* INCLUDE_DRIVERS_IDRIVER_VTBL_H_ */

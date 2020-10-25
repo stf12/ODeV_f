@@ -42,7 +42,7 @@ extern "C" {
 #include "AManagedTaskEx.h"
 #include "AManagedTaskEx_vtbl.h"
 #include "IDriver.h"
-#include "IDriverVtbl.h"
+#include "IDriver_vtbl.h"
 
 
 /**
