@@ -38,8 +38,7 @@ extern "C" {
 
 #include "IDriver.h"
 #include "IDriver_vtbl.h"
-#include "FreeRTOS.h"
-//#include "semphr.h"//TODO: STF.Port - threadx
+#include "tx_api.h"
 
 
 #define LD4_Pin                         GPIO_PIN_5
@@ -72,7 +71,7 @@ struct _NucleoDriver {
   /**
    * Specifies the semaphore used to synchronize the driver with a task.
    */
-  SemaphoreHandle_t m_xSyncObj;
+  TX_SEMAPHORE m_xSyncObj;
 };
 
 /**

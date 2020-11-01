@@ -42,10 +42,10 @@ extern "C" {
 
 
 #define SYS_DBG_INIT                       SYS_DBG_ON                 ///< Init task debug control byte
-#define SYS_DBG_DRIVERS                    SYS_DBG_OFF                ///< Drivers debug control byte
+#define SYS_DBG_DRIVERS                    SYS_DBG_ON                ///< Drivers debug control byte
 #define SYS_DBG_APP                        SYS_DBG_OFF                ///< Generic Application debug control byte
 #define SYS_DBG_APMH                       SYS_DBG_ON                 ///< Application Power Mode Helper debug control byte
-#define SYS_DBG_HW                         SYS_DBG_OFF                ///< Hello World task debug control byte
+#define SYS_DBG_HW                         SYS_DBG_ON                ///< Hello World task debug control byte
 #define SYS_DBG_PB                         SYS_DBG_ON                 ///< Push button task debug control byte
 
 

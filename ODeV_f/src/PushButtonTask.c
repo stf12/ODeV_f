@@ -40,7 +40,7 @@
 #endif
 
 #ifndef PB_TASK_CFG_PRIORITY
-#define PB_TASK_CFG_PRIORITY         (TX_MAX_PRIORITIES-2)
+#define PB_TASK_CFG_PRIORITY         (TX_MAX_PRIORITIES-3)
 #endif
 
 #define SYS_DEBUGF(level, message)   SYS_DEBUGF3(SYS_DBG_PB, level, message)
@@ -219,10 +219,10 @@ static void PushButtonTaskRun(ULONG nParams) {
     // check if there is a pending power mode switch request
     if (_this->super.m_xStatus.nPowerModeSwitchPending == 1) {
       // clear the power mode switch delay because the task is ready to switch.
-      taskENTER_CRITICAL();
+      TX_DISABLE
         _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-      taskEXIT_CRITICAL();
-      vTaskSuspend(NULL);
+      TX_RESTORE
+      tx_thread_suspend(&_this->super.m_xThaskHandle);
     }
     else {
       switch (AMTGetSystemPowerMode()) {

@@ -31,7 +31,6 @@
 
 #include "NucleoDriver.h"
 #include "NucleoDriver_vtbl.h"
-#include "FreeRTOS.h"
 #include "sysdebug.h"
 
 #ifndef NUCLEO_DRV_CFG_IRQ_PRIORITY
@@ -59,7 +58,7 @@ static const IDriver_vtbl s_xNucleoDriver_vtbl = {
  */
 typedef struct _HardwareResources {
   volatile boolean_t *pbPB1Pressed;
-  SemaphoreHandle_t xSyncObj;
+  TX_SEMAPHORE *pxSyncObj;
 } HardwareResources;
 
 /**
@@ -94,6 +93,7 @@ sys_error_code_t NucleoDriver_vtblInit(IDriver *_this, void *pParams) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   NucleoDriver *pObj = (NucleoDriver*)_this;
   GPIO_InitTypeDef GPIO_InitStruct;
+  UINT nResult = TX_SUCCESS;
 
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
@@ -114,11 +114,11 @@ sys_error_code_t NucleoDriver_vtblInit(IDriver *_this, void *pParams) {
 
   // Configure the software resource
   pObj->m_bPB1Pressed = HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) != GPIO_PIN_SET;
-  pObj->m_xSyncObj = xSemaphoreCreateBinary();
-//  if (pObj == NULL) {
-//    xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
-//    SYS_SET_LOW_LEVEL_ERROR_CODE(xRes);
-//  }
+  nResult = tx_semaphore_create(&pObj->m_xSyncObj, "NDRV", 0);
+  if (nResult != TX_SUCCESS) {
+    xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
+    SYS_SET_LOW_LEVEL_ERROR_CODE(xRes);
+  }
 
   return xRes;
 }
@@ -131,7 +131,7 @@ sys_error_code_t NucleoDriver_vtblStart(IDriver *_this) {
   // set the hardware resources
   __disable_irq();
   s_xHardwareResources.pbPB1Pressed = &pObj->m_bPB1Pressed;
-  s_xHardwareResources.xSyncObj = pObj->m_xSyncObj;
+  s_xHardwareResources.pxSyncObj = &pObj->m_xSyncObj;
   __enable_irq();
 
   HAL_NVIC_ClearPendingIRQ(EXTI15_10_IRQn);
@@ -149,7 +149,7 @@ sys_error_code_t NucleoDriver_vtblStop(IDriver *_this) {
   // release the hardware resources
   __disable_irq();
   s_xHardwareResources.pbPB1Pressed = NULL;
-  s_xHardwareResources.xSyncObj = NULL;
+  s_xHardwareResources.pxSyncObj = NULL;
   __enable_irq();
 
   HAL_NVIC_DisableIRQ(EXTI15_10_IRQn);
@@ -190,7 +190,7 @@ sys_error_code_t NucleoDriverWaitForButtonEvent(NucleoDriver *_this, boolean_t *
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
-  xSemaphoreTake(_this->m_xSyncObj, portMAX_DELAY);
+  tx_semaphore_get(&_this->m_xSyncObj, TX_WAIT_FOREVER);
   *pbButtonPressed = _this->m_bPB1Pressed;
 
   return xRes;
@@ -200,7 +200,7 @@ sys_error_code_t NucleoDriverStopWaitingForButtonEvent(NucleoDriver *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
-  xSemaphoreGive(s_xHardwareResources.xSyncObj);
+  tx_semaphore_put(&_this->m_xSyncObj);
 
   return xRes;
 }
@@ -225,8 +225,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
     if (s_xHardwareResources.pbPB1Pressed != NULL) {
       *s_xHardwareResources.pbPB1Pressed = HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) != GPIO_PIN_SET;
       EPowerMode eActivePowerMode = SysGetPowerMode();
+      HAL_NVIC_ClearPendingIRQ(EXTI15_10_IRQn);
       if (eActivePowerMode == E_POWER_MODE_RUN) {
-        xSemaphoreGiveFromISR(s_xHardwareResources.xSyncObj, NULL);
+        tx_semaphore_put(s_xHardwareResources.pxSyncObj);
       }
     }
   }
