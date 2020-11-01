@@ -34,4 +34,6 @@
 #define TX_TIMER_TICKS_PER_SECOND       (1000)
 #define TX_SYSTEM_CLOCK_HZ              (32000000)
 
+#define TX_DISABLE_NOTIFY_CALLBACKS     1
+
 #endif /* INC_TX_USER_H_ */

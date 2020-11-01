@@ -21,7 +21,9 @@
 #include "tim.h"
 
 /* USER CODE BEGIN 0 */
+#ifdef SYS_DEBUG
 extern uint32_t g_ulHighFrequencyTimerTicks;
+#endif
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim11;
@@ -101,7 +103,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
   /* USER CODE BEGIN Callback 1 */
   else if (htim->Instance == TIM11) {
+#ifdef SYS_DEBUG
     g_ulHighFrequencyTimerTicks++;
+#endif
   }
   /* USER CODE END Callback 1 */
 }

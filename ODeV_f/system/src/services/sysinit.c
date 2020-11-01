@@ -218,7 +218,7 @@ sys_error_code_t SysInit(boolean_t bEnableBootIF) {
   // Clear the global error.
   SYS_CLEAR_ERROR();
 
-  SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("System Initialization\r\n"));
+//  SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("System Initialization\r\n"));
 
   // Create the INIT task to complete the system initialization
   // after RTOS is started.
@@ -288,7 +288,7 @@ void SysResetAEDCounter() {
 boolean_t SysEventsPending() {
   ULONG nEnqueued = 0;
   UINT nResult = tx_queue_info_get(&s_xTheSystem.m_xSysQueue, TX_NULL, &nEnqueued, TX_NULL, TX_NULL, TX_NULL, TX_NULL);
-  assert_param(nResult);
+  assert_param(nResult == TX_SUCCESS);
 
   return nEnqueued > 0;
 }
@@ -334,6 +334,9 @@ static void InitTaskRun(ULONG thread_input) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   UINT nRtosRes = TX_SUCCESS;
   UNUSED(thread_input);
+
+  SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("System Initialization\r\n"));
+
 
 //  vTaskSuspendAll();
   // to suspend all tasks, they are created with auto_start set to 0.

@@ -34,9 +34,7 @@
 #include "stdint.h"
 #include "usart.h"
 #include "tim.h"
-#include "FreeRTOS.h"
-//#include "semphr.h" //TODO: STF.Port - threadx
-//#include "task.h" //TODO: STF.Port - threadx
+#include "tx_api.h"
 
 
 /**
@@ -59,7 +57,7 @@ uint8_t g_sys_dbg_min_level = SYS_DBG_LEVEL_VERBOSE;
  */
 #define SYS_DBG_IS_CALLED_FROM_ISR() ((SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0 ? 1 : 0)
 
-static SemaphoreHandle_t s_xMutex = NULL;
+static TX_SEMAPHORE s_xMutex;
 
 uint32_t g_ulHighFrequencyTimerTicks = 0;
 
@@ -80,18 +78,15 @@ int SysDebugInit() {
   SysDebugHardwareInit();
 
   // software initialization.
-  s_xMutex = xSemaphoreCreateMutex();
+  UINT nResult = tx_semaphore_create(&s_xMutex, "DBG_S", 1);
 
-  if (s_xMutex == NULL) {
+  if (nResult != TX_SUCCESS) {
     return 1;
   }
 
   xSysDebugUnlockFn = SysDebugUnlock;
   xSysDebugLockFn = SysDebugLock;
 
-#ifdef DEBUG
-  vQueueAddToRegistry(s_xMutex, "DBG");
-#endif
   return 0;
 }
 
@@ -119,26 +114,18 @@ void null_lockfn()
 }
 
 void SysDebugLock() {
+  UINT nResult = TX_SUCCESS;
   if (SYS_DBG_IS_CALLED_FROM_ISR()) {
-    xSemaphoreTakeFromISR(s_xMutex, NULL);
+    nResult = tx_semaphore_get(&s_xMutex, TX_NO_WAIT);
   }
   else {
-    if (xTaskGetSchedulerState() == taskSCHEDULER_SUSPENDED) {
-      xSemaphoreTake(s_xMutex, 0);
-    }
-    else {
-      xSemaphoreTake(s_xMutex, portMAX_DELAY);
-    }
+    nResult = tx_semaphore_get(&s_xMutex, TX_WAIT_FOREVER);
   }
+  assert_param(nResult == TX_SUCCESS);
 }
 
 void SysDebugUnlock() {
-  if (SYS_DBG_IS_CALLED_FROM_ISR()) {
-    xSemaphoreGiveFromISR(s_xMutex, NULL);
-  }
-  else {
-    xSemaphoreGive(s_xMutex);
-  }
+  tx_semaphore_put(&s_xMutex);
 }
 
 #if defined ( __ICCARM__ )
@@ -150,7 +137,7 @@ int SysDebugHardwareInit() {
 
   SYS_DBG_USART_MX_INIT();
 
-#ifdef DEBUG
+#ifdef _DEBUG
   // Debug TP1 and TP2 configuration
   GPIO_InitTypeDef GPIO_InitStruct;
   SYS_DBG_TP_CLK_ENABLE();
@@ -173,8 +160,8 @@ void SysDebugSetupRunTimeStatsTimer() {
 }
 
 void SysDebugStartRunTimeStatsTimer() {
-  HAL_NVIC_EnableIRQ(SYS_DBG_TIM_IRQ_N);
-  HAL_TIM_Base_Start_IT(&SYS_DBG_TIM);
+//  HAL_NVIC_EnableIRQ(SYS_DBG_TIM_IRQ_N);
+//  HAL_TIM_Base_Start_IT(&SYS_DBG_TIM);
 }
 
 int SysDebugLowLevelPutchar(int x) {
