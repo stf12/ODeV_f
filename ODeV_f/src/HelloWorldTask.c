@@ -188,9 +188,7 @@ static void HelloWorldTaskRun(ULONG nParams) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   HelloWorldTask *_this = (HelloWorldTask*)nParams;
   // define the vaiable to store the primary mask.
-  // It is used in the port layer of ThreadX by TX_DISABLE and TX_RESOTRE
-  // to implement a critical section.
-  TX_INTERRUPT_SAVE_AREA
+  UINT nOldPosture;
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("HW: start.\r\n"));
 
@@ -199,21 +197,21 @@ static void HelloWorldTaskRun(ULONG nParams) {
     // check if there is a pending power mode switch request
     if (_this->super.m_xStatus.nPowerModeSwitchPending == 1) {
       // clear the power mode switch delay because the task is ready to switch.
-      TX_DISABLE;
+      nOldPosture = tx_interrupt_control(TX_INT_DISABLE);
         _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-      TX_RESTORE;
+      tx_interrupt_control(nOldPosture);
       tx_thread_suspend(&_this->super.m_xThaskHandle);
     }
     else {
       switch (AMTGetSystemPowerMode()) {
       case E_POWER_MODE_RUN:
-        TX_DISABLE;
+        nOldPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 1;
-        TX_RESTORE;
+        tx_interrupt_control(nOldPosture);
         xRes = HelloWorldTaskExecuteStepRun(_this);
-        TX_DISABLE;
+        nOldPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-        TX_RESTORE;
+        tx_interrupt_control(nOldPosture);
         break;
 
       case E_POWER_MODE_SLEEP_1:
