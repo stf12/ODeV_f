@@ -33,13 +33,12 @@ extern "C" {
 #include "syserror.h"
 
 /* Private defines -----------------------------------------------------------*/
-#define USER_BUTTON_Pin GPIO_PIN_0
-#define USER_BUTTON_GPIO_Port GPIOE
-#define USER_BUTTON_EXTI_IRQn EXTI0_IRQn
+#define BOOT0_PE0_Pin GPIO_PIN_0
+#define BOOT0_PE0_GPIO_Port GPIOE
 #define PB9_Pin GPIO_PIN_9
 #define PB9_GPIO_Port GPIOB
-#define BOOT0_PE0_Pin GPIO_PIN_3
-#define BOOT0_PE0_GPIO_Port GPIOH
+#define BOOT0_PE0H3_Pin GPIO_PIN_3
+#define BOOT0_PE0H3_GPIO_Port GPIOH
 #define SPI3_MISO_Pin GPIO_PIN_4
 #define SPI3_MISO_GPIO_Port GPIOB
 #define SDMMC_D3_Pin GPIO_PIN_11
@@ -92,8 +91,8 @@ extern "C" {
 #define SAI1_SD_A_GPIO_Port GPIOE
 #define DFSDM1_DATIN5_Pin GPIO_PIN_6
 #define DFSDM1_DATIN5_GPIO_Port GPIOB
-#define PG12_Pin GPIO_PIN_12
-#define PG12_GPIO_Port GPIOG
+#define SYS_DBG_TP2_Pin GPIO_PIN_12
+#define SYS_DBG_TP2_GPIO_Port GPIOG
 #define USART2_TX_Pin GPIO_PIN_5
 #define USART2_TX_GPIO_Port GPIOD
 #define SDMMC_CMD_Pin GPIO_PIN_2
@@ -136,8 +135,8 @@ extern "C" {
 #define CS_ADWB_GPIO_Port GPIOF
 #define PGOOD_Pin GPIO_PIN_7
 #define PGOOD_GPIO_Port GPIOF
-#define PG9_Pin GPIO_PIN_9
-#define PG9_GPIO_Port GPIOG
+#define SYS_DBG_TP1_Pin GPIO_PIN_9
+#define SYS_DBG_TP1_GPIO_Port GPIOG
 #define SPI1_MISO_Pin GPIO_PIN_3
 #define SPI1_MISO_GPIO_Port GPIOG
 #define BLE_SPI_CS_Pin GPIO_PIN_5
@@ -241,6 +240,23 @@ extern "C" {
 #define USART3_CTS_Pin GPIO_PIN_13
 #define USART3_CTS_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
+// USART used for the Debug Log
+#define SYS_DBG_USART                   huart2
+#define SYS_DBG_USART_MX_INIT()         MX_USART2_UART_Init()
+// Test Point PINs
+#define SYS_DBG_TP1_PIN                 SYS_DBG_TP1_Pin
+#define SYS_DBG_TP1_PORT                SYS_DBG_TP1_GPIO_Port
+#define SYS_DBG_TP2_PIN                 SYS_DBG_TP2_Pin
+#define SYS_DBG_TP2_PORT                SYS_DBG_TP2_GPIO_Port
+#define SYS_DBG_TP_CLK_ENABLE()         __HAL_RCC_GPIOG_CLK_ENABLE()
+// TIMer for the runtime statistics
+#define SYS_DBG_TIM                     htim16
+#define SYS_DBG_TIM_IRQ_N               TIM1_UP_TIM16_IRQn
+#define SYS_DBG_TIM_INIT()              MX_TIM16_Init()
+// Re-map the HAL error handler to the framework error function
+void sys_error_handler(void); // forward function declaration
+#define Error_Handler()                 sys_error_handler()
+/* USER CODE END Private defines */
 
 
 #ifdef __cplusplus
