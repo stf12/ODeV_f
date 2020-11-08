@@ -28,8 +28,8 @@
  ******************************************************************************
  */
 
-#ifndef INCLUDE_SERVICES_AMANAGEDTASKVTBL_H_
-#define INCLUDE_SERVICES_AMANAGEDTASKVTBL_H_
+#ifndef INCLUDE_SERVICES_AMANAGEDTASK_VTBL_H_
+#define INCLUDE_SERVICES_AMANAGEDTASK_VTBL_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,8 +38,7 @@ extern "C" {
 #include "systypes.h"
 #include "syserror.h"
 #include "systp.h"
-#include "FreeRTOS.h"
-#include "task.h"
+#include "tx_api.h"
 
 /**
  * Create  type name for _IManagedTask_vtb.
@@ -48,7 +47,7 @@ typedef struct _AManagedTask_vtbl AManagedTask_vtbl;
 
 struct _AManagedTask_vtbl {
   sys_error_code_t (*HardwareInit)(AManagedTask *_this, void *pParams);
-  sys_error_code_t (*OnCreateTask)(AManagedTask *_this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority);
+  sys_error_code_t (*OnCreateTask)(AManagedTask *_this, tx_entry_function_t *pvTaskCode, CHAR **pcName, VOID **pvStackStart, ULONG *pnStackSize, UINT *pnPriority, UINT *pnPreemptThreshold, ULONG *pnTimeSlice, ULONG *pnAutoStart, ULONG *pnParams);
   sys_error_code_t (*DoEnterPowerMode)(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
   sys_error_code_t (*HandleError)(AManagedTask *_this, SysEvent xError);
 };
@@ -83,7 +82,13 @@ typedef struct _AMTStatus {
   /**
    * Count the error occurred during the task execution.
    */
-  uint8_t nErrorCount: 3;
+  uint8_t nErrorCount: 2;
+
+  /**
+   * Specify if the task has been created suspended. It depends on the pnAutoStart parameter passed
+   * during the task creation.
+   */
+  uint8_t nAutoStart: 1;
 
   uint8_t nReserved : 1;
 } AMTStatus;
@@ -99,9 +104,9 @@ struct _AManagedTask {
   const AManagedTask_vtbl *vptr;
 
   /**
-   * Specify the native FreeRTOS task handle.
+   * Specify the native ThreadX task handle.
    */
-  TaskHandle_t m_xThaskHandle;
+  TX_THREAD m_xThaskHandle;
 
   /**
    *Specifies a pointer to the next managed task in the _ApplicationContext.
@@ -126,8 +131,12 @@ sys_error_code_t AMTHardwareInit(AManagedTask *_this, void *pParams) {
 }
 
 SYS_DEFINE_INLINE
-sys_error_code_t AMTOnCreateTask(AManagedTask *_this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority) {
-  return _this->vptr->OnCreateTask(_this, pvTaskCode, pcName, pnStackDepth, pParams, pxPriority);
+inline sys_error_code_t AMTOnCreateTask(AManagedTask *_this, tx_entry_function_t *pvTaskCode, CHAR **pcName,
+    VOID **pvStackStart, ULONG *pnStackSize,
+    UINT *pnPriority, UINT *pnPreemptThreshold,
+    ULONG *pnTimeSlice, ULONG *pnAutoStart,
+    ULONG *pnParams) {
+  return _this->vptr->OnCreateTask(_this, pvTaskCode, pcName, pvStackStart, pnStackSize, pnPriority, pnPreemptThreshold, pnTimeSlice, pnAutoStart, pnParams);
 }
 
 SYS_DEFINE_INLINE
@@ -143,12 +152,12 @@ sys_error_code_t AMTHandleError(AManagedTask *_this, SysEvent xError) {
 SYS_DEFINE_INLINE
 sys_error_code_t AMTInit(AManagedTask *_this) {
   _this->m_pNext = NULL;
-  _this->m_xThaskHandle = NULL;
   _this->m_xStatus.nDelayPowerModeSwitch = 1;
   _this->m_xStatus.nPowerModeSwitchPending = 0;
   _this->m_xStatus.nPowerModeSwitchDone = 0;
   _this->m_xStatus.nIsTaskStillRunning = 0;
   _this->m_xStatus.nErrorCount = 0;
+  _this->m_xStatus.nAutoStart = 0;
   _this->m_xStatus.nReserved = 0;
 
   return SYS_NO_ERROR_CODE;
@@ -162,7 +171,7 @@ EPowerMode AMTGetSystemPowerMode() {
 SYS_DEFINE_INLINE
 sys_error_code_t AMTNotifyIsStillRunning(AManagedTask *_this, sys_error_code_t nStepError) {
 
-  if (SYS_IS_ERROR_CODE(nStepError) && (_this->m_xStatus.nErrorCount < MT_MAX_ERROR_COUNT)) {
+  if (SYS_IS_ERROR_CODE(nStepError) && (_this->m_xStatus.nErrorCount < MT_MAX_ERROR_COUNT - 1)) {
     _this->m_xStatus.nErrorCount++;
   }
   if (_this->m_xStatus.nErrorCount < MT_ALLOWED_ERROR_COUNT) {
@@ -186,7 +195,9 @@ SYS_DEFINE_INLINE
 void AMTReportErrOnStepExecution(AManagedTask *_this, sys_error_code_t nStepError) {
   UNUSED(nStepError);
 
-  _this->m_xStatus.nErrorCount++;
+  if (_this->m_xStatus.nErrorCount < MT_MAX_ERROR_COUNT - 1) {
+    _this->m_xStatus.nErrorCount++;
+  }
 }
 
 
@@ -195,4 +206,4 @@ void AMTReportErrOnStepExecution(AManagedTask *_this, sys_error_code_t nStepErro
 #endif
 
 
-#endif /* INCLUDE_SERVICES_AMANAGEDTASKVTBL_H_ */
+#endif /* INCLUDE_SERVICES_AMANAGEDTASK_VTBL_H_ */

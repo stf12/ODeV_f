@@ -50,6 +50,10 @@
  extern "C" {
 #endif
 
+#define ODEV_MAGIC_NUMBER  (12974)
+
+#define SYS_MS_TO_TICKS( xTimeInMs ) ( (uint32_t) (((uint32_t )(xTimeInMs) * (uint32_t)TX_TIMER_TICKS_PER_SECOND) / (uint32_t)1000))
+
 /**
  * It initialize the minimum set of resources, hardware and software, in order to start the scheduler,
  * and create the INIT task.

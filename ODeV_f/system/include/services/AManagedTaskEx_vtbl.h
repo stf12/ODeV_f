@@ -38,10 +38,9 @@ extern "C" {
 #include "systypes.h"
 #include "syserror.h"
 #include "systp.h"
-#include "FreeRTOS.h"
-#include "task.h"
+#include "tx_api.h"
 
-#include "AManagedTaskVtbl.h"
+#include "AManagedTask_vtbl.h"
 
 /**
  * Create  type name for _IManagedTask_vtb.
@@ -50,7 +49,7 @@ typedef struct _AManagedTaskEx_vtbl AManagedTaskEx_vtbl;
 
 struct _AManagedTaskEx_vtbl {
   sys_error_code_t (*HardwareInit)(AManagedTask *_this, void *pParams);
-  sys_error_code_t (*OnCreateTask)(AManagedTask *_this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority);
+  sys_error_code_t (*OnCreateTask)(AManagedTask *_this, tx_entry_function_t *pvTaskCode, CHAR **pcName, VOID **pvStackStart, ULONG *pnStackSize, UINT *pnPriority, UINT *pnPreemptThreshold, ULONG *pnTimeSlice, ULONG *pnAutoStart, ULONG *pnParams);
   sys_error_code_t (*DoEnterPowerMode)(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
   sys_error_code_t (*HandleError)(AManagedTask *_this, SysEvent xError);
   sys_error_code_t (*ForceExecuteStep)(AManagedTaskEx *_this, EPowerMode eActivePowerMode);
@@ -78,9 +77,9 @@ struct _AManagedTaskEx {
   const AManagedTaskEx_vtbl *vptr;
 
   /**
-   * Specify the native FreeRTOS task handle.
+   * Specify the native ThreadX task handle.
    */
-  TaskHandle_t m_xThaskHandle;
+  TX_THREAD m_xThaskHandle;
 
   /**
    *Specifies a pointer to the next managed task in the _ApplicationContext.
@@ -113,12 +112,12 @@ sys_error_code_t AMTInitEx(AManagedTaskEx *_this) {
   AManagedTaskEx *pObj = (AManagedTaskEx*)_this;
 
   _this->m_pNext = NULL;
-  _this->m_xThaskHandle = NULL;
   _this->m_xStatus.nDelayPowerModeSwitch = 1;
   _this->m_xStatus.nPowerModeSwitchPending = 0;
   _this->m_xStatus.nPowerModeSwitchDone = 0;
   _this->m_xStatus.nIsTaskStillRunning = 0;
   _this->m_xStatus.nErrorCount = 0;
+  _this->m_xStatus.nAutoStart = 0;
   _this->m_xStatus.nReserved = 1; // this identifies the task as an AManagedTaskEx.
   pObj->m_xStatusEx.nIsWaitingNoTimeout = 0;
   pObj->m_xStatusEx.nUnused = 0;

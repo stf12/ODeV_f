@@ -38,6 +38,8 @@
 #include "stm32l4xx.h"
 #elif defined (SYS_TP_MCU_STM32L0)
 #include "stm32l0xx.h"
+#elif defined(SYS_TP_MCU_STM32F4)
+#include "stm32f4xx.h"
 #endif
 
 // Compiler specific define

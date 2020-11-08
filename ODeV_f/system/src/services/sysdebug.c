@@ -32,9 +32,9 @@
 #include "systp.h"
 #include "stdio.h"
 #include "stdint.h"
-#include "FreeRTOS.h"
-#include "semphr.h"
-#include "task.h"
+#include "usart.h"
+#include "tim.h"
+#include "tx_api.h"
 
 
 /**
@@ -57,9 +57,7 @@ uint8_t g_sys_dbg_min_level = SYS_DBG_LEVEL_VERBOSE;
  */
 #define SYS_DBG_IS_CALLED_FROM_ISR() ((SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0 ? 1 : 0)
 
-static SemaphoreHandle_t s_xMutex = NULL;
-static UART_HandleTypeDef s_xUartHandle;
-static TIM_HandleTypeDef s_xTim6Handle;
+static TX_SEMAPHORE s_xMutex;
 
 uint32_t g_ulHighFrequencyTimerTicks = 0;
 
@@ -68,10 +66,6 @@ static void SysDebugSetupRunTimeStatsTimer();
 void null_lockfn();
 void SysDebugLock();
 void SysDebugUnlock();
-
-extern void sys_error_handler(void);
-extern void MX_USART2_UART_Init(UART_HandleTypeDef* uartHandle);
-extern void MX_TIM6_Init(TIM_HandleTypeDef* tim_baseHandle);
 
 
 xDebugLockUnlockFnType xSysDebugLockFn = null_lockfn;
@@ -84,18 +78,15 @@ int SysDebugInit() {
   SysDebugHardwareInit();
 
   // software initialization.
-  s_xMutex = xSemaphoreCreateMutex();
+  UINT nResult = tx_semaphore_create(&s_xMutex, "DBG_S", 1);
 
-  if (s_xMutex == NULL) {
+  if (nResult != TX_SUCCESS) {
     return 1;
   }
 
   xSysDebugUnlockFn = SysDebugUnlock;
   xSysDebugLockFn = SysDebugLock;
 
-#ifdef DEBUG
-  vQueueAddToRegistry(s_xMutex, "DBG");
-#endif
   return 0;
 }
 
@@ -123,26 +114,18 @@ void null_lockfn()
 }
 
 void SysDebugLock() {
+  UINT nResult = TX_SUCCESS;
   if (SYS_DBG_IS_CALLED_FROM_ISR()) {
-    xSemaphoreTakeFromISR(s_xMutex, NULL);
+    nResult = tx_semaphore_get(&s_xMutex, TX_NO_WAIT);
   }
   else {
-    if (xTaskGetSchedulerState() == taskSCHEDULER_SUSPENDED) {
-      xSemaphoreTake(s_xMutex, 0);
-    }
-    else {
-      xSemaphoreTake(s_xMutex, portMAX_DELAY);
-    }
+    nResult = tx_semaphore_get(&s_xMutex, TX_WAIT_FOREVER);
   }
+  assert_param(nResult == TX_SUCCESS);
 }
 
 void SysDebugUnlock() {
-  if (SYS_DBG_IS_CALLED_FROM_ISR()) {
-    xSemaphoreGiveFromISR(s_xMutex, NULL);
-  }
-  else {
-    xSemaphoreGive(s_xMutex);
-  }
+  tx_semaphore_put(&s_xMutex);
 }
 
 #if defined ( __ICCARM__ )
@@ -152,12 +135,12 @@ __attribute__((weak))
 #endif
 int SysDebugHardwareInit() {
 
-  MX_USART2_UART_Init(&s_xUartHandle);
+  SYS_DBG_USART_MX_INIT();
 
 #ifdef DEBUG
   // Debug TP1 and TP2 configuration
   GPIO_InitTypeDef GPIO_InitStruct;
-  __HAL_RCC_GPIOH_CLK_ENABLE();
+  SYS_DBG_TP_CLK_ENABLE();
 
   HAL_GPIO_WritePin(SYS_DBG_TP1_PORT, SYS_DBG_TP1_PIN|SYS_DBG_TP2_PIN, GPIO_PIN_RESET);
   GPIO_InitStruct.Pin = SYS_DBG_TP1_PIN|SYS_DBG_TP2_PIN;
@@ -173,36 +156,22 @@ int SysDebugHardwareInit() {
 }
 
 void SysDebugSetupRunTimeStatsTimer() {
-  MX_TIM6_Init(&s_xTim6Handle);
+  SYS_DBG_TIM_INIT();
 }
 
 void SysDebugStartRunTimeStatsTimer() {
-  HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
-  HAL_TIM_Base_Start_IT(&s_xTim6Handle);
+//  HAL_NVIC_EnableIRQ(SYS_DBG_TIM_IRQ_N);
+//  HAL_TIM_Base_Start_IT(&SYS_DBG_TIM);
 }
 
 int SysDebugLowLevelPutchar(int x) {
-  if(HAL_UART_Transmit(&s_xUartHandle, (uint8_t*)&x, 1, 5000)!= HAL_OK) {
+  if(HAL_UART_Transmit(&SYS_DBG_USART, (uint8_t*)&x, 1, 5000)!= HAL_OK) {
     return -1;
   }
 
 //  ITM_SendChar(x);
 
   return x;
-}
-
-// CubeMx integration
-// ******************
-
-void TIM6_DAC_IRQHandler(void) {
-    // TIM Update event
-  if(__HAL_TIM_GET_FLAG(&s_xTim6Handle, TIM_FLAG_UPDATE) != RESET) {
-    if(__HAL_TIM_GET_IT_SOURCE(&s_xTim6Handle, TIM_IT_UPDATE) != RESET) {
-      __HAL_TIM_CLEAR_IT(&s_xTim6Handle, TIM_IT_UPDATE);
-      // handle the update event.
-      g_ulHighFrequencyTimerTicks++;
-    }
-  }
 }
 
 #endif // SYS_DEBUG

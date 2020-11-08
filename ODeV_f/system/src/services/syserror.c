@@ -29,8 +29,7 @@
 
 #include "systp.h"
 #include "syserror.h"
-#include "FreeRTOS.h"
-#include "task.h"
+
 
 sys_error_t g_nSysError = {0};
 
@@ -48,13 +47,13 @@ void sys_error_handler(void)
 #if defined(DEBUG)
 	__asm volatile ("bkpt 0");
 #else
-	if (SYS_IS_CALLED_FROM_ISR()) {
-		taskENTER_CRITICAL_FROM_ISR();
-	}
-	else {
-		taskENTER_CRITICAL();
-	}
-
+//	if (SYS_IS_CALLED_FROM_ISR()) {
+//		taskENTER_CRITICAL_FROM_ISR();
+//	}
+//	else {
+//		taskENTER_CRITICAL();
+//	}
+//TODO: STF.Por t - dsisable IRQs.
 	while(1) {
 		__asm volatile( "NOP" );
 
