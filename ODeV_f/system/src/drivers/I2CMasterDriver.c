@@ -27,7 +27,6 @@
 #include "I2CMasterDriver_vtbl.h"
 #include "i2c.h"
 #include "dma.h"
-#include "FreeRTOS.h"
 #include "sysdebug.h"
 
 #define I2CDRV_CFG_HARDWARE_PERIPHERALS_COUNT   1
@@ -55,7 +54,7 @@ typedef struct _SPIPeripheralResources {
   /**
    * Synchronization object used by the driver to synchronize the I2C ISR with the task using the driver;
    */
-  SemaphoreHandle_t m_xSyncObj;
+  TX_SEMAPHORE *m_pxSyncObj;
 
   /**
    * Count the number of errors reported by the hardware IP.
@@ -112,6 +111,7 @@ sys_error_code_t I2CMasterDriver_vtblInit(IDriver *_this, void *pParams) {
   assert_param(_this);
   assert_param(pParams);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  UINT nRes = TX_SUCCESS;
   I2CMasterDriver *pObj = (I2CMasterDriver*)_this;
 
   MX_DMA_Init();
@@ -134,21 +134,15 @@ sys_error_code_t I2CMasterDriver_vtblInit(IDriver *_this, void *pParams) {
     // initialize the software resources
     pObj->m_nTargetDeviceAddr = 0;
     pObj->m_nIPErrors = 0;
-    pObj->m_xSyncObj = xSemaphoreCreateBinary();
-    if (pObj->m_xSyncObj == NULL){
+    nRes = tx_semaphore_create(&pObj->m_xSyncObj, "I2C_S", 0);
+    if (nRes != TX_SUCCESS){
       SYS_SET_LOW_LEVEL_ERROR_CODE(SYS_OUT_OF_MEMORY_ERROR_CODE);
       xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
     }
 
-    s_pxHwResouces[0].m_xSyncObj = pObj->m_xSyncObj;
+    s_pxHwResouces[0].m_pxSyncObj = &pObj->m_xSyncObj;
     s_pxHwResouces[0].m_pnIPErrors = &pObj->m_nIPErrors;
   }
-
-#ifdef DEBUG
-  if (pObj->m_xSyncObj) {
-    vQueueAddToRegistry(pObj->m_xSyncObj, "I2C2Drv");
-  }
-#endif
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("I2CMasterDriver: initialization done.\r\n"));
 
@@ -211,7 +205,7 @@ sys_error_code_t I2CMasterDriver_vtblWrite(IIODriver *_this, uint8_t *pDataBuffe
       }
     }
     // Suspend the calling task until the operation is completed.
-    xSemaphoreTake(pObj->m_xSyncObj, portMAX_DELAY);
+    tx_semaphore_get(&pObj->m_xSyncObj, TX_WAIT_FOREVER);
   }
 
   return xRes;
@@ -230,7 +224,7 @@ sys_error_code_t I2CMasterDriver_vtblRead(IIODriver *_this, uint8_t *pDataBuffer
       }
     }
     // Suspend the calling task until the operation is completed.
-    xSemaphoreTake(pObj->m_xSyncObj, portMAX_DELAY);
+    tx_semaphore_get(&pObj->m_xSyncObj, TX_WAIT_FOREVER);
   }
 
   return xRes;
@@ -247,16 +241,16 @@ sys_error_code_t I2CMasterDriver_vtblRead(IIODriver *_this, uint8_t *pDataBuffer
 static void I2CMasterDrvMemRxCpltCallback(I2C_HandleTypeDef *xI2C) {
   UNUSED(xI2C);
 
-  if (s_pxHwResouces[0].m_xSyncObj) {
-    xSemaphoreGiveFromISR(s_pxHwResouces[0].m_xSyncObj, NULL);
+  if (s_pxHwResouces[0].m_pxSyncObj) {
+    tx_semaphore_put(s_pxHwResouces[0].m_pxSyncObj);
   }
 }
 
 static void I2CMasterDrvMemTxCpltCallback(I2C_HandleTypeDef *xI2C) {
   UNUSED(xI2C);
 
-  if (s_pxHwResouces[0].m_xSyncObj) {
-    xSemaphoreGiveFromISR(s_pxHwResouces[0].m_xSyncObj, NULL);
+  if (s_pxHwResouces[0].m_pxSyncObj) {
+    tx_semaphore_put(s_pxHwResouces[0].m_pxSyncObj);
   }
 }
 

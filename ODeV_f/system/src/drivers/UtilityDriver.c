@@ -31,7 +31,6 @@
 
 #include "UtilityDriver.h"
 #include "UtilityDriver_vtbl.h"
-#include "FreeRTOS.h"
 #include "sysdebug.h"
 
 #define UTL_TIMx                        TIM5

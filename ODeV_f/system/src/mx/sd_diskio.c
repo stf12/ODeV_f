@@ -28,8 +28,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "ff_gen_drv.h"
 #include "sd_diskio.h"
-#include "FreeRTOS.h"
-#include "semphr.h"
+#include "tx_api.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -62,7 +61,9 @@ static volatile DSTATUS Stat = STA_NOINIT;
 
 static volatile  UINT  WriteStatus = 0, ReadStatus = 0;
 
-static SemaphoreHandle_t s_xSyncObj = NULL;
+//static SemaphoreHandle_t s_xSyncObj = NULL;
+static TX_SEMAPHORE s_xSyncObj;
+static uint8_t s_bSyncObjInitialized = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 static DSTATUS SD_CheckStatus(BYTE lun);
@@ -116,6 +117,7 @@ static DSTATUS SD_CheckStatus(BYTE lun)
 DSTATUS SD_initialize(BYTE lun)
 {
 Stat = STA_NOINIT;
+UINT nRes = TX_SUCCESS;
 
 #if !defined(DISABLE_SD_INIT)
 
@@ -128,10 +130,14 @@ Stat = STA_NOINIT;
   Stat = SD_CheckStatus(lun);
 #endif
 
-  if (s_xSyncObj == NULL) {
-    s_xSyncObj = xSemaphoreCreateBinary();
-    if (s_xSyncObj == NULL) {
+  if (!s_bSyncObjInitialized) {
+    nRes = tx_semaphore_create(&s_xSyncObj, "SD_S", 0);
+    if (nRes != TX_SUCCESS) {
       Stat = STA_NOINIT;
+    }
+    else
+    {
+      s_bSyncObjInitialized = 1;
     }
   }
 
@@ -247,7 +253,7 @@ DRESULT SD_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 //    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_5, GPIO_PIN_SET);
     timeout = HAL_GetTick();
 //    osSemaphoreWait(sdioSem_id, SD_TIMEOUT); //TODO: STF.Debuf SD - need a binary semaphore
-    xSemaphoreTake(s_xSyncObj, SD_TIMEOUT);
+    tx_semaphore_get(&s_xSyncObj, SD_TIMEOUT);
 //    while((WriteStatus == 0) && ((HAL_GetTick() - timeout) < SD_TIMEOUT))
 //    {
 //    }
@@ -348,7 +354,7 @@ DRESULT SD_ioctl(BYTE lun, BYTE cmd, void *buff)
 void BSP_SD_WriteCpltCallback()
 {
   WriteStatus = 1;
-  xSemaphoreGiveFromISR(s_xSyncObj, NULL);
+  tx_semaphore_put(&s_xSyncObj);
 }
 
 /**

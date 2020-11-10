@@ -27,7 +27,6 @@
 #include "SPIMasterDriver_vtbl.h"
 #include "dma.h"
 #include "spi.h"
-#include "FreeRTOS.h"
 #include "sysdebug.h"
 
 #define SYS_DEBUGF(level, message)              SYS_DEBUGF3(SYS_DBG_DRIVERS, level, message)

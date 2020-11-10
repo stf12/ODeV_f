@@ -33,9 +33,7 @@ extern "C" {
 #include "IIODriver.h"
 #include "IDriver_vtbl.h"
 #include "IIODriver_vtbl.h"
-#include "FreeRTOS.h"
-#include "semphr.h"
-
+#include "tx_api.h"
 
 
 /**
@@ -57,7 +55,7 @@ struct _SPIMasterDriver {
   /**
    * Synchronization object used to synchronize the low lever driver with the task.
    */
-  SemaphoreHandle_t m_xSyncObj;
+  TX_SEMAPHORE m_xSyncObj;
 };
 
 /**

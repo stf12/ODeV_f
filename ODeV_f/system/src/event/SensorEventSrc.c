@@ -28,7 +28,6 @@
 #include "SensorEventSrc_vtbl.h"
 #include "ISensorEventListener.h"
 #include "ISensorEventListener_vtbl.h"
-#include "FreeRTOS.h"
 
 
 static const IEventSrc_vtbl s_xSensorEvent_vtbl = {

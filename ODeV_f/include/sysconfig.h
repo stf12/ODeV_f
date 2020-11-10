@@ -64,7 +64,7 @@
 
 // file sysinit.c
 #define INIT_TASK_CFG_ENABLE_BOOT_IF              0
-#define INIT_TASK_CFG_STACK_SIZE                  (configMINIMAL_STACK_SIZE*6)
+#define INIT_TASK_CFG_STACK_SIZE                  (140)
 
 // file HelloWorldTask.c
 // uncomment the following lines to change the task common parameters
@@ -77,27 +77,27 @@
 //#define PB_TASK_CFG_PRIORITY                       (tskIDLE_PRIORITY+2)
 
 // file ISM330DHCXTask.c
-#define ISM330DHCX_TASK_CFG_STACK_DEPTH           (configMINIMAL_STACK_SIZE*3)
-#define ISM330DHCX_TASK_CFG_PRIORITY              (tskIDLE_PRIORITY+4)
+#define ISM330DHCX_TASK_CFG_STACK_DEPTH           (120*3)
+#define ISM330DHCX_TASK_CFG_PRIORITY              (4)
 
 // file IIS3DWBTask.c
-#define IIS3DWB_TASK_CFG_STACK_DEPTH              (configMINIMAL_STACK_SIZE*3)
-#define IIS3DWB_TASK_CFG_PRIORITY                 (tskIDLE_PRIORITY+4)
+#define IIS3DWB_TASK_CFG_STACK_DEPTH              (120*3)
+#define IIS3DWB_TASK_CFG_PRIORITY                 (4)
 
 // file SPIBusTask.c
 #define SPIBUS_TASK_CFG_STACK_DEPTH               140
-#define SPIBUS_TASK_CFG_PRIORITY                  (tskIDLE_PRIORITY+4)
+#define SPIBUS_TASK_CFG_PRIORITY                  (3)
 
 // file AITask.c
 #define AI_TASK_CFG_STACK_DEPTH                   140
-#define AI_TASK_CFG_PRIORITY                      (tskIDLE_PRIORITY+2)
+#define AI_TASK_CFG_PRIORITY                      (6)
 
 // file UtilTask.c
 #define UTIL_TASK_CFG_STACK_DEPTH                 120
-#define UTIL_TASK_CFG_PRIORITY                    (tskIDLE_PRIORITY+1)
+#define UTIL_TASK_CFG_PRIORITY                    (7)
 
 // file SDCardTask.c
-#define SDC_TASK_CFG_STACK_DEPTH                  (configMINIMAL_STACK_SIZE*8)
-#define SDC_TASK_CFG_PRIORITY                     (tskIDLE_PRIORITY+3)
+#define SDC_TASK_CFG_STACK_DEPTH                  (120*8)
+#define SDC_TASK_CFG_PRIORITY                     (5)
 
 #endif /* SYSCONFIG_H_ */
