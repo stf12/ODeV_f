@@ -94,7 +94,7 @@ sys_error_code_t I2CMasterDriverSetDeviceAddr(I2CMasterDriver *_this, uint16_t n
 // *************************************
 
 IIODriver *I2CMasterDriverAlloc() {
-  IIODriver *pNewObj = (IIODriver*)pvPortMalloc(sizeof(I2CMasterDriver));
+  IIODriver *pNewObj = (IIODriver*)SysAlloc(sizeof(I2CMasterDriver));
 
   if (pNewObj == NULL) {
     SYS_SET_LOW_LEVEL_ERROR_CODE(SYS_OUT_OF_MEMORY_ERROR_CODE);

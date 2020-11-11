@@ -53,7 +53,8 @@ struct _SensorEventSrc {
 // ***************************
 
 IEventSrc *SensorEventSrcAlloc() {
-  IEventSrc *pxObj = (IEventSrc*) pvPortMalloc(sizeof(SensorEventSrc));
+  IEventSrc *pxObj = (IEventSrc*) SysAlloc(sizeof(SensorEventSrc));
+  SysAlloc(sizeof(SensorEventSrc));
 
   if (pxObj != NULL) {
     pxObj->vptr = &s_xSensorEvent_vtbl;

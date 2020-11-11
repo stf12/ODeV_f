@@ -49,6 +49,12 @@ extern "C" {
 typedef struct _IEventSrc IEventSrc;
 
 
+// Forward functions declaration
+// *****************************
+
+void *SysAlloc(size_t nSize);
+
+
 // Public API declaration
 //***********************
 

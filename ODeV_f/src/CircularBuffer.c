@@ -24,8 +24,7 @@
 
 #include "CircularBuffer.h"
 #include <string.h>
-#include "FreeRTOS.h"
-#include "task.h"
+#include "tx_api.h"
 
 #define CB_ITEM_FREE   0x00  ///< Status of a circular buffer item: FREE.
 #define CB_ITEM_NEW    0x01  ///< Status of a circular buffer item: NEW
@@ -105,13 +104,17 @@ static CircularBuffer s_xTheCircularBuffer;
 
 /**
  * Start a critical section to protect the circular buffer object from multi-task access.
+ *
+ * @param pnToken [IN] specifies a bit of status information to be passed to CBExitCritical().
  */
-static inline void CBEnterCritical();
+static inline void CBEnterCritical(UINT *pnToken);
 
 /**
  *  End a critical section to allow other tasks to use the circular buffer object.
+ *
+ *  @param nToken [IN] specifies a bit of status information. It must be the same token used in the correspondent CBEnterCritical().
  */
-static inline void CBExitCritical();
+static inline void CBExitCritical(UINT nToken);
 
 
 // Public API definition
@@ -136,10 +139,11 @@ sys_error_code_t CBInit(CircularBuffer *_this) {
 boolean_t CBIsEmpty(CircularBuffer *_this) {
   assert_param(_this);
   boolean_t bRes = FALSE;
+  UINT nToken = 0;
 
-  CBEnterCritical();
+  CBEnterCritical(&nToken);
   bRes = CB_IS_EMPTY(_this);
-  CBExitCritical();
+  CBExitCritical(nToken);
 
   return bRes;
 }
@@ -147,10 +151,11 @@ boolean_t CBIsEmpty(CircularBuffer *_this) {
 boolean_t CBIsFull(CircularBuffer *_this) {
   assert_param(_this);
   boolean_t bRes = FALSE;
+  UINT nToken = 0;
 
-  CBEnterCritical();
+  CBEnterCritical(&nToken);
   bRes = CB_IS_EMPTY(_this);
-  CBExitCritical();
+  CBExitCritical(nToken);
 
   return bRes;
 }
@@ -158,8 +163,9 @@ boolean_t CBIsFull(CircularBuffer *_this) {
 uint32_t CBGetItemsCount(CircularBuffer *_this) {
   assert_param(_this);
   uint32_t nItemsCount = 0;
+  UINT nToken = 0;
 
-  CBEnterCritical();
+  CBEnterCritical(&nToken);
   if (!CB_IS_EMPTY(_this)) {
     if (_this->m_nHeadIdx > _this->m_nTailIdx) {
       nItemsCount = _this->m_nHeadIdx - _this->m_nTailIdx;
@@ -168,7 +174,7 @@ uint32_t CBGetItemsCount(CircularBuffer *_this) {
       nItemsCount = CFG_CB_MAX_ITEMS - (_this->m_nTailIdx - _this->m_nHeadIdx);
     }
   }
-  CBExitCritical();
+  CBExitCritical(nToken);
 
   return nItemsCount;
 }
@@ -177,8 +183,9 @@ sys_error_code_t CBGetFreeItemFromHead(CircularBuffer *_this, CBItem **pxItem) {
   assert_param(_this);
   assert_param(pxItem);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  UINT nToken = 0;
 
-  CBEnterCritical();
+  CBEnterCritical(&nToken);
   if (_this->m_pxItems[_this->m_nHeadIdx].m_xStatus.nStatus == CB_ITEM_FREE) {
     *pxItem = &_this->m_pxItems[_this->m_nHeadIdx];
     // Mark the item as NEW
@@ -190,7 +197,7 @@ sys_error_code_t CBGetFreeItemFromHead(CircularBuffer *_this, CBItem **pxItem) {
     *pxItem = NULL;
     xRes = SYS_CB_FULL_ERROR_CODE;
   }
-  CBExitCritical();
+  CBExitCritical(nToken);
 
   return xRes;
 }
@@ -199,8 +206,9 @@ sys_error_code_t CBGetReadyItemFromTail(CircularBuffer *_this, CBItem **pxItem) 
   assert_param(_this);
   assert_param(pxItem);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  UINT nToken = 0;
 
-  CBEnterCritical();
+  CBEnterCritical(&nToken);
   if (_this->m_pxItems[_this->m_nTailIdx].m_xStatus.nStatus == CB_ITEM_READY) {
     *pxItem = &_this->m_pxItems[_this->m_nTailIdx];
     // increment the tail pointer
@@ -210,7 +218,7 @@ sys_error_code_t CBGetReadyItemFromTail(CircularBuffer *_this, CBItem **pxItem) 
     *pxItem = NULL;
     xRes = SYS_CB_NO_READY_ITEM_ERROR_CODE;
   }
-  CBExitCritical();
+  CBExitCritical(nToken);
 
 
   return xRes;
@@ -220,10 +228,11 @@ sys_error_code_t CBReleaseItem(CircularBuffer *_this, CBItem *pxItem) {
   assert_param(_this);
   assert_param(pxItem);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  UINT nToken = 0;
 
   UNUSED(_this);
 
-  CBEnterCritical();
+  CBEnterCritical(&nToken);
   if (pxItem->m_xStatus.nStatus == CB_ITEM_NEW) {
     // the item is not valid because it has been only allocated but not produced.
     xRes = SYS_CB_INVALID_ITEM_ERROR_CODE;
@@ -232,7 +241,7 @@ sys_error_code_t CBReleaseItem(CircularBuffer *_this, CBItem *pxItem) {
     // item is already FREE or READY, so I can release it.
     pxItem->m_xStatus.nStatus = CB_ITEM_FREE;
   }
-  CBExitCritical();
+  CBExitCritical(nToken);
 
   return xRes;
 }
@@ -241,10 +250,11 @@ sys_error_code_t CBSetItemReady(CircularBuffer *_this, CBItem *pxItem) {
   assert_param(_this);
   assert_param(pxItem);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  UINT nToken = 0;
 
   UNUSED(_this);
 
-  CBEnterCritical();
+  CBEnterCritical(&nToken);
   if (pxItem->m_xStatus.nStatus == CB_ITEM_FREE) {
     // the item is not valid because it has not been allocated
     xRes = SYS_CB_INVALID_ITEM_ERROR_CODE;
@@ -253,7 +263,7 @@ sys_error_code_t CBSetItemReady(CircularBuffer *_this, CBItem *pxItem) {
     // the item is already READY or NEW, so I can mark as READY.
     pxItem->m_xStatus.nStatus = CB_ITEM_READY;
   }
-  CBExitCritical();
+  CBExitCritical(nToken);
 
   return xRes;
 }
@@ -268,20 +278,10 @@ CBItemData *CBGetItemData(CBItem *pxItem) {
 // Private functions definition
 // ****************************
 
-static inline void CBEnterCritical() {
-  if (SYS_IS_CALLED_FROM_ISR()) {
-    taskENTER_CRITICAL_FROM_ISR();
-  }
-  else {
-    taskENTER_CRITICAL();
-  }
+static inline void CBEnterCritical(UINT *pnToken) {
+  *pnToken = tx_interrupt_control(TX_INT_DISABLE);
 }
 
-static inline void CBExitCritical() {
-  if (SYS_IS_CALLED_FROM_ISR()) {
-    taskEXIT_CRITICAL_FROM_ISR(0);
-  }
-  else {
-    taskEXIT_CRITICAL();
-  }
+static inline void CBExitCritical(UINT nToken) {
+  tx_interrupt_control(nToken);
 }

@@ -32,8 +32,7 @@ extern "C" {
 #include "systp.h"
 #include "systypes.h"
 #include "syserror.h"
-#include "FreeRTOS.h"
-#include "semphr.h"
+#include "tx_api.h"
 
 
 /**
@@ -113,7 +112,7 @@ struct _SPIBusIF {
   /**
    * Synchronization object used to synchronize the sensor with the bus.
    */
-  SemaphoreHandle_t m_xSyncObj;
+  TX_SEMAPHORE m_xSyncObj;
 };
 
 

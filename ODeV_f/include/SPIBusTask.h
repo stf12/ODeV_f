@@ -36,8 +36,7 @@ extern "C" {
 #include "AManagedTaskEx_vtbl.h"
 #include "IIODriver.h"
 #include "IIODriver_vtbl.h"
-#include <SPIBusIF.h>
-#include "queue.h"
+#include "SPIBusIF.h"
 
 
 /**
@@ -64,7 +63,7 @@ struct _SPIBusTask {
   /**
    * Task message queue. Read and write request are wrapped into message posted in this queue.
    */
-  QueueHandle_t m_xInQueue;
+  TX_QUEUE m_xInQueue;
 
   /**
    * Count the number of devices connected to the bus. It can be used in furter version to

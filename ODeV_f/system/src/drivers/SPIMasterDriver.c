@@ -54,7 +54,7 @@ typedef struct _SPIPeripheralResources {
   /**
    * Synchronization object used by the driver to synchronize the I2C ISR with the task using the driver;
    */
-  SemaphoreHandle_t m_xSyncObj;
+  TX_SEMAPHORE *m_pxSyncObj;
 }SPIPeripheralResources;
 
 /**
@@ -74,7 +74,7 @@ static void SPIMasterDriverTxRxCpltCallback(SPI_HandleTypeDef *hspi);
 // *********************
 
 IIODriver *SPIMasterDriverAlloc() {
-  IIODriver *pNewObj = (IIODriver*)pvPortMalloc(sizeof(SPIMasterDriver));
+  IIODriver *pNewObj = (IIODriver*)SysMalloc(sizeof(SPIMasterDriver));
 
   if (pNewObj == NULL) {
     SYS_SET_LOW_LEVEL_ERROR_CODE(SYS_OUT_OF_MEMORY_ERROR_CODE);
@@ -91,6 +91,7 @@ sys_error_code_t SPIMasterDriver_vtblInit(IDriver *_this, void *pParams) {
   assert_param(_this);
   UNUSED(pParams);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  UINT nRes = TX_SUCCESS;
   SPIMasterDriver *pObj = (SPIMasterDriver*)_this;
 
   MX_DMA_Init();
@@ -107,20 +108,14 @@ sys_error_code_t SPIMasterDriver_vtblInit(IDriver *_this, void *pParams) {
   }
   else {
     // initialize the software resources
-    pObj->m_xSyncObj = xSemaphoreCreateBinary();
-    if (pObj->m_xSyncObj == NULL){
+    nRes = tx_semaphore_create(&pObj->m_xSyncObj, "SPIM_S", 0);
+    if (nRes != TX_SUCCESS){
       SYS_SET_LOW_LEVEL_ERROR_CODE(SYS_OUT_OF_MEMORY_ERROR_CODE);
       xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
     }
 
-    s_pxHwResouces[0].m_xSyncObj = pObj->m_xSyncObj;
+    s_pxHwResouces[0].m_pxSyncObj = &pObj->m_xSyncObj;
   }
-
-#ifdef DEBUG
-  if (pObj->m_xSyncObj) {
-    vQueueAddToRegistry(pObj->m_xSyncObj, "SPI3Drv");
-  }
-#endif
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("SPIMasterDriver: initialization done.\r\n"));
 
@@ -181,7 +176,7 @@ sys_error_code_t SPIMasterDriver_vtblWrite(IIODriver *_this, uint8_t *pDataBuffe
       }
     }
     // Suspend the calling task until the operation is completed.
-    xSemaphoreTake(pObj->m_xSyncObj, portMAX_DELAY);
+    tx_semaphore_get(&pObj->m_xSyncObj, TX_WAIT_FOREVER);
   }
 
   return xRes;
@@ -201,7 +196,7 @@ sys_error_code_t SPIMasterDriver_vtblRead(IIODriver *_this, uint8_t *pDataBuffer
       }
     }
     // Suspend the calling task until the operation is completed.
-    xSemaphoreTake(pObj->m_xSyncObj, portMAX_DELAY);
+    tx_semaphore_get(&pObj->m_xSyncObj, TX_WAIT_FOREVER);
   }
 
 
@@ -237,7 +232,7 @@ sys_error_code_t SPIMasterDriverWriteRead(SPIMasterDriver *_this, uint8_t *pnTxD
   }
 
   // Suspend the calling task until the operation is completed.
-  xSemaphoreTake(pObj->m_xSyncObj, portMAX_DELAY);
+  tx_semaphore_get(&pObj->m_xSyncObj, TX_WAIT_FOREVER);
 
   return xRes;
 }
@@ -271,7 +266,7 @@ sys_error_code_t SPIMasterDriverDeselectDevice(SPIMasterDriver *_this, GPIO_Type
 static void SPIMasterDriverTxRxCpltCallback(SPI_HandleTypeDef *hspi) {
   UNUSED(hspi);
 
-  if (s_pxHwResouces[0].m_xSyncObj) {
-    xSemaphoreGiveFromISR(s_pxHwResouces[0].m_xSyncObj, NULL);
+  if (s_pxHwResouces[0].m_pxSyncObj) {
+    tx_semaphore_put(s_pxHwResouces[0].m_pxSyncObj);
   }
 }
