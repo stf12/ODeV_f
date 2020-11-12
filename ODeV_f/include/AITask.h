@@ -120,7 +120,7 @@ AManagedTaskEx *AITaskAlloc();
  *         - SYS_PM_TASK_IN_QUEUE_FULL_ERROR_CODE if error and the method is called from an ISR.
  *         - SYS_TIMEOUT_ERROR_CODE if error and the method is called from a task code.
  */
-sys_error_code_t AITaskSetMode(AITask *_this, const EAIMode eNewMode, TickType_t xTimeout);
+sys_error_code_t AITaskSetMode(AITask *_this, const EAIMode eNewMode, uint32_t nTimeout);
 
 /**
  * Synchronously send a buffer of raw data to the task object. The data are assembled to create a signal to be processed
@@ -169,7 +169,7 @@ EAIState AITaskGetState(const AITask *_this);
  * @param xTimeout [IN] specifies a timeout in tick.
  * @return SYS_NO_ERROR_CODE if success, an application specific erro code otherwise.
  */
-sys_error_code_t AITtaskStop(const AITask *_this, TickType_t xTimeout);
+sys_error_code_t AITtaskStop(const AITask *_this, uint32_t nTimeout);
 
 /**
  * Send an asynchronous PM_CMD_ID_START command into the task input queue.
@@ -181,7 +181,7 @@ sys_error_code_t AITtaskStop(const AITask *_this, TickType_t xTimeout);
  * @param xTimeout [IN] specifies a timeout in tick.
  * @return SYS_NO_ERROR_CODE if success, an application specific erro code otherwise.
  */
-sys_error_code_t AITtaskStart(const AITask *_this, TickType_t xTimeout);
+sys_error_code_t AITtaskStart(const AITask *_this, uint32_t nTimeout);
 
 /**
  * Get the ::ISensorEventListener interface of the task object.

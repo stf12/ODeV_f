@@ -88,7 +88,7 @@ struct _System{
   IAppPowerModeHelper *m_pxAppPowerModeHelper;
 
   /**
-   * Specifies the address of teh first unused memory as reported by the linker.
+   * Specifies the address of the first unused memory as reported by the linker.
    */
   void *pvFirstUnusedMemory;
 

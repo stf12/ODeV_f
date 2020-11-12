@@ -27,9 +27,6 @@
 #include "AITask_vtbl.h"
 #include "CircularBuffer.h"
 #include "hid_report_parser.h"
-#include "timers.h"
-#include "semphr.h"
-#include "queue.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,11 +35,11 @@
 // TODO: cange XXX with a short id for the task
 
 #ifndef AI_TASK_CFG_STACK_DEPTH
-#define AI_TASK_CFG_STACK_DEPTH                120
+#define AI_TASK_CFG_STACK_DEPTH                (120*4)
 #endif
 
 #ifndef AI_TASK_CFG_PRIORITY
-#define AI_TASK_CFG_PRIORITY                   (tskIDLE_PRIORITY+1)
+#define AI_TASK_CFG_PRIORITY                   (TX_MAX_PRIORITIES-1)
 #endif
 
 #ifndef AI_TASK_CFG_IN_QUEUE_ITEM_SIZE
@@ -53,7 +50,7 @@
 #define AI_TASK_CFG_IN_QUEUE_ITEM_COUNT        50
 #endif
 
-#define AI_TICK_TO_WAIT_IN_CMD_LOOP            portMAX_DELAY
+#define AI_TICK_TO_WAIT_IN_CMD_LOOP            TX_WAIT_FOREVER
 
 #define AI_MAX_DATA_IDX                        (AI_DATA_INPUT_USER * AI_AXIS_NUMBER)
 #define AI_DEFAULTSIMILARITY_THRESHOLD         90
@@ -93,7 +90,7 @@ typedef struct _AICmdExecutionContext {
   /**
    * Specifies the duration in ms of the next phase (learning or detection)l.
    */
-  TickType_t nTimerPeriodMS;
+  uint32_t nTimerPeriodMS;
 
   /**
    * Specifies the number of signals (Frame) to use in the next phase.
@@ -130,17 +127,17 @@ struct _AITask {
   /**
    * Specifies the task input queue used to send command to the task.
    */
-  QueueHandle_t m_xInQueue;
+  TX_QUEUE m_xInQueue;
 
   /**
    * Specifies a recursive mutex used to send a command in a synchronous way.
    */
-  SemaphoreHandle_t m_xSyncCmdMutex;
+  TX_SEMAPHORE m_xSyncCmdMutex;
 
   /**
    * Specifies a software timer used to stop the current detection or evaluation phase.
    */
-  TimerHandle_t m_xStopTimer;
+  TX_TIMER m_xStopTimer;
 
   /**
    * Specifies a pointer to a ::CircularBuffer used to get the data from the sensor and
@@ -265,9 +262,9 @@ static inline sys_error_code_t AITaskSetDefaultCmdExecutionContext(AITask *_this
 /**
  * Function called when the Stop timer expires.
  *
- * @param xTimer [IN] specifies an handle to the expired timer.
+ * @param nParam [IN] specifies an application specific parameter.
  */
-static void AITimerStopCallbackFunction( TimerHandle_t xTimer);
+static void AITimerStopCallbackFunction(ULONG nParam);
 
 
 // Inline function forward declaration
@@ -294,7 +291,7 @@ AManagedTaskEx *AITaskAlloc() {
   return (AManagedTaskEx*)&s_xTaskObj;
 }
 
-sys_error_code_t AITaskSetMode(AITask *_this, const EAIMode eNewMode, TickType_t xTimeout) {
+sys_error_code_t AITaskSetMode(AITask *_this, const EAIMode eNewMode, uint32_t nTimeout) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   struct aiReport_t xCommand = {
@@ -310,7 +307,7 @@ sys_error_code_t AITaskSetMode(AITask *_this, const EAIMode eNewMode, TickType_t
     }
   }
   else {
-    if (xQueueSendToBack(_this->m_xInQueue, &xCommand, xTimeout) != pdTRUE) {
+    if (xQueueSendToBack(_this->m_xInQueue, &xCommand, nTimeout) != pdTRUE) {
       xRes = SYS_TIMEOUT_ERROR_CODE;
     }
   }
