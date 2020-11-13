@@ -39,7 +39,7 @@ extern "C" {
 #include "ism330dhcx_reg.h"
 #include "SensorEventSrc.h"
 #include "SensorEventSrc_vtbl.h"
-#include "queue.h"
+
 
 //TODO: STF.Begin - where should these be defined ?
 #define ISM330DHCX_GY_MAX_SAMPLES_PER_IT     (256)

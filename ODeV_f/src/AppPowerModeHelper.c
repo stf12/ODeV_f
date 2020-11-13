@@ -31,7 +31,6 @@
 
 #include "AppPowerModeHelper.h"
 #include "AppPowerModeHelper_vtbl.h"
-#include "FreeRTOS.h"
 #include "sysinit.h"
 #include "sysdebug.h"
 

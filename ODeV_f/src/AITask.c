@@ -25,6 +25,7 @@
 
 #include "AITask.h"
 #include "AITask_vtbl.h"
+#include "sysmem.h"
 #include "CircularBuffer.h"
 #include "hid_report_parser.h"
 #include <string.h>
@@ -32,7 +33,7 @@
 #include <stdlib.h>
 #include "sysdebug.h"
 
-// TODO: cange XXX with a short id for the task
+// TODO: change XXX with a short id for the task
 
 #ifndef AI_TASK_CFG_STACK_DEPTH
 #define AI_TASK_CFG_STACK_DEPTH                (120*4)
@@ -227,7 +228,7 @@ static sys_error_code_t AITaskExecuteStepAI(AITask *_this);
  *
  * @param pParams .
  */
-static void AITaskRun(void *pParams);
+static void AITaskRun(ULONG nParams);
 
 /**
  * Implements the AI_CMD_ID_SART command. It works according to the command execution context.
@@ -302,12 +303,12 @@ sys_error_code_t AITaskSetMode(AITask *_this, const EAIMode eNewMode, uint32_t n
   };
 
   if (SYS_IS_CALLED_FROM_ISR()) {
-    if (xQueueSendToBackFromISR(_this->m_xInQueue, &xCommand, NULL) != pdPASS) {
+    if (tx_queue_send(&_this->m_xInQueue, &xCommand, TX_NO_WAIT) != TX_SUCCESS) {
       xRes = SYS_AI_TASK_IN_QUEUE_FULL_ERROR_CODE;
     }
   }
   else {
-    if (xQueueSendToBack(_this->m_xInQueue, &xCommand, nTimeout) != pdTRUE) {
+    if (tx_queue_send(&_this->m_xInQueue, &xCommand, nTimeout) != TX_SUCCESS) {
       xRes = SYS_TIMEOUT_ERROR_CODE;
     }
   }
@@ -365,7 +366,7 @@ sys_error_code_t AITaskSendRawData(AITask *_this, const uint8_t *pnBuf, uint16_t
         struct aiReport_t xCmd = {0};
         xCmd.reportId = HID_REPORT_ID_AI_CMD;
         xCmd.nCmdID = AI_CMD_ID_SIGNAL_READY;
-        if (xQueueSendToBack(_this->m_xInQueue, &xCmd, pdMS_TO_TICKS(10)) != pdTRUE) {
+        if (tx_queue_send(&_this->m_xInQueue, &xCmd, AMT_MS_TO_TICKS(10)) != TX_SUCCESS) {
           xRes = SYS_TIMEOUT_ERROR_CODE;
         }
       }
@@ -420,7 +421,7 @@ EAIState AITaskGetState(const AITask *_this) {
 //  return xRes;
 //}
 
-sys_error_code_t AITtaskStop(const AITask *_this, TickType_t xTimeout) {
+sys_error_code_t AITtaskStop(AITask *_this, uint32_t nTimeout) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
@@ -429,12 +430,12 @@ sys_error_code_t AITtaskStop(const AITask *_this, TickType_t xTimeout) {
   xCommand.nCmdID = AI_CMD_ID_STOP;
 
   if (SYS_IS_CALLED_FROM_ISR()) {
-    if (pdTRUE != xQueueSendToBackFromISR(_this->m_xInQueue, &xCommand, NULL)) {
+    if (TX_SUCCESS != tx_queue_send(&_this->m_xInQueue, &xCommand, TX_NO_WAIT)) {
       xRes = SYS_TIMEOUT_ERROR_CODE;
     }
   }
   else {
-    if (pdTRUE != xQueueSendToBack(_this->m_xInQueue, &xCommand, xTimeout)) {
+    if (TX_SUCCESS != tx_queue_send(&_this->m_xInQueue, &xCommand, nTimeout)) {
       xRes = SYS_TIMEOUT_ERROR_CODE;
     }
   }
@@ -442,7 +443,7 @@ sys_error_code_t AITtaskStop(const AITask *_this, TickType_t xTimeout) {
   return xRes;
 }
 
-sys_error_code_t AITtaskStart(const AITask *_this, TickType_t xTimeout) {
+sys_error_code_t AITtaskStart(AITask *_this, uint32_t nTimeout) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
@@ -451,12 +452,12 @@ sys_error_code_t AITtaskStart(const AITask *_this, TickType_t xTimeout) {
   xCommand.nCmdID = AI_CMD_ID_START;
 
   if (SYS_IS_CALLED_FROM_ISR()) {
-    if (pdTRUE != xQueueSendToBackFromISR(_this->m_xInQueue, &xCommand, NULL)) {
+    if (TX_SUCCESS != tx_queue_send(&_this->m_xInQueue, &xCommand, TX_NO_WAIT)) {
       xRes = SYS_TIMEOUT_ERROR_CODE;
     }
   }
   else {
-    if (pdTRUE != xQueueSendToBack(_this->m_xInQueue, &xCommand, xTimeout)) {
+    if (TX_SUCCESS != tx_queue_send(&_this->m_xInQueue, &xCommand, nTimeout)) {
       xRes = SYS_TIMEOUT_ERROR_CODE;
     }
   }
@@ -485,38 +486,47 @@ sys_error_code_t AITask_vtblHardwareInit(AManagedTask *_this, void *pParams) {
   return xRes;
 }
 
-sys_error_code_t AITask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority) {
+sys_error_code_t AITask_vtblOnCreateTask(AManagedTask *_this, tx_entry_function_t *pvTaskCode, CHAR **pcName,
+    VOID **pvStackStart, ULONG *pnStackSize,
+    UINT *pnPriority, UINT *pnPreemptThreshold,
+    ULONG *pnTimeSlice, ULONG *pnAutoStart,
+    ULONG *pnParams)
+{
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  UINT nRes = TX_SUCCESS;
   AITask *pObj = (AITask*)_this;
 
   // create the input queue
-  pObj->m_xInQueue = xQueueCreate(AI_TASK_CFG_IN_QUEUE_ITEM_COUNT, AI_TASK_CFG_IN_QUEUE_ITEM_SIZE);
-  if (pObj->m_xInQueue == NULL) {
+
+  //  aiReport_t size is 8 byte = 64 bit = 2 32-bit word
+  VOID *pvQueueMsgBuff = (VOID*)SysAlloc(AI_TASK_CFG_IN_QUEUE_ITEM_COUNT * AI_TASK_CFG_IN_QUEUE_ITEM_SIZE);
+  if (pvQueueMsgBuff == NULL) {
     xRes = SYS_AI_TASK_INIT_ERROR_CODE;
     SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_AI_TASK_INIT_ERROR_CODE);
     return xRes;
   }
 
-#ifdef DEBUG
-  vQueueAddToRegistry(pObj->m_xInQueue, "AI_Q");
-#endif
+  nRes = tx_queue_create(&pObj->m_xInQueue, "AI_Q", AI_TASK_CFG_IN_QUEUE_ITEM_SIZE / 4, pvQueueMsgBuff, AI_TASK_CFG_IN_QUEUE_ITEM_COUNT * AI_TASK_CFG_IN_QUEUE_ITEM_SIZE);
+  if (nRes != TX_SUCCESS) {
+    xRes = SYS_AI_TASK_INIT_ERROR_CODE;
+    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_AI_TASK_INIT_ERROR_CODE);
+    return xRes;
+  }
 
   // create the binary semaphore for the command execution: neai_get
-  pObj->m_xSyncCmdMutex = xSemaphoreCreateBinary();
-  if (pObj->m_xSyncCmdMutex == NULL) {
+
+  nRes = tx_semaphore_create(&pObj->m_xSyncCmdMutex, "AI_S", 0);
+  if (nRes != TX_SUCCESS) {
     xRes = SYS_AI_TASK_INIT_ERROR_CODE;
     SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_AI_TASK_INIT_ERROR_CODE);
     return xRes;
   }
 
-#ifdef DEBUG
-  vQueueAddToRegistry(pObj->m_xSyncCmdMutex, "AI_S");
-#endif
-
   // create the software timer: one-shot timer. The period is changed in the START command execution.
-  pObj->m_xStopTimer = xTimerCreate("AITim", 1, pdFALSE, _this, AITimerStopCallbackFunction);
-  if (pObj->m_xStopTimer == NULL) {
+  nRes = tx_timer_create(&pObj->m_xStopTimer, "AI_T", AITimerStopCallbackFunction, (ULONG)_this, 1, 0, TX_NO_ACTIVATE);
+//  pObj->m_xStopTimer = xTimerCreate("AITim", 1, pdFALSE, _this, AITimerStopCallbackFunction);
+  if (nRes != TX_SUCCESS) {
     xRes = SYS_AI_TASK_INIT_ERROR_CODE;
     SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_AI_TASK_INIT_ERROR_CODE);
     return xRes;
@@ -540,9 +550,13 @@ sys_error_code_t AITask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t *pv
 
   *pvTaskCode = AITaskRun;
   *pcName = "AI";
-  *pnStackDepth = AI_TASK_CFG_STACK_DEPTH;
-  *pParams = _this;
-  *pxPriority = AI_TASK_CFG_PRIORITY;
+  *pvStackStart = NULL; // allocate the task stack in the system memory pool.
+  *pnStackSize = AI_TASK_CFG_STACK_DEPTH;
+  *pnParams = (ULONG)_this;
+  *pnPriority = AI_TASK_CFG_PRIORITY;
+  *pnPreemptThreshold = AI_TASK_CFG_PRIORITY;
+  *pnTimeSlice = TX_NO_TIME_SLICE;
+  *pnAutoStart = TX_AUTO_START;
 
   return xRes;
 }
@@ -556,9 +570,9 @@ sys_error_code_t AITask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMo
     // the only option is the transaction RUN (3)-> AI, so I don't need other check
 
     // reset the input queue
-    xQueueReset(pObj->m_xInQueue);
+    tx_queue_flush(&pObj->m_xInQueue);
     // get ready to receive new data
-    if (SYS_NO_ERROR_CODE != AITaskSetMode(pObj, E_AI_LEARNING, pdMS_TO_TICKS(50))) {
+    if (SYS_NO_ERROR_CODE != AITaskSetMode(pObj, E_AI_LEARNING, AMT_MS_TO_TICKS(50))) {
       sys_error_handler();
     }
     if (SYS_NO_ERROR_CODE != AITtaskStart(pObj, pdMS_TO_TICKS(50))) {
@@ -568,7 +582,7 @@ sys_error_code_t AITask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMo
   else if (eNewPowerMode == E_POWER_MODE_RUN) {
     if (eActivePowerMode == E_POWER_MODE_AI) {
       // reset the input queue
-      xQueueReset(pObj->m_xInQueue);
+      tx_queue_flush(&pObj->m_xInQueue);
       //TODO: STF - check -  send a stop command. Is it meaningful ?
       if (SYS_NO_ERROR_CODE != AITtaskStop(pObj, pdMS_TO_TICKS(50))) {
         sys_error_handler();
@@ -597,10 +611,10 @@ sys_error_code_t AITask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMode e
   };
 
   if ((eActivePowerMode == E_POWER_MODE_AI) || (eActivePowerMode == E_POWER_MODE_RUN)) {
-    xQueueSendToFront(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100));
+    tx_queue_send(&pObj->m_xInQueue, &xReport, AMT_MS_TO_TICKS(100));
   }
   else {
-    vTaskResume(_this->m_xThaskHandle);
+    tx_thread_resume(&_this->m_xThaskHandle);
   }
 
 
@@ -667,11 +681,12 @@ sys_error_code_t AITaskSEL_vtblOnNewDataReady(IEventListener *_this, const Senso
 static sys_error_code_t AITaskExecuteStepRun(AITask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  TickType_t xTimeoutInTick = AI_TICK_TO_WAIT_IN_CMD_LOOP;
+//  nRes = TX_SUCCESS;
+  uint32_t nTimeoutInTick = AI_TICK_TO_WAIT_IN_CMD_LOOP;
   struct aiReport_t xCommand = {0};
 
   AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
-  if (pdTRUE == xQueueReceive(_this->m_xInQueue, &xCommand, xTimeoutInTick)) {
+  if (TX_SUCCESS == tx_queue_receive(&_this->m_xInQueue, &xCommand, nTimeoutInTick)) {
     AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
     if (xCommand.reportId == HID_REPORT_ID_FORCE_STEP) {
       __NOP();
@@ -772,11 +787,11 @@ static sys_error_code_t AITaskExecuteStepRun(AITask *_this) {
 static sys_error_code_t AITaskExecuteStepAI(AITask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  TickType_t xTimeoutInTick = AI_TICK_TO_WAIT_IN_CMD_LOOP;
+  uint32_t nTimeoutInTick = AI_TICK_TO_WAIT_IN_CMD_LOOP;
   struct aiReport_t xCommand = {0};
 
   AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
-  if (pdTRUE == xQueueReceive(_this->m_xInQueue, &xCommand, xTimeoutInTick)) {
+  if (TX_SUCCESS == tx_queue_send(&_this->m_xInQueue, &xCommand, nTimeoutInTick)) {
     AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
     if (xCommand.reportId == HID_REPORT_ID_FORCE_STEP) {
       __NOP();
@@ -892,9 +907,9 @@ static sys_error_code_t AITaskExecuteStepAI(AITask *_this) {
   return xRes;
 }
 
-static void AITaskRun(void *pParams) {
+static void AITaskRun(ULONG nParams) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  AITask *_this = (AITask*)pParams;
+  AITask *_this = (AITask*)nParams;
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("AI: start.\r\n"));
 
@@ -1029,8 +1044,8 @@ static sys_error_code_t AITaskStopImp(AITask *_this, const AICmdExecutionContext
   return xRes;
 }
 
-static void AITimerStopCallbackFunction( TimerHandle_t xTimer) {
-  AITask *pObj = (AITask*) pvTimerGetTimerID(xTimer);
+static void AITimerStopCallbackFunction(ULONG nParam) {
+  AITask *pObj = (AITask*)nParam;
 
   UNUSED(pObj);
 

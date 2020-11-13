@@ -169,7 +169,7 @@ EAIState AITaskGetState(const AITask *_this);
  * @param xTimeout [IN] specifies a timeout in tick.
  * @return SYS_NO_ERROR_CODE if success, an application specific erro code otherwise.
  */
-sys_error_code_t AITtaskStop(const AITask *_this, uint32_t nTimeout);
+sys_error_code_t AITtaskStop(AITask *_this, uint32_t nTimeout);
 
 /**
  * Send an asynchronous PM_CMD_ID_START command into the task input queue.
@@ -181,7 +181,7 @@ sys_error_code_t AITtaskStop(const AITask *_this, uint32_t nTimeout);
  * @param xTimeout [IN] specifies a timeout in tick.
  * @return SYS_NO_ERROR_CODE if success, an application specific erro code otherwise.
  */
-sys_error_code_t AITtaskStart(const AITask *_this, uint32_t nTimeout);
+sys_error_code_t AITtaskStart(AITask *_this, uint32_t nTimeout);
 
 /**
  * Get the ::ISensorEventListener interface of the task object.

@@ -35,11 +35,11 @@
 
 
 #ifndef HW_TASK_CFG_STACK_DEPTH
-#define HW_TASK_CFG_STACK_DEPTH         120
+#define HW_TASK_CFG_STACK_DEPTH         TX_MINIMUM_STACK
 #endif
 
 #ifndef HW_TASK_CFG_PRIORITY
-#define HW_TASK_CFG_PRIORITY            (tskIDLE_PRIORITY+1)
+#define HW_TASK_CFG_PRIORITY            (TX_MAX_PRIORITIES-2)
 #endif
 
 #define SYS_DEBUGF(level, message)      SYS_DEBUGF3(SYS_DBG_HW, level, message)
@@ -77,7 +77,7 @@ static sys_error_code_t HelloWorldTaskExecuteStepRun(HelloWorldTask *this);
  *
  * @param pParams .
  */
-static void HelloWorldTaskRun(void *pParams);
+static void HelloWorldTaskRun(ULONG nParams);
 
 
 // Inline function forward declaration
@@ -125,17 +125,26 @@ sys_error_code_t HelloWorldTask_vtblHardwareInit(AManagedTask *this, void *pPara
   return xRes;
 }
 
-sys_error_code_t HelloWorldTask_vtblOnCreateTask(AManagedTask *this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority) {
-  assert_param(this);
+sys_error_code_t HelloWorldTask_vtblOnCreateTask(AManagedTask *_this, tx_entry_function_t *pvTaskCode, CHAR **pcName,
+    VOID **pvStackStart, ULONG *pnStackSize,
+    UINT *pnPriority, UINT *pnPreemptThreshold,
+    ULONG *pnTimeSlice, ULONG *pnAutoStart,
+    ULONG *pnParams)
+{
+  assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 //  HelloWorldTask *pObj = (HelloWorldTask*)this;
 
 
- *pvTaskCode = HelloWorldTaskRun;
+  *pvTaskCode = HelloWorldTaskRun;
   *pcName = "HW";
-  *pnStackDepth = HW_TASK_CFG_STACK_DEPTH;
-  *pParams = this;
-  *pxPriority = HW_TASK_CFG_PRIORITY;
+  *pvStackStart = NULL; // allocate the task stack in the system memory pool.
+  *pnStackSize = HW_TASK_CFG_STACK_DEPTH;
+  *pnParams = (ULONG)_this;
+  *pnPriority = HW_TASK_CFG_PRIORITY;
+  *pnPreemptThreshold = HW_TASK_CFG_PRIORITY;
+  *pnTimeSlice = TX_NO_TIME_SLICE;
+  *pnAutoStart = TX_AUTO_START;
 
   return xRes;
 }
@@ -168,7 +177,7 @@ static sys_error_code_t HelloWorldTaskExecuteStepRun(HelloWorldTask *this) {
   assert_param(this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
-  vTaskDelay(pdMS_TO_TICKS(1000));
+  tx_thread_sleep(1000);
 //  NucleoDriverToggleLed((NucleoDriver*)this->m_pxDriver);
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("Hello STWIN!!\r\n"));
   __NOP();
@@ -177,9 +186,9 @@ static sys_error_code_t HelloWorldTaskExecuteStepRun(HelloWorldTask *this) {
   return xRes;
 }
 
-static void HelloWorldTaskRun(void *pParams) {
+static void HelloWorldTaskRun(ULONG nParams) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  HelloWorldTask *this = (HelloWorldTask*)pParams;
+  HelloWorldTask *this = (HelloWorldTask*)nParams;
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("HW: start.\r\n"));
 
@@ -209,7 +218,7 @@ static void HelloWorldTaskRun(void *pParams) {
       case E_POWER_MODE_AI:
       case E_POWER_MODE_DATALOG_AI:
       case E_POWER_MODE_SLEEP_1:
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        tx_thread_sleep(1000);
         break;
       }
     }
