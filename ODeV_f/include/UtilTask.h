@@ -34,7 +34,6 @@ extern "C" {
 #include "syserror.h"
 #include "AManagedTaskEx.h"
 #include "AManagedTaskEx_vtbl.h"
-#include "queue.h"
 
 
 /**

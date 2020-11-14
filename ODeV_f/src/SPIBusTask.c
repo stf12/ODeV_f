@@ -36,7 +36,7 @@
 #endif
 
 #ifndef SPIBUS_TASK_CFG_PRIORITY
-#define SPIBUS_TASK_CFG_PRIORITY           (tskIDLE_PRIORITY+3)
+#define SPIBUS_TASK_CFG_PRIORITY           (3)
 #endif
 
 #ifndef SPIBUS_TASK_CFG_INQUEUE_LENGTH
@@ -81,7 +81,7 @@ static sys_error_code_t SPIBusTaskExecuteStepRun(SPIBusTask *_this);
  *
  * @param pParams .
  */
-static void SPIBusTaskRun(void *pParams);
+static void SPIBusTaskRun(ULONG nParams);
 
 static int32_t SPIBusTaskWrite(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData, uint16_t nSize);
 static int32_t SPIBusTaskRead(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData, uint16_t nSize);
@@ -172,26 +172,37 @@ sys_error_code_t SPIBusTask_vtblHardwareInit(AManagedTask *_this, void *pParams)
   return xRes;
 }
 
-sys_error_code_t SPIBusTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority) {
+sys_error_code_t SPIBusTask_vtblOnCreateTask(AManagedTask *_this, tx_entry_function_t *pvTaskCode, CHAR **pcName,
+    VOID **pvStackStart, ULONG *pnStackSize,
+    UINT *pnPriority, UINT *pnPreemptThreshold,
+    ULONG *pnTimeSlice, ULONG *pnAutoStart,
+    ULONG *pnParams)
+{
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   SPIBusTask *pObj = (SPIBusTask*)_this;
 
   // initialize the software resources.
-  pObj->m_xInQueue = xQueueCreate(SPIBUS_TASK_CFG_INQUEUE_LENGTH, HidReportGetSize(HID_REPORT_ID_SPI_BUS_READ));
-  if (pObj->m_xInQueue != NULL) {
+  uint16_t nItemSize = HidReportGetSize(HID_REPORT_ID_SPI_BUS_READ);
+  VOID *pvQueueItemsBuff = SysAlloc(SPIBUS_TASK_CFG_INQUEUE_LENGTH * nItemSize);
+  if (pvQueueItemsBuff!= NULL) {
+    if (TX_SUCCESS == tx_queue_create(&pObj->m_xInQueue, "SPI_Q", nItemSize / 4, pvQueueItemsBuff, SPIBUS_TASK_CFG_INQUEUE_LENGTH * nItemSize)) {
+      pObj->m_nConnectedDevices = 0;
 
-#ifdef DEBUG
-    vQueueAddToRegistry(pObj->m_xInQueue, "SPI_Q");
-#endif
-
-    pObj->m_nConnectedDevices = 0;
-
-    *pvTaskCode = SPIBusTaskRun;
-    *pcName = "SPIBUS";
-    *pnStackDepth = SPIBUS_TASK_CFG_STACK_DEPTH;
-    *pParams = _this;
-    *pxPriority = SPIBUS_TASK_CFG_PRIORITY;
+      *pvTaskCode = SPIBusTaskRun;
+      *pcName = "SPIBUS";
+      *pvStackStart = NULL; // allocate the task stack in the system memory pool.
+      *pnStackSize = SPIBUS_TASK_CFG_STACK_DEPTH;
+      *pnParams = (ULONG)_this;
+      *pnPriority = SPIBUS_TASK_CFG_PRIORITY;
+      *pnPreemptThreshold = SPIBUS_TASK_CFG_PRIORITY;
+      *pnTimeSlice = TX_NO_TIME_SLICE;
+      *pnAutoStart = TX_AUTO_START;
+    }
+    else {
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_OUT_OF_MEMORY_ERROR_CODE);
+      xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
+    }
   }
   else {
     SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_OUT_OF_MEMORY_ERROR_CODE);
@@ -231,7 +242,7 @@ sys_error_code_t SPIBusTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMo
       .reportID = HID_REPORT_ID_FORCE_STEP
   };
   if ((eActivePowerMode == E_POWER_MODE_RUN) || (eActivePowerMode == E_POWER_MODE_DATALOG)) {
-    if (pdTRUE != xQueueSendToFront(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100))) {
+    if (TX_SUCCESS != tx_queue_front_send(&pObj->m_xInQueue, &xReport, AMT_MS_TO_TICKS(100))) {
 
       SYS_DEBUGF(SYS_DBG_LEVEL_WARNING, ("SPIBUS: unable to resume the task.\r\n"));
 
@@ -240,7 +251,7 @@ sys_error_code_t SPIBusTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMo
     }
   }
   else {
-    vTaskResume(_this->m_xThaskHandle);
+    tx_thread_resume(&_this->m_xThaskHandle);
   }
 
   return xRes;
@@ -255,7 +266,7 @@ static sys_error_code_t SPIBusTaskExecuteStepRun(SPIBusTask *_this) {
 
   struct spiIOReport_t xMsg = {0};
   AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
-  if (pdTRUE == xQueueReceive(_this->m_xInQueue, &xMsg, portMAX_DELAY)) {
+  if (TX_SUCCESS == tx_queue_receive(&_this->m_xInQueue, &xMsg, TX_WAIT_FOREVER)) {
     AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
     switch (xMsg.reportId) {
     case HID_REPORT_ID_FORCE_STEP:
@@ -290,9 +301,10 @@ static sys_error_code_t SPIBusTaskExecuteStepRun(SPIBusTask *_this) {
   return xRes;
 }
 
-static void SPIBusTaskRun(void *pParams) {
+static void SPIBusTaskRun(ULONG nParams) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  SPIBusTask *_this = (SPIBusTask*)pParams;
+  SPIBusTask *_this = (SPIBusTask*)nParams;
+  UINT nPosture = TX_INT_ENABLE;
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("SPIBUS: start.\r\n"));
 
@@ -308,29 +320,29 @@ static void SPIBusTaskRun(void *pParams) {
     // check if there is a pending power mode switch request
     if (_this->super.m_xStatus.nPowerModeSwitchPending == 1) {
       // clear the power mode switch delay because the task is ready to switch.
-      taskENTER_CRITICAL();
+      nPosture = tx_interrupt_control(TX_INT_DISABLE);
         _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-      taskEXIT_CRITICAL();
-      vTaskSuspend(NULL);
+      tx_interrupt_control(nPosture);
+      tx_thread_suspend(&_this->super.m_xThaskHandle);
     }
     else {
       switch (AMTGetSystemPowerMode()) {
       case E_POWER_MODE_RUN:
       case E_POWER_MODE_DATALOG:
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 1;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);
         xRes = SPIBusTaskExecuteStepRun(_this);
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);
         break;
 
       case E_POWER_MODE_AI:
       case E_POWER_MODE_DATALOG_AI:
       case E_POWER_MODE_SLEEP_1:
         AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
-        vTaskSuspend(_this->super.m_xThaskHandle);
+        tx_thread_suspend(&_this->super.m_xThaskHandle);
         AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
         break;
       }
@@ -362,19 +374,19 @@ static int32_t SPIBusTaskWrite(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData
       .nDataSize = nSize
   };
 
-  if (s_xTaskObj.m_xInQueue != NULL) {
+//  if (s_xTaskObj.m_xInQueue != NULL) { //TODO: STF.Port - how to know if the task has been initialized ??
     if (SYS_IS_CALLED_FROM_ISR()) {
       // we cannot read and write in the SPI BUS from an ISR. Notify the error
       SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SPIBUS_TASK_IO_ERROR_CODE);
       xRes = SYS_SPIBUS_TASK_IO_ERROR_CODE;
     }
     else {
-      if (pdTRUE != xQueueSendToBack(s_xTaskObj.m_xInQueue, &xMsg, SPIBUS_OP_WAIT_MS)) {
+      if (TX_SUCCESS != tx_queue_send(&s_xTaskObj.m_xInQueue, &xMsg, AMT_MS_TO_TICKS(SPIBUS_OP_WAIT_MS))) {
         SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SPIBUS_TASK_IO_ERROR_CODE);
         xRes = SYS_SPIBUS_TASK_IO_ERROR_CODE;
       }
     }
-  }
+//  }
 
   if (!SYS_IS_ERROR_CODE(xRes)) {
     // suspend the sensor task.
@@ -398,19 +410,19 @@ static int32_t SPIBusTaskRead(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData,
       .nDataSize = nSize
   };
 
-  if (s_xTaskObj.m_xInQueue != NULL) {
+//  if (s_xTaskObj.m_xInQueue != NULL) { //TODO: STF.Port - how to know if the task has been initialized ??
     if (SYS_IS_CALLED_FROM_ISR()) {
       // we cannot read and write in the SPI BUS from an ISR. Notify the error
       SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SPIBUS_TASK_IO_ERROR_CODE);
       xRes = SYS_SPIBUS_TASK_IO_ERROR_CODE;
     }
     else {
-      if (pdTRUE != xQueueSendToBack(s_xTaskObj.m_xInQueue, &xMsg, SPIBUS_OP_WAIT_MS)) {
+      if (TX_SUCCESS != tx_queue_send(&s_xTaskObj.m_xInQueue, &xMsg, AMT_MS_TO_TICKS(SPIBUS_OP_WAIT_MS))) {
         SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SPIBUS_TASK_IO_ERROR_CODE);
         xRes = SYS_SPIBUS_TASK_IO_ERROR_CODE;
       }
     }
-  }
+//  }
 
   if (!SYS_IS_ERROR_CODE(xRes)) {
     xRes = SPIBusIFWaitIOComplete(pxSPISensor);

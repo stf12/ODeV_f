@@ -74,7 +74,7 @@ static void SPIMasterDriverTxRxCpltCallback(SPI_HandleTypeDef *hspi);
 // *********************
 
 IIODriver *SPIMasterDriverAlloc() {
-  IIODriver *pNewObj = (IIODriver*)SysMalloc(sizeof(SPIMasterDriver));
+  IIODriver *pNewObj = (IIODriver*)SysAlloc(sizeof(SPIMasterDriver));
 
   if (pNewObj == NULL) {
     SYS_SET_LOW_LEVEL_ERROR_CODE(SYS_OUT_OF_MEMORY_ERROR_CODE);

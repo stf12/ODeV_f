@@ -30,7 +30,7 @@
 #endif
 
 #ifndef I2CBUS_TASK_CFG_PRIORITY
-#define I2CBUS_TASK_CFG_PRIORITY           (tskIDLE_PRIORITY)
+#define I2CBUS_TASK_CFG_PRIORITY           (TX_MAX_PRIORITIES - 1)
 #endif
 
 #ifndef I2CBUS_TASK_CFG_INQUEUE_LENGTH
@@ -164,26 +164,37 @@ sys_error_code_t I2CBusTask_vtblHardwareInit(AManagedTask *_this, void *pParams)
   return xRes;
 }
 
-sys_error_code_t I2CBusTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority) {
+sys_error_code_t I2CBusTask_vtblOnCreateTask(AManagedTask *_this, tx_entry_function_t *pvTaskCode, CHAR **pcName,
+    VOID **pvStackStart, ULONG *pnStackSize,
+    UINT *pnPriority, UINT *pnPreemptThreshold,
+    ULONG *pnTimeSlice, ULONG *pnAutoStart,
+    ULONG *pnParams)
+{
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   I2CBusTask *pObj = (I2CBusTask*)_this;
 
   // initialize the software resources.
-  pObj->m_xInQueue = xQueueCreate(I2CBUS_TASK_CFG_INQUEUE_LENGTH, HidReportGetSize(HID_REPORT_ID_I2C_BUS_READ));
-  if (pObj->m_xInQueue != NULL) {
+  uint16_t nItemSize = HidReportGetSize(HID_REPORT_ID_I2C_BUS_READ);
+  VOID *pvQueueItemsBuff = SysAlloc(I2CBUS_TASK_CFG_INQUEUE_LENGTH * nItemSize);
+  if (pvQueueItemsBuff!= NULL) {
+    if (TX_SUCCESS == tx_queue_create(&pObj->m_xInQueue, "I2C_Q", nItemSize / 4, pvQueueItemsBuff, I2CBUS_TASK_CFG_INQUEUE_LENGTH * nItemSize)) {
+      pObj->m_nConnectedDevices = 0;
 
-#ifdef DEBUG
-    vQueueAddToRegistry(pObj->m_xInQueue, "I2CBUS_Q");
-#endif
-
-    pObj->m_nConnectedDevices = 0;
-
-    *pvTaskCode = I2CBusTaskRun;
-    *pcName = "I2CBUS";
-    *pnStackDepth = I2CBUS_TASK_CFG_STACK_DEPTH;
-    *pParams = _this;
-    *pxPriority = I2CBUS_TASK_CFG_PRIORITY;
+      *pvTaskCode = I2CBusTaskRun;
+      *pcName = "I2CBUS";
+      *pvStackStart = NULL; // allocate the task stack in the system memory pool.
+      *pnStackSize = I2CBUS_TASK_CFG_STACK_DEPTH;
+      *pnParams = (ULONG)_this;
+      *pxPriority = I2CBUS_TASK_CFG_PRIORITY;
+      *pnPreemptThreshold = I2CBUS_TASK_CFG_PRIORITY;
+      *pnTimeSlice = TX_NO_TIME_SLICE;
+      *pnAutoStart = TX_AUTO_START;
+    }
+    else {
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_OUT_OF_MEMORY_ERROR_CODE);
+      xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
+    }
   }
   else {
     SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_OUT_OF_MEMORY_ERROR_CODE);
@@ -219,7 +230,7 @@ sys_error_code_t I2CBusTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMo
       .reportID = HID_REPORT_ID_FORCE_STEP
   };
   if ((eActivePowerMode == E_POWER_MODE_RUN) || (eActivePowerMode == E_POWER_MODE_DATALOG)) {
-    if (pdTRUE != xQueueSendToFront(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100))) {
+    if (TX_SUCCESS != tx_queue_front_send(&pObj->m_xInQueue, &xReport, AMT_MS_TO_TICKS(100))) {
 
       SYS_DEBUGF(SYS_DBG_LEVEL_WARNING, ("I2CBUS: unable to resume the task.\r\n"));
 
@@ -228,7 +239,7 @@ sys_error_code_t I2CBusTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMo
     }
   }
   else {
-    vTaskResume(_this->m_xThaskHandle);
+    tx_thread_resume(&_this->m_xThaskHandle);
   }
 
   return xRes;

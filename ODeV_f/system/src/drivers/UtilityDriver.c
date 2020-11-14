@@ -31,6 +31,7 @@
 
 #include "UtilityDriver.h"
 #include "UtilityDriver_vtbl.h"
+#include "sysmem.h"
 #include "sysdebug.h"
 
 #define UTL_TIMx                        TIM5
@@ -59,7 +60,7 @@ static const IDriver_vtbl s_xUtilityDriver_vtbl = {
 // *********************
 
 IDriver *UtilityDriverAlloc() {
-  IDriver *pNewObj = (IDriver*)pvPortMalloc(sizeof(UtilityDriver));
+  IDriver *pNewObj = (IDriver*)SysAlloc(sizeof(UtilityDriver));
 
   if (pNewObj == NULL) {
     SYS_SET_LOW_LEVEL_ERROR_CODE(SYS_OUT_OF_MEMORY_ERROR_CODE);

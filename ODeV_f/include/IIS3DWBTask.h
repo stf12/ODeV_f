@@ -39,7 +39,6 @@ extern "C" {
 #include "iis3dwb_reg.h"
 #include "SensorEventSrc.h"
 #include "SensorEventSrc_vtbl.h"
-#include "queue.h"
 
 //TODO: STF.Begin - where should these be defined ?
 #define IIS3DWB_SAMPLES_PER_IT              (128)

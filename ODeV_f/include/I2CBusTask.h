@@ -32,7 +32,6 @@ extern "C" {
 #include "IIODriver.h"
 #include "IIODriver_vtbl.h"
 #include "I2CBusIF.h"
-#include "queue.h"
 
 
 /**
@@ -59,7 +58,7 @@ struct _I2CBusTask {
   /**
    * Task message queue. Read and write request are wrapped into message posted in this queue.
    */
-  QueueHandle_t m_xInQueue;
+  TX_QUEUE m_xInQueue;
 
   /**
    * Count the number of devices connected to the bus. It can be used in furter version to
