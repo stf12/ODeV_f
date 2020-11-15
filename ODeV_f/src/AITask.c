@@ -398,7 +398,7 @@ EAIState AITaskGetState(const AITask *_this) {
 //    xResult = xQueueSendToBackFromISR(_this->m_xInQueue, &xCmd, NULL);
 //  }
 //  else {
-//    xResult = xQueueSendToBack(_this->m_xInQueue, &xCmd, pdMS_TO_TICKS(100));
+//    xResult = xQueueSendToBack(_this->m_xInQueue, &xCmd, AMT_MS_TO_TICKS(100));
 //  }
 //
 //  if (pdTRUE != xResult) {
@@ -410,7 +410,7 @@ EAIState AITaskGetState(const AITask *_this) {
 //      xResult = xSemaphoreTakeFromISR(_this->m_xSyncCmdMutex, NULL);
 //    }
 //    else {
-//      xResult = xSemaphoreTake(_this->m_xSyncCmdMutex, pdMS_TO_TICKS(100));
+//      xResult = xSemaphoreTake(_this->m_xSyncCmdMutex, AMT_MS_TO_TICKS(100));
 //    }
 //
 //    if (pdTRUE != xResult) {
@@ -575,7 +575,7 @@ sys_error_code_t AITask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMo
     if (SYS_NO_ERROR_CODE != AITaskSetMode(pObj, E_AI_LEARNING, AMT_MS_TO_TICKS(50))) {
       sys_error_handler();
     }
-    if (SYS_NO_ERROR_CODE != AITtaskStart(pObj, pdMS_TO_TICKS(50))) {
+    if (SYS_NO_ERROR_CODE != AITtaskStart(pObj, AMT_MS_TO_TICKS(50))) {
       sys_error_handler();
     }
   }
@@ -584,7 +584,7 @@ sys_error_code_t AITask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMo
       // reset the input queue
       tx_queue_flush(&pObj->m_xInQueue);
       //TODO: STF - check -  send a stop command. Is it meaningful ?
-      if (SYS_NO_ERROR_CODE != AITtaskStop(pObj, pdMS_TO_TICKS(50))) {
+      if (SYS_NO_ERROR_CODE != AITtaskStop(pObj, AMT_MS_TO_TICKS(50))) {
         sys_error_handler();
       }
     }
@@ -910,6 +910,7 @@ static sys_error_code_t AITaskExecuteStepAI(AITask *_this) {
 static void AITaskRun(ULONG nParams) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   AITask *_this = (AITask*)nParams;
+  UINT nPosture = TX_INT_ENABLE;
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("AI: start.\r\n"));
 
@@ -941,38 +942,38 @@ static void AITaskRun(ULONG nParams) {
     // check if there is a pending power mode switch request
     if (_this->super.m_xStatus.nPowerModeSwitchPending == 1) {
       // clear the power mode switch delay because the task is ready to switch.
-      taskENTER_CRITICAL();
+      nPosture = tx_interrupt_control(TX_INT_DISABLE);
         _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-      taskEXIT_CRITICAL();
-      vTaskSuspend(NULL);
+      tx_interrupt_control(nPosture);
+      tx_thread_suspend(&_this->super.m_xThaskHandle);
     }
     else {
       switch (AMTGetSystemPowerMode()) {
       case E_POWER_MODE_RUN:
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 1;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);
         xRes = AITaskExecuteStepRun(_this);
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);
         break;
 
       case E_POWER_MODE_AI:
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 1;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);
         xRes = AITaskExecuteStepAI(_this);
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);
         break;
 
       case E_POWER_MODE_DATALOG:
       case E_POWER_MODE_DATALOG_AI:
       case E_POWER_MODE_SLEEP_1:
         AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
-        vTaskSuspend(_this->super.m_xThaskHandle);
+        tx_thread_suspend(&_this->super.m_xThaskHandle);
         AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
         break;
       }
@@ -1001,7 +1002,7 @@ static sys_error_code_t AITaskStartImp(AITask *_this, const AICmdExecutionContex
 
   if (pxContext->nTimerPeriodMS) {
     // start the software stop timer
-    xTimerChangePeriod(_this->m_xStopTimer, pdMS_TO_TICKS(pxContext->nTimerPeriodMS), pdMS_TO_TICKS(200));
+    tx_timer_change(&_this->m_xStopTimer, AMT_MS_TO_TICKS(pxContext->nTimerPeriodMS), AMT_MS_TO_TICKS(pxContext->nTimerPeriodMS));
   }
 
   return xRes;
@@ -1013,7 +1014,7 @@ static sys_error_code_t AITaskStopImp(AITask *_this, const AICmdExecutionContext
 
   // stop the software timer
   if (pxContext->nTimerPeriodMS) {
-    xTimerStop(_this->m_xStopTimer, pdMS_TO_TICKS(200));
+    tx_timer_deactivate(&_this->m_xStopTimer);
   }
 
 //  // stop sequence for the sensor and the rest of the app.

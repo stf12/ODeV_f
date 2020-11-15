@@ -33,12 +33,13 @@ extern "C" {
 #include "syserror.h"
 
 /* Private defines -----------------------------------------------------------*/
-#define BOOT0_PE0_Pin GPIO_PIN_0
-#define BOOT0_PE0_GPIO_Port GPIOE
+#define USER_BUTTON_Pin GPIO_PIN_0
+#define USER_BUTTON_GPIO_Port GPIOE
+#define USER_BUTTON_EXTI_IRQn EXTI0_IRQn
 #define PB9_Pin GPIO_PIN_9
 #define PB9_GPIO_Port GPIOB
-#define BOOT0_PE0H3_Pin GPIO_PIN_3
-#define BOOT0_PE0H3_GPIO_Port GPIOH
+#define BOOT0_PE0_Pin GPIO_PIN_3
+#define BOOT0_PE0_GPIO_Port GPIOH
 #define SPI3_MISO_Pin GPIO_PIN_4
 #define SPI3_MISO_GPIO_Port GPIOB
 #define SDMMC_D3_Pin GPIO_PIN_11

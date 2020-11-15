@@ -29,8 +29,8 @@
 #include "ff_gen_drv.h"
 #include "sd_diskio.h"
 #include "hid_report_parser.h"
-#include "queue.h"
 #include "HSD_json.h"
+#include "sysmem.h"
 #include <string.h>
 #include <stdio.h>
 #include "sysdebug.h"
@@ -42,7 +42,7 @@
 #endif
 
 #ifndef SDC_TASK_CFG_PRIORITY
-#define SDC_TASK_CFG_PRIORITY           (tskIDLE_PRIORITY)
+#define SDC_TASK_CFG_PRIORITY           (TX_MAX_PRIORITIES - 1)
 #endif
 
 #ifndef SDC_TASK_CFG_IN_QUEUE_ITEM_SIZE
@@ -56,9 +56,9 @@
 #define LOG_DIR_PREFIX                  "STM32_DL_"
 
 /* Memory management macros */
-#define HSD_malloc                      pvPortMalloc
-#define HSD_calloc                      pvPortMalloc
-#define HSD_free                        vPortFree
+#define HSD_malloc                      SysAlloc
+#define HSD_calloc                      SysAlloc
+#define HSD_free                        SysFree
 #define HSD_memset                      memset
 #define HSD_memcpy                      memcpy
 
@@ -126,7 +126,7 @@ struct _SDCardTask {
   /**
    * Input queue used to send HID message to the task.
    */
-  QueueHandle_t m_xInQueue;
+  TX_QUEUE m_xInQueue;
 
   SDTSensorListener m_xSensorListener;
 };
@@ -159,9 +159,9 @@ static sys_error_code_t SDTExecuteStepDatalog(SDCardTask *_this);
 /**
  * Task control function.
  *
- * @param pParams .
+ * @param nParams .
  */
-static void SDCardTaskRun(void *pParams);
+static void SDCardTaskRun(ULONG nParams);
 
 /**
  * Initialize the SDCARD and the file system.
@@ -291,31 +291,43 @@ sys_error_code_t SDCardTask_vtblHardwareInit(AManagedTask *_this, void *pParams)
   return xRes;
 }
 
-sys_error_code_t SDCardTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority) {
+sys_error_code_t SDCardTask_vtblOnCreateTask(AManagedTask *_this, tx_entry_function_t *pvTaskCode, CHAR **pcName,
+    VOID **pvStackStart, ULONG *pnStackSize,
+    UINT *pnPriority, UINT *pnPreemptThreshold,
+    ULONG *pnTimeSlice, ULONG *pnAutoStart,
+    ULONG *pnParams)
+{
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   SDCardTask *pObj = (SDCardTask*)_this;
 
   // create the input queue
-  pObj->m_xInQueue = xQueueCreate(SDC_TASK_CFG_IN_QUEUE_ITEM_COUNT, SDC_TASK_CFG_IN_QUEUE_ITEM_SIZE);
-  if (pObj->m_xInQueue == NULL) {
+  uint16_t nItemSize = SDC_TASK_CFG_IN_QUEUE_ITEM_SIZE;
+  VOID *pvQueueItemsBuff = SysAlloc(SDC_TASK_CFG_IN_QUEUE_ITEM_COUNT * nItemSize);
+  if (pvQueueItemsBuff == NULL) {
+    xRes = SYS_TASK_HEAP_OUT_OF_MEMORY_ERROR_CODE;
+    SYS_SET_SERVICE_LEVEL_ERROR_CODE(xRes);
+    return xRes;
+  }
+
+  if (TX_SUCCESS != tx_queue_create(&pObj->m_xInQueue, "SD_Q", nItemSize / 4, pvQueueItemsBuff, SDC_TASK_CFG_IN_QUEUE_ITEM_COUNT * nItemSize)) {
     xRes = SYS_SD_TASK_INIT_ERROR_CODE;
     SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SD_TASK_INIT_ERROR_CODE);
     return xRes;
   }
-
-#ifdef DEBUG
-  vQueueAddToRegistry(pObj->m_xInQueue, "SDT_Q");
-#endif
 
   // take the ownership of the Sensor Event IF
   IEventListenerSetOwner((IEventListener*)&pObj->m_xSensorListener, pObj);
 
   *pvTaskCode = SDCardTaskRun;
   *pcName = "SDC";
-  *pnStackDepth = SDC_TASK_CFG_STACK_DEPTH;
-  *pParams = _this;
-  *pxPriority = SDC_TASK_CFG_PRIORITY;
+  *pvStackStart = NULL; // allocate the task stack in the system memory pool.
+  *pnStackSize = SDC_TASK_CFG_STACK_DEPTH;
+  *pnParams = (ULONG)_this;
+  *pnPriority = SDC_TASK_CFG_PRIORITY;
+  *pnPreemptThreshold = SDC_TASK_CFG_PRIORITY;
+  *pnTimeSlice = TX_NO_TIME_SLICE;
+  *pnAutoStart = TX_AUTO_START;
 
   return xRes;
 }
@@ -329,7 +341,7 @@ sys_error_code_t SDCardTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPow
     // prepare the files in the SDCARD
     xRes = SDTStartLogging(pObj);
     // reset the IN queue.
-    xQueueReset(pObj->m_xInQueue);
+    tx_queue_flush(&pObj->m_xInQueue);
   }
   else if (eNewPowerMode == E_POWER_MODE_RUN) {
     HIDReport xReport = {
@@ -337,7 +349,7 @@ sys_error_code_t SDCardTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPow
         .sdReport.nCmdID = SDT_CMD_ID_STOP
     };
 
-    if (xQueueSendToBack(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100)) != pdTRUE) {
+    if (tx_queue_send(&pObj->m_xInQueue, &xReport, AMT_MS_TO_TICKS(100)) != TX_SUCCESS) {
       xRes = SYS_APP_TASK_REPORT_LOST_ERROR_CODE;
       SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_REPORT_LOST_ERROR_CODE);
     }
@@ -370,7 +382,7 @@ sys_error_code_t SDCardTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMo
     xRes = SDTTaskPostReportToFront(pObj, (HIDReport*)&xReport);
   }
   else {
-    vTaskResume(_this->m_xThaskHandle);
+    tx_thread_resume(&_this->m_xThaskHandle);
   }
 
   return xRes;
@@ -499,7 +511,7 @@ static sys_error_code_t SDTExecuteStepRun(SDCardTask *_this) {
   HIDReport xReport = {};
 
   AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
-  if (pdTRUE == xQueueReceive(_this->m_xInQueue, &xReport, portMAX_DELAY)) {
+  if (TX_SUCCESS == tx_queue_receive(&_this->m_xInQueue, &xReport, TX_WAIT_FOREVER)) {
     AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
 
     switch (xReport.reportID) {
@@ -530,7 +542,7 @@ static sys_error_code_t SDTExecuteStepDatalog(SDCardTask *_this) {
   HIDReport xReport = {};
 
   AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
-  if (pdTRUE == xQueueReceive(_this->m_xInQueue, &xReport, portMAX_DELAY)) {
+  if (TX_SUCCESS == tx_queue_receive(&_this->m_xInQueue, &xReport, TX_WAIT_FOREVER)) {
     AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
 
     switch (xReport.reportID) {
@@ -566,9 +578,10 @@ static sys_error_code_t SDTExecuteStepDatalog(SDCardTask *_this) {
   return xRes;
 }
 
-static void SDCardTaskRun(void *pParams) {
+static void SDCardTaskRun(ULONG nParams) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  SDCardTask *_this = (SDCardTask*)pParams;
+  SDCardTask *_this = (SDCardTask*)nParams;
+  UINT nPosture = TX_INT_ENABLE;
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("SDC: start.\r\n"));
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("SDC: SDB size=%d.\r\n", sizeof(COM_Device_t)));
@@ -584,38 +597,38 @@ static void SDCardTaskRun(void *pParams) {
     if (_this->super.m_xStatus.nPowerModeSwitchPending == 1) {
       // clear the power mode switch delay because the task is ready to switch.
       //
-      taskENTER_CRITICAL();
+      nPosture = tx_interrupt_control(TX_INT_DISABLE);
         _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-      taskEXIT_CRITICAL();
-      vTaskSuspend(NULL);
+      tx_interrupt_control(nPosture);
+      tx_thread_suspend(&_this->super.m_xThaskHandle);
     }
     else {
       switch (AMTGetSystemPowerMode()) {
       case E_POWER_MODE_RUN:
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 1;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);
         xRes = SDTExecuteStepRun(_this);
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);
         break;
 
       case E_POWER_MODE_DATALOG:
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 1;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);
         xRes = SDTExecuteStepDatalog(_this);
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);
         break;
 
       case E_POWER_MODE_AI:
       case E_POWER_MODE_DATALOG_AI:
       case E_POWER_MODE_SLEEP_1:
         AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
-        vTaskSuspend(_this->super.m_xThaskHandle);
+        tx_thread_suspend(&_this->super.m_xThaskHandle);
         AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
         break;
       }
@@ -1075,7 +1088,7 @@ static sys_error_code_t SDTFillBuffer(SDCardTask *_this, uint8_t id, uint8_t *sr
     xReport.sdReport.nCmdID = SDT_CMD_ID_SECOND_HALF_DATA_READY;
   }
 
-  if (pdTRUE != xQueueSendToBack(_this->m_xInQueue, &xReport, pdMS_TO_TICKS(50))) {
+  if (TX_SUCCESS != tx_queue_send(&_this->m_xInQueue, &xReport, AMT_MS_TO_TICKS(50))) {
     xRes = SYS_SD_TASK_DATA_LOST_ERROR_CODE;
     SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SD_TASK_DATA_LOST_ERROR_CODE);
   }
@@ -1136,13 +1149,13 @@ static inline sys_error_code_t SDTTaskPostReportToFront(SDCardTask *_this, HIDRe
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
   if (SYS_IS_CALLED_FROM_ISR()) {
-    if (pdTRUE != xQueueSendToFrontFromISR(_this->m_xInQueue, pxReport, NULL)) {
+    if (TX_SUCCESS != tx_queue_front_send(&_this->m_xInQueue, pxReport, TX_NO_WAIT)) {
       xRes = SYS_APP_TASK_REPORT_LOST_ERROR_CODE;
       // this function is private and the caller will ignore this return code.
     }
   }
   else {
-    if (pdTRUE != xQueueSendToFront(_this->m_xInQueue, pxReport, pdMS_TO_TICKS(100))) {
+    if (TX_SUCCESS != tx_queue_front_send(&_this->m_xInQueue, pxReport, AMT_MS_TO_TICKS(100))) {
       xRes = SYS_APP_TASK_REPORT_LOST_ERROR_CODE;
       // this function is private and the caller will ignore this return code.
     }

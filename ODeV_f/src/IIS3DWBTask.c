@@ -41,7 +41,7 @@
 #endif
 
 #ifndef IIS3DWB_TASK_CFG_PRIORITY
-#define IIS3DWB_TASK_CFG_PRIORITY                 (tskIDLE_PRIORITY)
+#define IIS3DWB_TASK_CFG_PRIORITY                 (TX_MAX_PRIORITIES - 1)
 #endif
 
 #ifndef IIS3DWB_TASK_CFG_IN_QUEUE_LENGTH
@@ -105,7 +105,7 @@ struct _IIS3DWBTask {
   /**
    * Synchronization object used to send command to the task.
    */
-  QueueHandle_t m_xInQueue;
+  TX_QUEUE m_xInQueue;
 
   /**
    * Buffer to store the data read from the sensor
@@ -162,9 +162,9 @@ static sys_error_code_t IIS3DWBTaskExecuteStepDatalog(IIS3DWBTask *_this);
 /**
  * Task control function.
  *
- * @param pParams .
+ * @param nParams .
  */
-static void IIS3DWBTaskRun(void *pParams);
+static void IIS3DWBTaskRun(ULONG nParams);
 
 /**
  * Initialize the sensor according to the actual parameters.
@@ -286,23 +286,31 @@ sys_error_code_t IIS3DWBTask_vtblHardwareInit(AManagedTask *_this, void *pParams
   return xRes;
 }
 
-sys_error_code_t IIS3DWBTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority) {
+sys_error_code_t IIS3DWBTask_vtblOnCreateTask(AManagedTask *_this, tx_entry_function_t *pvTaskCode, CHAR **pcName,
+    VOID **pvStackStart, ULONG *pnStackSize,
+    UINT *pnPriority, UINT *pnPreemptThreshold,
+    ULONG *pnTimeSlice, ULONG *pnAutoStart,
+    ULONG *pnParams)
+{
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   IIS3DWBTask *pObj = (IIS3DWBTask*)_this;
 
   // Create task specific sw resources.
 
-  pObj->m_xInQueue = xQueueCreate(IIS3DWB_TASK_CFG_IN_QUEUE_LENGTH, IIS3DWB_TASK_CFG_IN_QUEUE_ITEM_SIZE);
-  if (pObj->m_xInQueue == NULL) {
+  uint16_t nItemSize = IIS3DWB_TASK_CFG_IN_QUEUE_ITEM_SIZE;
+  VOID *pvQueueItemsBuff = SysAlloc(IIS3DWB_TASK_CFG_IN_QUEUE_LENGTH * nItemSize);
+  if (pvQueueItemsBuff == NULL) {
     xRes = SYS_TASK_HEAP_OUT_OF_MEMORY_ERROR_CODE;
     SYS_SET_SERVICE_LEVEL_ERROR_CODE(xRes);
     return xRes;
   }
 
-#ifdef DEBUG
-  vQueueAddToRegistry(pObj->m_xInQueue, "IIS3DWB_Q");
-#endif
+  if (TX_SUCCESS != tx_queue_create(&pObj->m_xInQueue, "IIS3DWB_Q", nItemSize / 4, pvQueueItemsBuff, IIS3DWB_TASK_CFG_IN_QUEUE_LENGTH * nItemSize)) {
+    xRes = SYS_TASK_HEAP_OUT_OF_MEMORY_ERROR_CODE;
+    SYS_SET_SERVICE_LEVEL_ERROR_CODE(xRes);
+    return xRes;
+  }
 
   xRes = SPIBusIFInit(&pObj->m_xSensorIF, 0, IIS3DWB_SPI_CS_GPIO_Port, IIS3DWB_SPI_CS_Pin);
   if (SYS_IS_ERROR_CODE(xRes)) {
@@ -329,9 +337,13 @@ sys_error_code_t IIS3DWBTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_
 
   *pvTaskCode = IIS3DWBTaskRun;
   *pcName = "IIS3DWB";
-  *pnStackDepth = IIS3DWB_TASK_CFG_STACK_DEPTH;
-  *pParams = _this;
-  *pxPriority = IIS3DWB_TASK_CFG_PRIORITY;
+  *pvStackStart = NULL; // allocate the task stack in the system memory pool.
+  *pnStackSize = IIS3DWB_TASK_CFG_STACK_DEPTH;
+  *pnParams = (ULONG)_this;
+  *pnPriority = IIS3DWB_TASK_CFG_PRIORITY;
+  *pnPreemptThreshold = IIS3DWB_TASK_CFG_PRIORITY;
+  *pnTimeSlice = TX_NO_TIME_SLICE;
+  *pnAutoStart = TX_AUTO_START;
 
   return xRes;
 }
@@ -348,7 +360,7 @@ sys_error_code_t IIS3DWBTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPo
           .sensorReport.nCmdID = SENSOR_CMD_ID_START
       };
 
-      if (xQueueSendToBack(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100)) != pdTRUE) {
+      if (tx_queue_send(&pObj->m_xInQueue, &xReport, AMT_MS_TO_TICKS(100)) != TX_SUCCESS) {
         xRes = SYS_APP_TASK_REPORT_LOST_ERROR_CODE;
         SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_REPORT_LOST_ERROR_CODE);
       }
@@ -370,7 +382,7 @@ sys_error_code_t IIS3DWBTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPo
         .sensorReport.nCmdID = SENSOR_CMD_ID_STOP
     };
 
-    if (xQueueSendToBack(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100)) != pdTRUE) {
+    if (tx_queue_send(&pObj->m_xInQueue, &xReport, AMT_MS_TO_TICKS(100)) != TX_SUCCESS) {
       xRes = SYS_APP_TASK_REPORT_LOST_ERROR_CODE;
       SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_REPORT_LOST_ERROR_CODE);
     }
@@ -426,7 +438,7 @@ sys_error_code_t IIS3DWBTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerM
     }
   }
   else {
-    vTaskResume(_this->m_xThaskHandle);
+    tx_thread_resume(&_this->m_xThaskHandle);
   }
 
   return xRes;
@@ -443,7 +455,7 @@ static sys_error_code_t IIS3DWBTaskExecuteStepRun(IIS3DWBTask *_this) {
   stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.m_xConnector;
 
   AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
-  if (pdTRUE == xQueueReceive(_this->m_xInQueue, &xReport, portMAX_DELAY)) {
+  if (TX_SUCCESS == tx_queue_receive(&_this->m_xInQueue, &xReport, TX_WAIT_FOREVER)) {
     AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
 
     switch (xReport.reportID) {
@@ -483,7 +495,7 @@ static sys_error_code_t IIS3DWBTaskExecuteStepDatalog(IIS3DWBTask *_this) {
   HIDReport xReport = {};
 
   AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
-  if (pdTRUE == xQueueReceive(_this->m_xInQueue, &xReport, portMAX_DELAY)) {
+  if (TX_SUCCESS == tx_queue_receive(&_this->m_xInQueue, &xReport, TX_WAIT_FOREVER)) {
     AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
 
     switch (xReport.reportID) {
@@ -538,9 +550,10 @@ static sys_error_code_t IIS3DWBTaskExecuteStepDatalog(IIS3DWBTask *_this) {
   return xRes;
 }
 
-static void IIS3DWBTaskRun(void *pParams) {
+static void IIS3DWBTaskRun(ULONG nParams) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  IIS3DWBTask *_this = (IIS3DWBTask*)pParams;
+  IIS3DWBTask *_this = (IIS3DWBTask*)nParams;
+  UINT nPosture = TX_INT_ENABLE;
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("IIS3DWB: start.\r\n"));
 
@@ -558,38 +571,38 @@ static void IIS3DWBTaskRun(void *pParams) {
     // check if there is a pending power mode switch request
     if (_this->super.m_xStatus.nPowerModeSwitchPending == 1) {
       // clear the power mode switch delay because the task is ready to switch.
-      taskENTER_CRITICAL();
+      nPosture = tx_interrupt_control(TX_INT_DISABLE);
         _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-      taskEXIT_CRITICAL();
-      vTaskSuspend(NULL);
+      tx_interrupt_control(nPosture);
+      tx_thread_suspend(&_this->super.m_xThaskHandle);
     }
     else {
       switch (AMTGetSystemPowerMode()) {
       case E_POWER_MODE_RUN:
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 1;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);
         xRes = IIS3DWBTaskExecuteStepRun(_this);
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);
         break;
 
       case E_POWER_MODE_DATALOG:
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 1;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);
         xRes = IIS3DWBTaskExecuteStepDatalog(_this);
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);
         break;
 
       case E_POWER_MODE_AI:
       case E_POWER_MODE_DATALOG_AI:
       case E_POWER_MODE_SLEEP_1:
         AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
-        vTaskSuspend(_this->super.m_xThaskHandle);
+        tx_thread_suspend(&_this->super.m_xThaskHandle);
         AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
         break;
       }
@@ -613,13 +626,13 @@ static inline sys_error_code_t IIS3DWBTaskPostReportToFront(IIS3DWBTask *_this, 
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
   if (SYS_IS_CALLED_FROM_ISR()) {
-    if (pdTRUE != xQueueSendToFrontFromISR(_this->m_xInQueue, pxReport, NULL)) {
+    if (TX_SUCCESS != tx_queue_front_send(&_this->m_xInQueue, pxReport, TX_NO_WAIT)) {
       xRes = SYS_APP_TASK_REPORT_LOST_ERROR_CODE;
       // this function is private and the caller will ignore this return code.
     }
   }
   else {
-    if (pdTRUE != xQueueSendToFront(_this->m_xInQueue, pxReport, pdMS_TO_TICKS(100))) {
+    if (TX_SUCCESS != tx_queue_front_send(&_this->m_xInQueue, pxReport, AMT_MS_TO_TICKS(100))) {
       xRes = SYS_APP_TASK_REPORT_LOST_ERROR_CODE;
       // this function is private and the caller will ignore this return code.
     }
@@ -818,8 +831,8 @@ void IIS3DWBTask_EXTI_Callback(uint16_t nPin) {
       .bDataReady = 1
   };
 
-  if (s_xTaskObj.m_xInQueue != NULL && !AMTIsPowerModeSwitchPending((AManagedTask*)&s_xTaskObj)) {
-    if (pdTRUE != xQueueSendToBackFromISR(s_xTaskObj.m_xInQueue, &xReport, NULL)) {
+  if (/*s_xTaskObj.m_xInQueue != NULL && */!AMTIsPowerModeSwitchPending((AManagedTask*)&s_xTaskObj)) { //TODO: STF.Port - how to check if the queue is initialized ??
+    if (TX_SUCCESS != tx_queue_send(&s_xTaskObj.m_xInQueue, &xReport, TX_NO_WAIT)) {
       // unable to send the report. Signal the error
       sys_error_handler();
     }

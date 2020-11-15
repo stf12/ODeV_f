@@ -5,7 +5,7 @@
  * @version 1.0.0
  * @date    Jul 23, 2020
  *
- * @brief   
+ * @brief
  *
  * <DESCRIPTIOM>
  *
@@ -32,7 +32,11 @@ extern "C" {
 
 // AManagedTaskEx virtual functions
 sys_error_code_t UtilTask_vtblHardwareInit(AManagedTask *_this, void *pParams); ///< @sa AMTHardwareInit
-sys_error_code_t UtilTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority); ///< @sa AMTOnCreateTask
+sys_error_code_t UtilTask_vtblOnCreateTask(AManagedTask *_this, tx_entry_function_t *pvTaskCode, CHAR **pcName,
+    VOID **pvStackStart, ULONG *pnStackSize,
+    UINT *pnPriority, UINT *pnPreemptThreshold,
+    ULONG *pnTimeSlice, ULONG *pnAutoStart,
+    ULONG *pnParams); ///< @sa AMTOnCreateTask
 sys_error_code_t UtilTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode); ///< @sa AMTDoEnterPowerMode
 sys_error_code_t UtilTask_vtblHandleError(AManagedTask *_this, SysEvent xError); ///< @sa AMTHandleError
 sys_error_code_t UtilTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMode eActivePowerMode); ///< @sa AMTExForceExecuteStep

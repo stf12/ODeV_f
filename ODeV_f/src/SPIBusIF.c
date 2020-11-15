@@ -45,16 +45,10 @@ sys_error_code_t SPIBusIFInit(SPIBusIF *_this, uint8_t nWhoAmI, GPIO_TypeDef* px
   _this->m_nSSPin = nSSPin;
 
   // initialize the software resources
-  _this->m_xSyncObj = xSemaphoreCreateBinary();
-  if (_this->m_xSyncObj == NULL){
+  if (tx_semaphore_create(&_this->m_xSyncObj, "SPI_SUS_S", 0) != TX_SUCCESS){
     SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_OUT_OF_MEMORY_ERROR_CODE);
     xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
   }
-#ifdef DEBUG
-  else {
-    vQueueAddToRegistry(_this->m_xSyncObj, "SPI_IP_S");
-  }
-#endif
 
   _this->m_xConnector.pfReadReg = SPIBusNullRW;
   _this->m_xConnector.pfWriteReg = SPIBusNullRW;
@@ -67,16 +61,16 @@ sys_error_code_t SPIBusIFWaitIOComplete(SPIBusIF *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
-  if (_this->m_xSyncObj != NULL){
-    if (pdTRUE != xSemaphoreTake(_this->m_xSyncObj, portMAX_DELAY)) {
+//  if (_this->m_xSyncObj != NULL){ //TODO: STF.Port - how to check teh sem is initialized ??
+    if (TX_SUCCESS != tx_semaphore_get(&_this->m_xSyncObj, TX_WAIT_FOREVER)) {
       SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_UNDEFINED_ERROR_CODE);
       xRes = SYS_UNDEFINED_ERROR_CODE;
     }
-  }
-  else {
-    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INVALID_FUNC_CALL_ERROR_CODE);
-    xRes = SYS_INVALID_FUNC_CALL_ERROR_CODE;
-  }
+//  }
+    else {
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INVALID_FUNC_CALL_ERROR_CODE);
+      xRes = SYS_INVALID_FUNC_CALL_ERROR_CODE;
+    }
 
   return xRes;
 }
@@ -85,16 +79,16 @@ sys_error_code_t SPIBusIFNotifyIOComplete(SPIBusIF *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
-  if (_this->m_xSyncObj != NULL){
-    if (pdTRUE != xSemaphoreGive(_this->m_xSyncObj)) {
+//  if (_this->m_xSyncObj != NULL){ //TODO: STF.Port - how to check the sem is initialized?
+    if (TX_SUCCESS != tx_semaphore_put(&_this->m_xSyncObj)) {
       SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_UNDEFINED_ERROR_CODE);
       xRes = SYS_UNDEFINED_ERROR_CODE;
     }
-  }
-  else {
-    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INVALID_FUNC_CALL_ERROR_CODE);
-    xRes = SYS_INVALID_FUNC_CALL_ERROR_CODE;
-  }
+//  }
+    else {
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INVALID_FUNC_CALL_ERROR_CODE);
+      xRes = SYS_INVALID_FUNC_CALL_ERROR_CODE;
+    }
 
   return xRes;
 }

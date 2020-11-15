@@ -73,9 +73,9 @@ static sys_error_code_t I2CBusTaskExecuteStepRun(I2CBusTask *_this);
 /**
  * Task control function.
  *
- * @param pParams .
+ * @param nParams application specific parameter. IT will receive a pointer to the task object.
  */
-static void I2CBusTaskRun(void *pParams);
+static void I2CBusTaskRun(ULONG nParams);
 
 static int32_t I2CBusTaskWrite(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData, uint16_t nSize);
 static int32_t I2CBusTaskRead(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData, uint16_t nSize);
@@ -186,7 +186,7 @@ sys_error_code_t I2CBusTask_vtblOnCreateTask(AManagedTask *_this, tx_entry_funct
       *pvStackStart = NULL; // allocate the task stack in the system memory pool.
       *pnStackSize = I2CBUS_TASK_CFG_STACK_DEPTH;
       *pnParams = (ULONG)_this;
-      *pxPriority = I2CBUS_TASK_CFG_PRIORITY;
+      *pnPriority = I2CBUS_TASK_CFG_PRIORITY;
       *pnPreemptThreshold = I2CBUS_TASK_CFG_PRIORITY;
       *pnTimeSlice = TX_NO_TIME_SLICE;
       *pnAutoStart = TX_AUTO_START;
@@ -255,7 +255,7 @@ static sys_error_code_t I2CBusTaskExecuteStepRun(I2CBusTask *_this) {
 
   struct i2cIOReport_t xMsg = {0};
   AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
-  if (pdTRUE == xQueueReceive(_this->m_xInQueue, &xMsg, portMAX_DELAY)) {
+  if (TX_SUCCESS == tx_queue_receive(&_this->m_xInQueue, &xMsg, TX_WAIT_FOREVER)) {
     AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
     switch (xMsg.reportId) {
     case HID_REPORT_ID_FORCE_STEP:
@@ -295,9 +295,10 @@ static sys_error_code_t I2CBusTaskExecuteStepRun(I2CBusTask *_this) {
   return xRes;
 }
 
-static void I2CBusTaskRun(void *pParams) {
+static void I2CBusTaskRun(ULONG nParams) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  I2CBusTask *_this = (I2CBusTask*)pParams;
+  I2CBusTask *_this = (I2CBusTask*)nParams;
+  UINT nPosture = TX_INT_ENABLE;
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("I2C: start.\r\n"));
 
@@ -312,29 +313,29 @@ static void I2CBusTaskRun(void *pParams) {
     // check if there is a pending power mode switch request
     if (_this->super.m_xStatus.nPowerModeSwitchPending == 1) {
       // clear the power mode switch delay because the task is ready to switch.
-      taskENTER_CRITICAL();
+      nPosture = tx_interrupt_control(TX_INT_DISABLE);
         _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-      taskEXIT_CRITICAL();
-      vTaskSuspend(NULL);
+      tx_interrupt_control(nPosture);
+      tx_thread_suspend(&_this->super.m_xThaskHandle);
     }
     else {
       switch (AMTGetSystemPowerMode()) {
       case E_POWER_MODE_RUN:
       case E_POWER_MODE_DATALOG:
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 1;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);
         xRes = I2CBusTaskExecuteStepRun(_this);
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);
         break;
 
       case E_POWER_MODE_AI:
       case E_POWER_MODE_DATALOG_AI:
       case E_POWER_MODE_SLEEP_1:
         AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
-        vTaskSuspend(_this->super.m_xThaskHandle);
+        tx_thread_suspend(&_this->super.m_xThaskHandle);
         AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
         break;
       }
@@ -365,19 +366,19 @@ static int32_t I2CBusTaskWrite(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData
       .nDataSize = nSize
   };
 
-  if (s_xTaskObj.m_xInQueue != NULL) {
+//  if (s_xTaskObj.m_xInQueue != NULL) { //TODO: STF.Port how to check if the que is initialized ?
     if (SYS_IS_CALLED_FROM_ISR()) {
       // we cannot read and write in the I2C BUS from an ISR. Notify the error
       SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_I2CBUS_TASK_IO_ERROR_CODE);
       xRes = SYS_I2CBUS_TASK_IO_ERROR_CODE;
     }
     else {
-      if (pdTRUE != xQueueSendToBack(s_xTaskObj.m_xInQueue, &xMsg, I2CBUS_OP_WAIT_MS)) {
+      if (TX_SUCCESS != tx_queue_send(&s_xTaskObj.m_xInQueue, &xMsg, AMT_MS_TO_TICKS(I2CBUS_OP_WAIT_MS))) {
         SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_I2CBUS_TASK_IO_ERROR_CODE);
         xRes = SYS_I2CBUS_TASK_IO_ERROR_CODE;
       }
     }
-  }
+//  }
 
   if (!SYS_IS_ERROR_CODE(xRes)) {
     // suspend the sensor task.
@@ -400,19 +401,19 @@ static int32_t I2CBusTaskRead(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData,
       .nDataSize = nSize
   };
 
-  if (s_xTaskObj.m_xInQueue != NULL) {
+//  if (s_xTaskObj.m_xInQueue != NULL) { //TODO: STF.Port how to check if the que is initialized ?
     if (SYS_IS_CALLED_FROM_ISR()) {
       // we cannot read and write in the I2C BUS from an ISR. Notify the error
       SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_I2CBUS_TASK_IO_ERROR_CODE);
       xRes = SYS_I2CBUS_TASK_IO_ERROR_CODE;
     }
     else {
-      if (pdTRUE != xQueueSendToBack(s_xTaskObj.m_xInQueue, &xMsg, I2CBUS_OP_WAIT_MS)) {
+      if (TX_SUCCESS != tx_queue_send(&s_xTaskObj.m_xInQueue, &xMsg, AMT_MS_TO_TICKS(I2CBUS_OP_WAIT_MS))) {
         SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_I2CBUS_TASK_IO_ERROR_CODE);
         xRes = SYS_I2CBUS_TASK_IO_ERROR_CODE;
       }
     }
-  }
+//  }
 
   if (!SYS_IS_ERROR_CODE(xRes)) {
     xRes = I2CBusIFWaitIOComplete(pxI2CSensor);

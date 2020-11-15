@@ -30,6 +30,7 @@
 #include "HSD_json.h"
 #include "hid_report_parser.h"
 #include "mx.h"
+#include "sysmem.h"
 #include "sysdebug.h"
 
 // TODO: cange XXX with a short id for the task
@@ -39,7 +40,7 @@
 #endif
 
 #ifndef UTIL_TASK_CFG_PRIORITY
-#define UTIL_TASK_CFG_PRIORITY                 (tskIDLE_PRIORITY)
+#define UTIL_TASK_CFG_PRIORITY                 (TX_MAX_PRIORITIES - 1)
 #endif
 
 #ifndef UTIL_TASK_CFG_IN_QUEUE_ITEM_SIZE
@@ -88,7 +89,7 @@ struct _UtilTask {
   /**
    * Input queue used by other task to request services.
    */
-  QueueHandle_t m_xInQueue;
+  TX_QUEUE m_xInQueue;
 };
 
 
@@ -112,9 +113,9 @@ static sys_error_code_t UtilTaskExecuteStepRun(UtilTask *_this);
 /**
  * Task control function.
  *
- * @param pParams .
+ * @param nParams .
  */
-static void UtilTaskRun(void *pParams);
+static void UtilTaskRun(ULONG nParams);
 
 
 // Inline function forward declaration
@@ -185,31 +186,43 @@ sys_error_code_t UtilTask_vtblHardwareInit(AManagedTask *_this, void *pParams) {
   return xRes;
 }
 
-sys_error_code_t UtilTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority) {
+sys_error_code_t UtilTask_vtblOnCreateTask(AManagedTask *_this, tx_entry_function_t *pvTaskCode, CHAR **pcName,
+    VOID **pvStackStart, ULONG *pnStackSize,
+    UINT *pnPriority, UINT *pnPreemptThreshold,
+    ULONG *pnTimeSlice, ULONG *pnAutoStart,
+    ULONG *pnParams)
+{
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   UtilTask *pObj = (UtilTask*)_this;
 
   // initialize the JSON library
-  HSD_init_JSON(pvPortMalloc, vPortFree);
+  HSD_init_JSON(SysAlloc, SysFree);
 
   // create the input queue
-  pObj->m_xInQueue = xQueueCreate(UTIL_TASK_CFG_IN_QUEUE_ITEM_COUNT, UTIL_TASK_CFG_IN_QUEUE_ITEM_SIZE);
-  if (pObj->m_xInQueue == NULL) {
+  uint16_t nItemSize = UTIL_TASK_CFG_IN_QUEUE_ITEM_SIZE;
+  VOID *pvQueueItemsBuff = SysAlloc(UTIL_TASK_CFG_IN_QUEUE_ITEM_COUNT * nItemSize);
+  if (pvQueueItemsBuff == NULL) {
     xRes = SYS_UTIL_TASK_INIT_ERROR_CODE;
     SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_UTIL_TASK_INIT_ERROR_CODE);
     return xRes;
   }
 
-#ifdef DEBUG
-  vQueueAddToRegistry(pObj->m_xInQueue, "UTIL_Q");
-#endif
+  if (TX_SUCCESS != tx_queue_create(&pObj->m_xInQueue, "UTIL_Q", nItemSize / 4, pvQueueItemsBuff, UTIL_TASK_CFG_IN_QUEUE_ITEM_COUNT * nItemSize)) {
+    xRes = SYS_SD_TASK_INIT_ERROR_CODE;
+    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SD_TASK_INIT_ERROR_CODE);
+    return xRes;
+  }
 
   *pvTaskCode = UtilTaskRun;
   *pcName = "UTIL";
-  *pnStackDepth = UTIL_TASK_CFG_STACK_DEPTH;
-  *pParams = _this;
-  *pxPriority = UTIL_TASK_CFG_PRIORITY;
+  *pvStackStart = NULL; // allocate the task stack in the system memory pool
+  *pnStackSize = UTIL_TASK_CFG_STACK_DEPTH;
+  *pnParams = (ULONG)_this;
+  *pnPriority = UTIL_TASK_CFG_PRIORITY;
+  *pnPreemptThreshold = UTIL_TASK_CFG_PRIORITY;
+  *pnTimeSlice = TX_NO_TIME_SLICE;
+  *pnAutoStart = TX_AUTO_START;
 
   return xRes;
 }
@@ -242,10 +255,10 @@ sys_error_code_t UtilTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMode
   };
 
   if ((eActivePowerMode == E_POWER_MODE_RUN)) {
-    xQueueSendToFront(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(100));
+    tx_queue_front_send(&pObj->m_xInQueue, &xReport, AMT_MS_TO_TICKS(100));
   }
   else {
-    vTaskResume(_this->m_xThaskHandle);
+    tx_thread_resume(&_this->m_xThaskHandle);
   }
 
   return xRes;
@@ -260,7 +273,7 @@ static sys_error_code_t UtilTaskExecuteStepRun(UtilTask *_this) {
   HIDReport xReport = {0};
 
   AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
-  if (xQueueReceive(_this->m_xInQueue, &xReport, portMAX_DELAY) == pdTRUE) {
+  if (tx_queue_receive(&_this->m_xInQueue, &xReport, TX_WAIT_FOREVER) == TX_SUCCESS) {
     AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
     if (xReport.reportID == HID_REPORT_ID_FORCE_STEP) {
       __NOP();
@@ -270,9 +283,10 @@ static sys_error_code_t UtilTaskExecuteStepRun(UtilTask *_this) {
   return xRes;
 }
 
-static void UtilTaskRun(void *pParams) {
+static void UtilTaskRun(ULONG nParams) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  UtilTask *_this = (UtilTask*)pParams;
+  UtilTask *_this = (UtilTask*)nParams;
+  UINT nPosture = TX_INT_ENABLE;
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("UTIL: start.\r\n"));
 
@@ -283,21 +297,21 @@ static void UtilTaskRun(void *pParams) {
     // check if there is a pending power mode switch request
     if (_this->super.m_xStatus.nPowerModeSwitchPending == 1) {
       // clear the power mode switch delay because the task is ready to switch.
-      taskENTER_CRITICAL();
+      nPosture = tx_interrupt_control(TX_INT_DISABLE);
         _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-      taskEXIT_CRITICAL();
-      vTaskSuspend(NULL);
+      tx_interrupt_control(nPosture);
+      tx_thread_suspend(&_this->super.m_xThaskHandle);
     }
     else {
       switch (AMTGetSystemPowerMode()) {
       case E_POWER_MODE_RUN:
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 1;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);
         xRes = UtilTaskExecuteStepRun(_this);
-        taskENTER_CRITICAL();
+        nPosture = tx_interrupt_control(TX_INT_DISABLE);
           _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
-        taskEXIT_CRITICAL();
+        tx_interrupt_control(nPosture);;
         break;
 
       case E_POWER_MODE_DATALOG:
@@ -305,7 +319,7 @@ static void UtilTaskRun(void *pParams) {
       case E_POWER_MODE_DATALOG_AI:
       case E_POWER_MODE_SLEEP_1:
         AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
-        vTaskSuspend(_this->super.m_xThaskHandle);
+        tx_thread_suspend(&_this->super.m_xThaskHandle);
         AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
         break;
       }
