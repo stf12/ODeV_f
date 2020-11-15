@@ -21,9 +21,9 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "FreeRTOS.h"
 #include "stm32l4xx_hal.h"
 #include "sensor_db.h"
+#include "sysmem.h"
 #include "stdlib.h"
 #include "string.h"
 
@@ -58,7 +58,7 @@ int32_t SDB_AddSensor(COM_Device_t *pxSDB)
 
   uint32_t nSensorID = pxSDB->deviceDescriptor.nSensor;
 
-  pxSDB->sensors[nSensorID] = (COM_Sensor_t*)pvPortMalloc(sizeof(COM_Sensor_t));
+  pxSDB->sensors[nSensorID] = (COM_Sensor_t*)SysAlloc(sizeof(COM_Sensor_t));
 
   if(pxSDB->sensors[nSensorID] == NULL)
     return -1;

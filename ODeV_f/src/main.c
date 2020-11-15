@@ -29,8 +29,8 @@
  */
 
 #include <stdio.h>
-#include <sysinit.h>
-#include "task.h"
+#include "sysinit.h"
+#include "tx_api.h"
 
 
 // Forward function declaration
@@ -43,7 +43,7 @@ int main()
   // System initialization.
   SysInit(FALSE);
 
-  vTaskStartScheduler();
+  tx_kernel_enter();
 
   while (1);
 }

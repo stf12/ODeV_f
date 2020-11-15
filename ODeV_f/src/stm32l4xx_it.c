@@ -33,8 +33,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
 #include "stm32l4xx.h"
-#include "FreeRTOS.h"
-#include "task.h"
 #include "EXTIPinMap.h"
 
 // External variables
@@ -78,20 +76,7 @@ void ExtiDefISR() {
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */
 /******************************************************************************/
 
-/**
- * @brief This function handles System tick timer.
- */
-void SysTick_Handler(void)
-{
-#if (INCLUDE_xTaskGetSchedulerState  == 1 )
-  if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
-  {
-#endif  /* INCLUDE_xTaskGetSchedulerState */
-    xPortSysTickHandler();
-#if (INCLUDE_xTaskGetSchedulerState  == 1 )
-  }
-#endif  /* INCLUDE_xTaskGetSchedulerState */
-}
+
 
 /******************************************************************************/
 /* STM32L4xx Peripheral Interrupt Handlers                                    */

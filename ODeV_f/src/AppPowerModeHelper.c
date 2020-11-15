@@ -32,6 +32,7 @@
 #include "AppPowerModeHelper.h"
 #include "AppPowerModeHelper_vtbl.h"
 #include "sysinit.h"
+#include "sysmem.h"
 #include "sysdebug.h"
 
 
@@ -84,7 +85,7 @@ extern void SystemClock_Restore(void);
 // *********************
 
 IAppPowerModeHelper *AppPowerModeHelperAlloc() {
-  IAppPowerModeHelper *pNewObj = (IAppPowerModeHelper*)pvPortMalloc(sizeof(AppPowerModeHelper));
+  IAppPowerModeHelper *pNewObj = (IAppPowerModeHelper*)SysAlloc(sizeof(AppPowerModeHelper));
 
   if (pNewObj == NULL) {
     SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_OUT_OF_MEMORY_ERROR_CODE);
@@ -231,13 +232,6 @@ sys_error_code_t AppPowerModeHelper_vtblDidEnterPowerMode(IAppPowerModeHelper *t
 
 //    GPIOB->BSRR = GPIO_PIN_6; //TODO: STF.Debug
     SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("PMH: RUN\r\n"));
-
-#if defined(DEBUG) || defined(SYS_DEBUG)
-    {
-      size_t nFreeHeapSize = xPortGetFreeHeapSize();
-      SYS_DEBUGF(SYS_DBG_LEVEL_SL, ("PMH: free heap = %i.\r\n", nFreeHeapSize));
-    }
-#endif
     break;
 
   case E_POWER_MODE_DATALOG:
