@@ -32,7 +32,6 @@
 #include "AppPowerModeHelper.h"
 #include "AppPowerModeHelper_vtbl.h"
 #include "sysinit.h"
-#include "sysmem.h"
 #include "sysdebug.h"
 
 
@@ -77,6 +76,11 @@ struct _AppPowerModeHelper {
 // Private member function declaration
 // ***********************************
 
+/**
+ * The only instance of class object.
+ */
+static AppPowerModeHelper s_xAppPowerModeHelper;
+
 extern void SystemClock_Backup(void);
 
 extern void SystemClock_Restore(void);
@@ -85,7 +89,7 @@ extern void SystemClock_Restore(void);
 // *********************
 
 IAppPowerModeHelper *AppPowerModeHelperAlloc() {
-  IAppPowerModeHelper *pNewObj = (IAppPowerModeHelper*)SysAlloc(sizeof(AppPowerModeHelper));
+  IAppPowerModeHelper *pNewObj = (IAppPowerModeHelper*)&s_xAppPowerModeHelper;
 
   if (pNewObj == NULL) {
     SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_OUT_OF_MEMORY_ERROR_CODE);
