@@ -45,8 +45,6 @@ extern SD_HandleTypeDef hsd1;
 // Forward function declarations
 // ****************************
 
-extern void xPortSysTickHandler(void);
-
 /**
  * Map one EXTI to n callback based on the GPIO PIN.
  */

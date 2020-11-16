@@ -708,7 +708,7 @@ static sys_error_code_t SDTRuntimeInit(SDCardTask *_this) {
     if (!SYS_IS_ERROR_CODE(xRes)) {
       // Check if a custom configuration JSON is available in the root folder of the SD Card
       if(f_open(&_this->m_xFileConfigJSON, "DeviceConfig.json", FA_OPEN_EXISTING | FA_READ) == FR_OK) {
-        config_JSON_string = pvPortMalloc(f_size(&_this->m_xFileConfigJSON));
+        config_JSON_string = SysAlloc(f_size(&_this->m_xFileConfigJSON));
         f_gets(config_JSON_string, f_size(&_this->m_xFileConfigJSON), &_this->m_xFileConfigJSON);
         xRes = SDTReadJSON(_this, config_JSON_string);
         HSD_free(config_JSON_string);

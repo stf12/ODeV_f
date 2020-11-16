@@ -424,7 +424,7 @@ sys_error_code_t ISM330DHCXTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPow
     }
   }
   else {
-    vTaskResume(_this->m_xThaskHandle);
+    tx_thread_resume(&_this->m_xThaskHandle);
   }
 
   return xRes;

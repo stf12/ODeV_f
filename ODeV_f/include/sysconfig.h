@@ -65,6 +65,7 @@
 // file sysinit.c
 #define INIT_TASK_CFG_ENABLE_BOOT_IF              0
 #define INIT_TASK_CFG_STACK_SIZE                  (140)
+#define INIT_TASK_CFG_HEAP_SYZE                   (100*1024)
 
 // file HelloWorldTask.c
 // uncomment the following lines to change the task common parameters

@@ -241,8 +241,9 @@ sys_error_code_t AppPowerModeHelper_vtblDidEnterPowerMode(IAppPowerModeHelper *t
 
 #if defined(DEBUG) || defined(SYS_DEBUG)
     {
-      size_t nFreeHeapSize = xPortGetFreeHeapSize();
-      SYS_DEBUGF(SYS_DBG_LEVEL_SL, ("PMH: free heap = %i.\r\n", nFreeHeapSize));
+      //TODO: STF.Port - need to define a SysGetFreeHeapSize() function.
+//      size_t nFreeHeapSize = xPortGetFreeHeapSize();
+//      SYS_DEBUGF(SYS_DBG_LEVEL_SL, ("PMH: free heap = %i.\r\n", nFreeHeapSize));
     }
 #endif
     break;
