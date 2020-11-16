@@ -141,6 +141,11 @@ extern void SysPowerConfig();
  */
 static void InitTaskRun(ULONG thread_input);
 
+#ifdef DEBUG
+// Used in DEBUG to check for stack overflow
+static void SysThreadxHtackHrrorHandler(TX_THREAD *thread_ptr);
+#endif
+
 
 // Public API definition
 // *********************
@@ -333,6 +338,10 @@ static void InitTaskRun(ULONG thread_input) {
   UNUSED(thread_input);
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("System Initialization\r\n"));
+
+#ifdef DEBUG
+  tx_thread_stack_error_notify(SysThreadxHtackHrrorHandler);
+#endif
 
 
 //  vTaskSuspendAll();
@@ -576,4 +585,13 @@ void tx_application_define(void *first_unused_memory) {
     sys_error_handler();
   }
   s_xTheSystem.pvFirstUnusedMemory += INIT_TASK_CFG_STACK_SIZE * 4;
+}
+
+static void SysThreadxHtackHrrorHandler(TX_THREAD *thread_ptr) {
+  tx_interrupt_control(TX_INT_DISABLE);
+#ifdef DEBUG
+  __asm volatile ("bkpt 0");
+#else
+  while (1) __NOP();
+#endif
 }

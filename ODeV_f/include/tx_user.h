@@ -32,8 +32,12 @@
 #define INC_TX_USER_H_
 
 #define TX_TIMER_TICKS_PER_SECOND       (1000)
-#define TX_SYSTEM_CLOCK_HZ              (32000000)
+#define TX_SYSTEM_CLOCK_HZ              (120000000)
 
 #define TX_DISABLE_NOTIFY_CALLBACKS     1
+
+#ifdef DEBUG
+#define TX_ENABLE_STACK_CHECKING
+#endif
 
 #endif /* INC_TX_USER_H_ */
