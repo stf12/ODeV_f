@@ -64,13 +64,13 @@
 
 // file sysinit.c
 #define INIT_TASK_CFG_ENABLE_BOOT_IF              0
-#define INIT_TASK_CFG_STACK_SIZE                  (140)
-#define INIT_TASK_CFG_HEAP_SYZE                   (100*1024)
+#define INIT_TASK_CFG_STACK_SIZE                  (TX_MINIMUM_STACK*2)
+#define INIT_TASK_CFG_HEAP_SYZE                   (150*1024)
 
 // file HelloWorldTask.c
 // uncomment the following lines to change the task common parameters
-//#define HW_TASK_CFG_STACK_DEPTH                    120
-//#define HW_TASK_CFG_PRIORITY                       (tskIDLE_PRIORITY+1)
+#define HW_TASK_CFG_STACK_DEPTH                    (TX_MINIMUM_STACK*3)
+#define HW_TASK_CFG_PRIORITY                       (TX_MAX_PRIORITIES-2)
 
 // file PushButtonTask.c
 // uncomment the following lines to change the task common parameters
@@ -78,27 +78,27 @@
 //#define PB_TASK_CFG_PRIORITY                       (tskIDLE_PRIORITY+2)
 
 // file ISM330DHCXTask.c
-#define ISM330DHCX_TASK_CFG_STACK_DEPTH           (120*3)
+#define ISM330DHCX_TASK_CFG_STACK_DEPTH           (TX_MINIMUM_STACK*4)
 #define ISM330DHCX_TASK_CFG_PRIORITY              (4)
 
 // file IIS3DWBTask.c
-#define IIS3DWB_TASK_CFG_STACK_DEPTH              (120*3)
+#define IIS3DWB_TASK_CFG_STACK_DEPTH              (TX_MINIMUM_STACK*3)
 #define IIS3DWB_TASK_CFG_PRIORITY                 (4)
 
 // file SPIBusTask.c
-#define SPIBUS_TASK_CFG_STACK_DEPTH               140
+#define SPIBUS_TASK_CFG_STACK_DEPTH               (TX_MINIMUM_STACK*3)
 #define SPIBUS_TASK_CFG_PRIORITY                  (3)
 
 // file AITask.c
-#define AI_TASK_CFG_STACK_DEPTH                   140
+#define AI_TASK_CFG_STACK_DEPTH                   (TX_MINIMUM_STACK*3)
 #define AI_TASK_CFG_PRIORITY                      (6)
 
 // file UtilTask.c
-#define UTIL_TASK_CFG_STACK_DEPTH                 120
+#define UTIL_TASK_CFG_STACK_DEPTH                 (TX_MINIMUM_STACK*3)
 #define UTIL_TASK_CFG_PRIORITY                    (7)
 
 // file SDCardTask.c
-#define SDC_TASK_CFG_STACK_DEPTH                  (120*8)
+#define SDC_TASK_CFG_STACK_DEPTH                  (TX_MINIMUM_STACK*8)
 #define SDC_TASK_CFG_PRIORITY                     (5)
 
 #endif /* SYSCONFIG_H_ */

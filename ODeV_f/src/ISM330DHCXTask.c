@@ -929,11 +929,13 @@ void ISM330DHCXTask_EXTI_Callback(uint16_t nPin) {
   };
 
 //  if (s_xTaskObj.m_xInQueue != NULL) { //TODO: STF.Port - how to check if the queue has been initialized ??
-    if (TX_SUCCESS != tx_queue_front_send(&s_xTaskObj.m_xInQueue, &xReport, TX_NO_WAIT)) {
+    if (TX_SUCCESS != tx_queue_send(&s_xTaskObj.m_xInQueue, &xReport, TX_NO_WAIT)) {
       // unable to send the report. Signal the error
       sys_error_handler();
     }
-    s_xTaskObj.m_nTimeStampTick = UtilGetTimeStamp();
+    else {
+    	s_xTaskObj.m_nTimeStampTick = UtilGetTimeStamp();
+    }
 //  }
 }
 
