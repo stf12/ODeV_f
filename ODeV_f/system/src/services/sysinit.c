@@ -580,7 +580,7 @@ void tx_application_define(void *first_unused_memory) {
   UINT nRes = TX_SUCCESS;
   // create the INIT task.
   s_xTheSystem.pvFirstUnusedMemory = first_unused_memory;
-  nRes = tx_thread_create(&s_xTheSystem.m_xInitTask, "INIT", InitTaskRun, ODEV_MAGIC_NUMBER, s_xTheSystem.pvFirstUnusedMemory, INIT_TASK_CFG_STACK_SIZE * 4, INIT_TASK_CFG_PRIORITY, INIT_TASK_CFG_PRIORITY, TX_NO_TIME_SLICE, TX_AUTO_START);
+  nRes = tx_thread_create(&s_xTheSystem.m_xInitTask, "INIT", InitTaskRun, ODEV_MAGIC_NUMBER, s_xTheSystem.pvFirstUnusedMemory, INIT_TASK_CFG_STACK_SIZE, INIT_TASK_CFG_PRIORITY, INIT_TASK_CFG_PRIORITY, TX_NO_TIME_SLICE, TX_AUTO_START);
   if (nRes != TX_SUCCESS) {
     sys_error_handler();
   }

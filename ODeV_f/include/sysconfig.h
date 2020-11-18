@@ -64,7 +64,7 @@
 
 // file sysinit.c
 #define INIT_TASK_CFG_ENABLE_BOOT_IF              0
-#define INIT_TASK_CFG_STACK_SIZE                  (TX_MINIMUM_STACK*2)
+#define INIT_TASK_CFG_STACK_SIZE                  (TX_MINIMUM_STACK*6)
 #define INIT_TASK_CFG_HEAP_SYZE                   (150*1024)
 
 // file HelloWorldTask.c

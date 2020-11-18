@@ -67,10 +67,10 @@ sys_error_code_t SPIBusIFWaitIOComplete(SPIBusIF *_this) {
       xRes = SYS_UNDEFINED_ERROR_CODE;
     }
 //  }
-    else {
-      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INVALID_FUNC_CALL_ERROR_CODE);
-      xRes = SYS_INVALID_FUNC_CALL_ERROR_CODE;
-    }
+//    else {
+//      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INVALID_FUNC_CALL_ERROR_CODE);
+//      xRes = SYS_INVALID_FUNC_CALL_ERROR_CODE;
+//    }
 
   return xRes;
 }
@@ -85,10 +85,10 @@ sys_error_code_t SPIBusIFNotifyIOComplete(SPIBusIF *_this) {
       xRes = SYS_UNDEFINED_ERROR_CODE;
     }
 //  }
-    else {
-      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INVALID_FUNC_CALL_ERROR_CODE);
-      xRes = SYS_INVALID_FUNC_CALL_ERROR_CODE;
-    }
+//    else {
+//      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INVALID_FUNC_CALL_ERROR_CODE);
+//      xRes = SYS_INVALID_FUNC_CALL_ERROR_CODE;
+//    }
 
   return xRes;
 }
