@@ -1,0 +1,1069 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>12</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>168</x>
+      <y>1536</y>
+      <w>1644</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>valign=center
+halign=center
+bg=light_gray
+HRDWARE (STM32)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLFrame</id>
+    <coordinates>
+      <x>180</x>
+      <y>576</y>
+      <w>468</w>
+      <h>768</h>
+    </coordinates>
+    <panel_attributes>*Event*
+--
+lt=.
+
+layer=-1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1128</x>
+      <y>1404</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>STM32xxx HAL
+bg=#06a1ce
+valign=center
+halign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>924</x>
+      <y>1404</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>CMSIS
+valign=center
+halign=center
+fg=#00978a</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>720</x>
+      <y>1404</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>FreeRTOS
+valign=center
+halign=center
+bg=green</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLFrame</id>
+    <coordinates>
+      <x>660</x>
+      <y>1056</y>
+      <w>732</w>
+      <h>288</h>
+    </coordinates>
+    <panel_attributes>*Low Level API*
+--
+lt=.
+
+layer=-1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>924</x>
+      <y>1080</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;IF&gt;&gt;
+Driver
+bg=#b4bcde
+valign=center
+halign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLFrame</id>
+    <coordinates>
+      <x>660</x>
+      <y>576</y>
+      <w>732</w>
+      <h>468</h>
+    </coordinates>
+    <panel_attributes>*Services Layer*
+--
+lt=.
+
+layer=-1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLFrame</id>
+    <coordinates>
+      <x>168</x>
+      <y>0</y>
+      <w>1644</w>
+      <h>516</h>
+    </coordinates>
+    <panel_attributes>*Application Layer*
+--
+lt=.
+
+layer=-1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLFrame</id>
+    <coordinates>
+      <x>168</x>
+      <y>528</y>
+      <w>1644</w>
+      <h>984</h>
+    </coordinates>
+    <panel_attributes>*Hardware Abstraction Layer - ODeV*
+--
+lt=.
+
+layer=-1
+fg=red</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1620</x>
+      <y>576</y>
+      <w>84</w>
+      <h>768</h>
+    </coordinates>
+    <panel_attributes>Debug
+bg=#b4bcde
+valign=center
+halign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLFrame</id>
+    <coordinates>
+      <x>180</x>
+      <y>1356</y>
+      <w>1620</w>
+      <h>132</h>
+    </coordinates>
+    <panel_attributes>*Kernel*
+--
+lt=.
+
+layer=-1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>444</x>
+      <y>636</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;IF&gt;&gt;
+Listener
+bg=#b4bcde
+valign=center
+halign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1116</x>
+      <y>900</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;instance&gt;&gt;
+INIT Task
+bg=#b4bcde
+valign=center
+halign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>888</x>
+      <y>636</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;IF&gt;&gt;
+ManagedTask
+bg=#b4bcde
+valign=center
+halign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>900</x>
+      <y>900</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>Application Context
+bg=#b4bcde
+valign=center
+halign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>972</x>
+      <y>672</y>
+      <w>36</w>
+      <h>252</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;190.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1068</x>
+      <y>912</y>
+      <w>72</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>40.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>240</x>
+      <y>732</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;IF&gt;&gt;
+Event Listener
+bg=#b4bcde
+valign=center
+halign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>312</x>
+      <y>672</y>
+      <w>252</w>
+      <h>84</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>190.0;10.0;190.0;30.0;10.0;30.0;10.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>240</x>
+      <y>960</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;IF&gt;&gt;
+Event Source
+bg=#b4bcde
+valign=center
+halign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>444</x>
+      <y>1044</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;IF&gt;&gt;
+Event
+bg=#b4bcde
+valign=center
+halign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>312</x>
+      <y>996</y>
+      <w>156</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>lt=-
+genetare &gt;</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;60.0;110.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>192</x>
+      <y>744</y>
+      <w>108</w>
+      <h>264</h>
+    </coordinates>
+    <panel_attributes>lt=-
+
+
+
+
+
+send to ^</panel_attributes>
+    <additional_attributes>40.0;10.0;10.0;10.0;10.0;200.0;40.0;200.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1416</x>
+      <y>900</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;IF&gt;&gt;
+AppErrorDelegate
+bg=#b4bcde
+valign=center
+halign=center
+layer=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1416</x>
+      <y>1044</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;IF&gt;&gt;
+ErrFirstResponder
+bg=#b4bcde
+valign=center
+halign=center
+layer=1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1464</x>
+      <y>936</y>
+      <w>144</w>
+      <h>132</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=0..n
+instant notify v</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;90.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1284</x>
+      <y>900</y>
+      <w>156</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=
+                       1
+delegate &gt;</panel_attributes>
+    <additional_attributes>110.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1116</x>
+      <y>984</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;IF&gt;&gt;
+Boot
+bg=#b4bcde
+valign=center
+halign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1200</x>
+      <y>936</y>
+      <w>60</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m2=0..1</panel_attributes>
+    <additional_attributes>10.0;40.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>672</x>
+      <y>636</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;IF&gt;&gt;
+ManagedTaskEx
+bg=#b4bcde
+valign=center
+halign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>840</x>
+      <y>648</y>
+      <w>72</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>40.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1716</x>
+      <y>576</y>
+      <w>84</w>
+      <h>768</h>
+    </coordinates>
+    <panel_attributes>Trace
+bg=#b4bcde
+valign=center
+halign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1116</x>
+      <y>636</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;IF&gt;&gt;
+AppPowerModeHelper
+bg=#b4bcde
+valign=center
+halign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLFrame</id>
+    <coordinates>
+      <x>1404</x>
+      <y>576</y>
+      <w>204</w>
+      <h>768</h>
+    </coordinates>
+    <panel_attributes>*Error*
+--
+lt=.
+
+layer=-1</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1200</x>
+      <y>672</y>
+      <w>36</w>
+      <h>252</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>10.0;190.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>708</x>
+      <y>1164</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>UtilityDriver
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>996</x>
+      <y>1116</y>
+      <w>36</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;40.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>888</x>
+      <y>456</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>HelloWorld Task
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>984</x>
+      <y>300</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>SDCardTask Task
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>960</x>
+      <y>492</y>
+      <w>36</w>
+      <h>168</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;120.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>804</x>
+      <y>336</y>
+      <w>300</w>
+      <h>324</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;250.0;10.0;80.0;230.0;80.0;230.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>924</x>
+      <y>1164</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;IF&gt;&gt;
+IODriver
+bg=#b4bcde
+valign=center
+halign=center</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>780</x>
+      <y>1116</y>
+      <w>252</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>190.0;10.0;190.0;30.0;10.0;30.0;10.0;40.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>672</x>
+      <y>984</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>HDS_json
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>672</x>
+      <y>900</y>
+      <w>120</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Library&gt;&gt;
+Parson
+fg=red</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>720</x>
+      <y>936</y>
+      <w>96</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>lt=-
+uses &gt;</panel_attributes>
+    <additional_attributes>10.0;40.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>672</x>
+      <y>840</y>
+      <w>120</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>FATFS
+fg=red
+bg=white</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLInterface</id>
+    <coordinates>
+      <x>1164</x>
+      <y>252</y>
+      <w>168</w>
+      <h>108</h>
+    </coordinates>
+    <panel_attributes>SensorEventListener
+--
+OnNewDataReady</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>432</x>
+      <y>60</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>ISM330DHCXTask
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>504</x>
+      <y>96</y>
+      <w>336</w>
+      <h>564</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>260.0;450.0;260.0;280.0;10.0;280.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLInterface</id>
+    <coordinates>
+      <x>1044</x>
+      <y>12</y>
+      <w>192</w>
+      <h>180</h>
+    </coordinates>
+    <panel_attributes>IEventSrc
+--
+Init
+AddEventListener
+RemoveEventListener
+GetMaxListenerCount
+SendEvent</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>864</x>
+      <y>60</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>IIS3DWBTask
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLInterface</id>
+    <coordinates>
+      <x>612</x>
+      <y>12</y>
+      <w>192</w>
+      <h>180</h>
+    </coordinates>
+    <panel_attributes>IEventSrc
+--
+Init
+AddEventListener
+RemoveEventListener
+GetMaxListenerCount
+SendEvent</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>804</x>
+      <y>96</y>
+      <w>168</w>
+      <h>564</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;450.0;10.0;280.0;120.0;280.0;120.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>552</x>
+      <y>300</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>SPIBusTask
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>300</x>
+      <y>300</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>I2CBusTask
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>924</x>
+      <y>1248</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>SPIMasterDriver
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>996</x>
+      <y>1200</y>
+      <w>36</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;40.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>636</x>
+      <y>336</y>
+      <w>204</w>
+      <h>324</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>150.0;250.0;150.0;80.0;10.0;80.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>384</x>
+      <y>336</y>
+      <w>456</w>
+      <h>324</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>360.0;250.0;360.0;80.0;10.0;80.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>648</x>
+      <y>216</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>SPIBusIF
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>240</x>
+      <y>828</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>ISensorEventListener
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>312</x>
+      <y>768</y>
+      <w>36</w>
+      <h>84</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>228</x>
+      <y>1140</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>/AEventSrc/
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>264</x>
+      <y>996</y>
+      <w>36</w>
+      <h>168</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;120.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>228</x>
+      <y>1236</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>SensorEvtSrc
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>300</x>
+      <y>1176</y>
+      <w>36</w>
+      <h>84</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>444</x>
+      <y>1140</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>SensorEvt
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>516</x>
+      <y>1080</y>
+      <w>36</w>
+      <h>84</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1416</x>
+      <y>300</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>AI Task
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>804</x>
+      <y>336</y>
+      <w>732</w>
+      <h>324</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;250.0;10.0;80.0;590.0;80.0;590.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1128</x>
+      <y>456</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>AppPowerModeHelper
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1200</x>
+      <y>492</y>
+      <w>36</w>
+      <h>168</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;120.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>1140</x>
+      <y>1248</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>I2CMasterDriver
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>996</x>
+      <y>1200</y>
+      <w>264</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;30.0;200.0;30.0;200.0;40.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>672</x>
+      <y>744</y>
+      <w>156</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>SensorsProtocols
+(iis3dwb_reg)
+(ism330dhcx_reg)
+bg=#E0FFFF</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1152</x>
+      <y>1080</y>
+      <w>156</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>MX
+generated drv
+bg=#E0FFFF</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLGeneric</id>
+    <coordinates>
+      <x>900</x>
+      <y>984</y>
+      <w>180</w>
+      <h>48</h>
+    </coordinates>
+    <panel_attributes>SensorDB
+valign=center
+halign=center
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
