@@ -32,6 +32,7 @@
 #include "UtilityDriver.h"
 #include "UtilityDriver_vtbl.h"
 #include "FreeRTOS.h"
+#include "mx.h"
 #include "sysdebug.h"
 
 #define UTL_TIMx                        TIM5
@@ -78,6 +79,7 @@ sys_error_code_t UtilityDriver_vtblInit(IDriver *_this, void *pParams) {
 //  assert_param(pParams);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   UtilityDriver *pObj = (UtilityDriver*)_this;
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   UTL_TIMx_CLK_ENABLE();
   /* Set TIMx instance */
@@ -100,6 +102,16 @@ sys_error_code_t UtilityDriver_vtblInit(IDriver *_this, void *pParams) {
     SYS_SET_LOW_LEVEL_ERROR_CODE(SYS_UNDEFINED_ERROR_CODE);
     sys_error_handler();
   }
+
+  // configure LED2
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+//  HAL_PWREx_EnableVddIO2();
+  HAL_GPIO_WritePin(GPIOD, LED2_Pin, GPIO_PIN_RESET);
+  GPIO_InitStruct.Pin = LED2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(LED2_GPIO_Port, &GPIO_InitStruct);
 
   return xRes;
 }

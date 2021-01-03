@@ -127,6 +127,15 @@ EPowerMode AppPowerModeHelper_vtblComputeNewPowerMode(IAppPowerModeHelper *this,
     else if (ePowerMode == E_POWER_MODE_DATALOG) {
       ePowerMode = E_POWER_MODE_RUN;
     }
+    else if (ePowerMode == E_POWER_MODE_SLEEP_1) {
+      ePowerMode = E_POWER_MODE_RUN;
+    }
+    break;
+
+  case SYS_PM_EVT_SRC_LP_TIMER:
+    if (ePowerMode == E_POWER_MODE_RUN) {
+      ePowerMode = E_POWER_MODE_SLEEP_1;
+    }
     break;
 
   default:
@@ -150,11 +159,16 @@ boolean_t AppPowerModeHelper_vtblCheckPowerModeTransaction(IAppPowerModeHelper *
 
   switch (eActivePowerMode) {
   case E_POWER_MODE_RUN:
-    if (eNewPowerMode == E_POWER_MODE_DATALOG) {
+    if ((eNewPowerMode == E_POWER_MODE_DATALOG) || (eNewPowerMode == E_POWER_MODE_SLEEP_1)) {
       xRes = TRUE;
     }
     break;
   case E_POWER_MODE_DATALOG:
+    if (eNewPowerMode == E_POWER_MODE_RUN) {
+      xRes = TRUE;
+    }
+    break;
+  case E_POWER_MODE_SLEEP_1:
     if (eNewPowerMode == E_POWER_MODE_RUN) {
       xRes = TRUE;
     }
@@ -196,6 +210,7 @@ sys_error_code_t AppPowerModeHelper_vtblDidEnterPowerMode(IAppPowerModeHelper *t
     SysResetAEDCounter();
 
     if (!SysEventsPending()) {
+      HAL_SuspendTick();
       // there are no other message waiting so I can put the MCU in stop
       // Enable Power Control clock
       __HAL_RCC_PWR_CLK_ENABLE();
@@ -204,6 +219,7 @@ sys_error_code_t AppPowerModeHelper_vtblDidEnterPowerMode(IAppPowerModeHelper *t
 
 //      GPIOB->BRR = GPIO_PIN_7; //TODO: STF.Debug
 //      GPIOB->BRR = GPIO_PIN_6; //TODO: STF.Debug
+      GPIOD->BRR = GPIO_PIN_0;
 
 
       // Disable all used wakeup sources: WKUP pin
@@ -220,9 +236,17 @@ sys_error_code_t AppPowerModeHelper_vtblDidEnterPowerMode(IAppPowerModeHelper *t
 
       // Configures system clock after wake-up from STOP
       SystemClock_Restore();
+      HAL_ResumeTick();
     }
 
 //    GPIOB->BSRR = GPIO_PIN_7; //TODO: STF.Debug
+    GPIOD->BSRR = GPIO_PIN_0;
+    for (int i=0; i< 2000000; i++) __NOP();
+    GPIOD->BRR = GPIO_PIN_0;
+    for (int i=0; i< 2000000; i++) __NOP();
+    GPIOD->BSRR = GPIO_PIN_0;
+    for (int i=0; i< 2000000; i++) __NOP();
+    GPIOD->BRR = GPIO_PIN_0;
 
     // enable the IRQ
     __asm volatile ("cpsie i");
@@ -231,6 +255,8 @@ sys_error_code_t AppPowerModeHelper_vtblDidEnterPowerMode(IAppPowerModeHelper *t
   case E_POWER_MODE_RUN:
 
 //    GPIOB->BSRR = GPIO_PIN_6; //TODO: STF.Debug
+    GPIOD->BSRR = GPIO_PIN_0;
+
     SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("PMH: RUN\r\n"));
 
 #if defined(DEBUG) || defined(SYS_DEBUG)
@@ -244,6 +270,7 @@ sys_error_code_t AppPowerModeHelper_vtblDidEnterPowerMode(IAppPowerModeHelper *t
   case E_POWER_MODE_DATALOG:
 
 //    GPIOB->BSRR = GPIO_PIN_6; //TODO: STF.Debug
+    GPIOD->BRR = GPIO_PIN_0;
     SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("PMH: DATALOG\r\n"));
 
 #if defined(DEBUG) || defined(SYS_DEBUG)

@@ -98,6 +98,7 @@ extern "C" {
 // Utility task error code
 #define SYS_UTIL_TASK_BASE_ERROR_CODE                         SYS_AI_TASK_BASE_ERROR_CODE + SYS_GROUP_ERROR_COUNT
 #define SYS_UTIL_TASK_INIT_ERROR_CODE                         SYS_UTIL_TASK_BASE_ERROR_CODE + 1
+#define SYS_UTIL_TASK_LP_TIMER_ERROR_CODE                     SYS_UTIL_TASK_BASE_ERROR_CODE + 2
 
 // SDCARD task error code
 #define SYS_SD_TASK_BASE_ERROR_CODE                           SYS_UTIL_TASK_BASE_ERROR_CODE + SYS_GROUP_ERROR_COUNT

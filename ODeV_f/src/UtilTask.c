@@ -29,6 +29,7 @@
 #include "UtilityDriver_vtbl.h"
 #include "HSD_json.h"
 #include "hid_report_parser.h"
+#include "timers.h"
 #include "mx.h"
 #include "sysdebug.h"
 
@@ -43,17 +44,16 @@
 #endif
 
 #ifndef UTIL_TASK_CFG_IN_QUEUE_ITEM_SIZE
-#define UTIL_TASK_CFG_IN_QUEUE_ITEM_SIZE       sizeof(HIDReport)
+#define UTIL_TASK_CFG_IN_QUEUE_ITEM_SIZE       sizeof(struct utilReport_t)
 #endif
 
 #ifndef UTIL_TASK_CFG_IN_QUEUE_ITEM_COUNT
 #define UTIL_TASK_CFG_IN_QUEUE_ITEM_COUNT      10
 #endif
 
-#undef  portDISABLE_INTERRUPTS
-#undef  portENABLE_INTERRUPTS
-#define portDISABLE_INTERRUPTS()               __asm volatile ("cpsid i" : : : "memory");
-#define portENABLE_INTERRUPTS()                __asm volatile ("cpsie i" : : : "memory");__asm volatile ("isb 0xF":::"memory");
+#ifndef UTIL_TASK_CFG_LP_TIMER_PERIOD_MS
+#define UTIL_TASK_CFG_LP_TIMER_PERIOD_MS       10000
+#endif
 
 #define SYS_DEBUGF(level, message)             SYS_DEBUGF3(SYS_DBG_UTIL, level, message)
 
@@ -89,6 +89,11 @@ struct _UtilTask {
    * Input queue used by other task to request services.
    */
   QueueHandle_t m_xInQueue;
+
+  /**
+   * Software timer used to generate a transaction into low-power mode.
+   */
+  TimerHandle_t m_xAutoLowPowerTimer;
 };
 
 
@@ -115,6 +120,13 @@ static sys_error_code_t UtilTaskExecuteStepRun(UtilTask *_this);
  * @param pParams .
  */
 static void UtilTaskRun(void *pParams);
+
+/**
+ * Callback function called when the software timer expires.
+ *
+ * @param xTimer [IN] specifies the handle of the expired timer.
+ */
+static void UtilTaskSwTimerCallbackFunction(TimerHandle_t xTimer);
 
 
 // Inline function forward declaration
@@ -205,6 +217,14 @@ sys_error_code_t UtilTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t *
   vQueueAddToRegistry(pObj->m_xInQueue, "UTIL_Q");
 #endif
 
+  // create the software timer
+  pObj->m_xAutoLowPowerTimer = xTimerCreate("UtilT", pdMS_TO_TICKS(UTIL_TASK_CFG_LP_TIMER_PERIOD_MS), pdFALSE, pObj, UtilTaskSwTimerCallbackFunction);
+  if (pObj->m_xAutoLowPowerTimer == NULL) {
+    xRes = SYS_UTIL_TASK_INIT_ERROR_CODE;
+    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_UTIL_TASK_INIT_ERROR_CODE);
+    return xRes;
+  }
+
   *pvTaskCode = UtilTaskRun;
   *pcName = "UTIL";
   *pnStackDepth = UTIL_TASK_CFG_STACK_DEPTH;
@@ -221,6 +241,23 @@ sys_error_code_t UtilTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPower
 
   // propagate the call to the driver object.
   IDrvDoEnterPowerMode(pObj->m_pxDriver, eActivePowerMode, eNewPowerMode);
+
+  if (eNewPowerMode == E_POWER_MODE_RUN) {
+    struct utilReport_t xReport = {
+        .reportId = HID_REPORT_ID_UTIL_CMD,
+        .nCmdID = UTIL_CMD_ID_START_LP_TIMER
+    };
+
+    if (pdTRUE != xQueueSendToFront(pObj->m_xInQueue, &xReport, pdMS_TO_TICKS(150))) {
+      xRes = SYS_TASK_QUEUE_FULL_ERROR_CODE;
+    }
+  }
+  else if (eNewPowerMode == E_POWER_MODE_DATALOG) {
+    if (pdPASS != xTimerStop(pObj->m_xAutoLowPowerTimer, pdMS_TO_TICKS(100))) {
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_UTIL_TASK_LP_TIMER_ERROR_CODE);
+      xRes = SYS_UTIL_TASK_LP_TIMER_ERROR_CODE;
+    }
+  }
 
   return xRes;
 }
@@ -264,6 +301,14 @@ static sys_error_code_t UtilTaskExecuteStepRun(UtilTask *_this) {
     AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
     if (xReport.reportID == HID_REPORT_ID_FORCE_STEP) {
       __NOP();
+    }
+    else if (xReport.reportID == HID_REPORT_ID_UTIL_CMD) {
+      if (xReport.utilReport.nCmdID == UTIL_CMD_ID_START_LP_TIMER) {
+        if (pdPASS != xTimerReset(_this->m_xAutoLowPowerTimer, pdMS_TO_TICKS(100))) {
+          SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_UTIL_TASK_LP_TIMER_ERROR_CODE);
+          xRes = SYS_UTIL_TASK_LP_TIMER_ERROR_CODE;
+        }
+      }
     }
   }
 
@@ -321,6 +366,14 @@ static void UtilTaskRun(void *pParams) {
     }
 #endif
   }
+}
+
+static void UtilTaskSwTimerCallbackFunction(TimerHandle_t xTimer) {
+  SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("util: lp timer expired.\r\n"));
+
+  SysEvent xEvent;
+  xEvent.nRawEvent = SYS_PM_MAKE_EVENT(SYS_PM_EVT_SRC_LP_TIMER, SYS_PM_EVT_PARAM_ENTER_LP);
+  SysPostPowerModeEvent(xEvent);
 }
 
 

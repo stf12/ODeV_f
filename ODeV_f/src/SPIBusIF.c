@@ -23,7 +23,7 @@
  ******************************************************************************
  */
 
-#include <SPIBusIF.h>
+#include "SPIBusIF.h"
 
 // Private functions declaration
 // *****************************
@@ -40,6 +40,8 @@ sys_error_code_t SPIBusIFInit(SPIBusIF *_this, uint8_t nWhoAmI, GPIO_TypeDef* px
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
+  ABusIFInit(&_this->super);
+
   _this->m_nWhoAmI = nWhoAmI;
   _this->m_pxSSPinPort = pxSSPinPort;
   _this->m_nSSPin = nSSPin;
@@ -55,10 +57,6 @@ sys_error_code_t SPIBusIFInit(SPIBusIF *_this, uint8_t nWhoAmI, GPIO_TypeDef* px
     vQueueAddToRegistry(_this->m_xSyncObj, "SPI_IP_S");
   }
 #endif
-
-  _this->m_xConnector.pfReadReg = SPIBusNullRW;
-  _this->m_xConnector.pfWriteReg = SPIBusNullRW;
-  _this->m_xConnector.pxHandle = NULL;
 
   return xRes;
 }
@@ -103,11 +101,4 @@ sys_error_code_t SPIBusIFNotifyIOComplete(SPIBusIF *_this) {
 // Private functions definition
 // ****************************
 
-int32_t SPIBusNullRW(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData, uint16_t nSize) {
-  UNUSED(pxSensor);
-  UNUSED(nRegAddr);
-  UNUSED(pnData);
-  UNUSED(nSize);
 
-  return 0;
-}

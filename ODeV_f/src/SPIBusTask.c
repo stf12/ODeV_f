@@ -49,7 +49,16 @@
 
 
 /**
- * SPIBusTask Driver virtual table.
+ * IBus virtual table.
+ */
+static const IBus_vtbl s_xIBus_vtbl = {
+    SPIBusTask_vtblCtrl,
+    SPIBusTask_vtblConnectDevice,
+    SPIBusTask_vtblDisconnectDevice
+};
+
+/**
+ * SPIBusTask virtual table.
  */
 static const AManagedTaskEx_vtbl s_xSPIBusTask_vtbl = {
     SPIBusTask_vtblHardwareInit,
@@ -58,6 +67,12 @@ static const AManagedTaskEx_vtbl s_xSPIBusTask_vtbl = {
     SPIBusTask_vtblHandleError,
     SPIBusTask_vtblForceExecuteStep
 };
+
+typedef struct _SPIBusTaskIBus {
+  IBus super;
+
+  SPIBusTask *m_pxOwner;
+} SPIBusTaskIBus;
 
 /**
  * The only instance of the task object.
@@ -86,6 +101,8 @@ static void SPIBusTaskRun(void *pParams);
 static int32_t SPIBusTaskWrite(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData, uint16_t nSize);
 static int32_t SPIBusTaskRead(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData, uint16_t nSize);
 
+static sys_error_code_t SPIBusTaskCtrl(ABusIF *_this, EBusCtrlCmd eCtrlCmd, uint32_t nParams);
+
 
 // Inline function forward declaration
 // ***********************************
@@ -112,45 +129,25 @@ AManagedTaskEx *SPIBusTaskAlloc() {
 
 sys_error_code_t SPIBusTaskConnectDevice(SPIBusTask *_this, SPIBusIF *pxBusIF) {
   assert_param(_this);
-  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
-  if (pxBusIF != NULL) {
-    pxBusIF->m_xConnector.pfReadReg = SPIBusTaskRead;
-    pxBusIF->m_xConnector.pfWriteReg = SPIBusTaskWrite;
-    _this->m_nConnectedDevices++;
-
-    SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("SPIBUS: connected device: %d\r\n", _this->m_nConnectedDevices));
-  }
-  else {
-    xRes = SYS_INVALID_PARAMETER_ERROR_CODE;
-    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INVALID_PARAMETER_ERROR_CODE);
-  }
-
-  return xRes;
+  return IBusConnectDevice(_this->m_pBusIF, &pxBusIF->super);
 }
 
 sys_error_code_t SPIBusTaskDisconnectDevice(SPIBusTask *_this, SPIBusIF *pxBusIF) {
   assert_param(_this);
-  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
 
-  if (pxBusIF != NULL) {
-    pxBusIF->m_xConnector.pfReadReg = SPIBusNullRW;
-    pxBusIF->m_xConnector.pfWriteReg = SPIBusNullRW;
-    _this->m_nConnectedDevices--;
+  return IBusDisconnectDevice(_this->m_pBusIF, &pxBusIF->super);
+}
 
-    SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("SPIBUS: connected device: %d\r\n", _this->m_nConnectedDevices));
-  }
-  else {
-    xRes = SYS_INVALID_PARAMETER_ERROR_CODE;
-    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INVALID_PARAMETER_ERROR_CODE);
-  }
+IBus *SPIBusTaskGetBusIF(SPIBusTask *_this) {
+  assert_param(_this);
 
-  return xRes;
+  return _this->m_pBusIF;
 }
 
 
 // AManagedTask virtual functions definition
-// ***********************************************
+// *****************************************
 
 sys_error_code_t SPIBusTask_vtblHardwareInit(AManagedTask *_this, void *pParams) {
   assert_param(_this);
@@ -185,13 +182,23 @@ sys_error_code_t SPIBusTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t
     vQueueAddToRegistry(pObj->m_xInQueue, "SPI_Q");
 #endif
 
-    pObj->m_nConnectedDevices = 0;
+    pObj->m_pBusIF = pvPortMalloc(sizeof(SPIBusTaskIBus));
+    if (pObj->m_pBusIF != NULL) {
+      pObj->m_pBusIF->vptr = &s_xIBus_vtbl;
+      ((SPIBusTaskIBus*)pObj->m_pBusIF)->m_pxOwner = pObj;
 
-    *pvTaskCode = SPIBusTaskRun;
-    *pcName = "SPIBUS";
-    *pnStackDepth = SPIBUS_TASK_CFG_STACK_DEPTH;
-    *pParams = _this;
-    *pxPriority = SPIBUS_TASK_CFG_PRIORITY;
+      pObj->m_nConnectedDevices = 0;
+
+      *pvTaskCode = SPIBusTaskRun;
+      *pcName = "SPIBUS";
+      *pnStackDepth = SPIBUS_TASK_CFG_STACK_DEPTH;
+      *pParams = _this;
+      *pxPriority = SPIBUS_TASK_CFG_PRIORITY;
+    }
+    else {
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_OUT_OF_MEMORY_ERROR_CODE);
+      xRes = SYS_OUT_OF_MEMORY_ERROR_CODE;
+    }
   }
   else {
     SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_OUT_OF_MEMORY_ERROR_CODE);
@@ -246,8 +253,65 @@ sys_error_code_t SPIBusTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMo
   return xRes;
 }
 
+
+// IBus virtual functions definition
+// *********************************
+
+sys_error_code_t SPIBusTask_vtblCtrl(IBus *_this, EBusCtrlCmd eCtrlCmd, uint32_t nParams) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+
+  return xRes;
+}
+
+sys_error_code_t SPIBusTask_vtblConnectDevice(IBus *_this, ABusIF *pxBusIF) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+
+  if (pxBusIF != NULL) {
+    pxBusIF->m_xConnector.pfReadReg = SPIBusTaskRead;
+    pxBusIF->m_xConnector.pfWriteReg = SPIBusTaskWrite;
+    pxBusIF->m_pfBusCtrl = SPIBusTaskCtrl;
+    pxBusIF->m_pxBus = _this;
+    ((SPIBusTaskIBus*)_this)->m_pxOwner->m_nConnectedDevices++;
+
+    SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("SPIBUS: connected device: %d\r\n", ((SPIBusTaskIBus*)_this)->m_pxOwner->m_nConnectedDevices));
+  }
+  else {
+    xRes = SYS_INVALID_PARAMETER_ERROR_CODE;
+    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INVALID_PARAMETER_ERROR_CODE);
+  }
+
+  return xRes;
+}
+
+sys_error_code_t SPIBusTask_vtblDisconnectDevice(IBus *_this, ABusIF *pxBusIF) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+
+  if (pxBusIF != NULL) {
+    pxBusIF->m_xConnector.pfReadReg = ABusIFNullRW;
+    pxBusIF->m_xConnector.pfWriteReg = ABusIFNullRW;
+    pxBusIF->m_pfBusCtrl = NULL;
+    pxBusIF->m_pxBus = NULL;
+    ((SPIBusTaskIBus*)_this)->m_pxOwner->m_nConnectedDevices--;
+
+    SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("SPIBUS: connected device: %d\r\n", ((SPIBusTaskIBus*)_this)->m_pxOwner->m_nConnectedDevices));
+  }
+  else {
+    xRes = SYS_INVALID_PARAMETER_ERROR_CODE;
+    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INVALID_PARAMETER_ERROR_CODE);
+  }
+
+  return xRes;
+}
+
 // Private function definition
 // ***************************
+
+static sys_error_code_t SPIBusTaskCtrl(ABusIF *_this, EBusCtrlCmd eCtrlCmd, uint32_t nParams) {
+  return IBusCtrl(_this->m_pxBus, eCtrlCmd, nParams);
+}
 
 static sys_error_code_t SPIBusTaskExecuteStepRun(SPIBusTask *_this) {
   assert_param(_this);

@@ -36,7 +36,9 @@ extern "C" {
 #include "AManagedTaskEx_vtbl.h"
 #include "IIODriver.h"
 #include "IIODriver_vtbl.h"
-#include <SPIBusIF.h>
+#include "SPIBusIF.h"
+#include "IBus.h"
+#include "IBus_vtbl.h"
 #include "queue.h"
 
 
@@ -62,12 +64,17 @@ struct _SPIBusTask {
   IIODriver *m_pxDriver;
 
   /**
+   * Bus interface used to connect and disconnect devices to this object.
+   */
+  IBus *m_pBusIF;
+
+  /**
    * Task message queue. Read and write request are wrapped into message posted in this queue.
    */
   QueueHandle_t m_xInQueue;
 
   /**
-   * Count the number of devices connected to the bus. It can be used in furter version to
+   * Count the number of devices connected to the bus. It can be used in further version to
    * de-initialize the SPI IP in some of the PM state.
    */
   uint8_t m_nConnectedDevices;
@@ -102,6 +109,14 @@ sys_error_code_t SPIBusTaskConnectDevice(SPIBusTask *_this, SPIBusIF *pxBusIF);
  * @return SYS_NO_ERROR_CODE is success, SYS_INVALID_PARAMETER_ERROR_CODE if pxBuff is NULL.
  */
 sys_error_code_t SPIBusTaskDisconnectDevice(SPIBusTask *_this, SPIBusIF *pxBusIF);
+
+/**
+ * Get the ::IBus interface of teh task.
+ *
+ * @param _this [IN] specifies a task object.
+ * @return the ::IBus interface of the task.
+ */
+IBus *SPIBusTaskGetBusIF(SPIBusTask *_this);
 
 
 

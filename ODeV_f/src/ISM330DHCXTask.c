@@ -312,7 +312,7 @@ sys_error_code_t ISM330DHCXTask_vtblOnCreateTask(AManagedTask *_this, TaskFuncti
   }
   // set the SPIBusIF object as handle the IF connector because the SPIBus task
   // will use the handle to access the SPIBusIF.
-  SPIBusIFSetHandle(&pObj->m_xSensorIF, &pObj->m_xSensorIF);
+  ABusIFSetHandle(&pObj->m_xSensorIF.super, &pObj->m_xSensorIF);
 
   // Initialize the EventSrc interface.
   // take the ownership of the interface.
@@ -426,7 +426,7 @@ static sys_error_code_t ISM330DHCXTaskExecuteStepRun(ISM330DHCXTask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   HIDReport xReport = {};
-  stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.m_xConnector;
+  stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.super.m_xConnector;
 
   AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
   if (pdTRUE == xQueueReceive(_this->m_xInQueue, &xReport, portMAX_DELAY)) {
@@ -608,7 +608,7 @@ static inline sys_error_code_t ISM330DHCXTaskPostReportToFront(ISM330DHCXTask *_
 static sys_error_code_t ISM330DHCXTaskSensorInit(ISM330DHCXTask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.m_xConnector;
+  stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.super.m_xConnector;
 
   uint8_t nReg0 = 0;
   int32_t nRetVal = 0;
@@ -753,7 +753,7 @@ static sys_error_code_t ISM330DHCXTaskSensorInit(ISM330DHCXTask *_this) {
 static sys_error_code_t ISM330DHCXTaskSensorReadData(ISM330DHCXTask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-  stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.m_xConnector;
+  stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.super.m_xConnector;
   uint8_t nReg0 = 0;
   uint8_t nReg1 = 0;
 

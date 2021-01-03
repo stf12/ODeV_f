@@ -36,6 +36,9 @@ extern "C" {
 #include "AManagedTaskEx_vtbl.h"
 #include "queue.h"
 
+#define UTIL_CMD_ID_START_LP_TIMER                    ((uint16_t)0x0001)              ///< START Low Power timer command ID.
+#define UTIL_CMD_ID_STOP_LP_TIMER                     ((uint16_t)0x0002)              ///< STOP Low Power timer command ID.
+#define UTIL_CMD_ID_RESET_LP_TIMER                    ((uint16_t)0x0003)              ///< RESET Low Power timer command ID.
 
 /**
  * Create  type name for _UtilTask.
@@ -49,7 +52,7 @@ typedef struct _UtilTask UtilTask;
 /**
  * Allocate an instance of UtilTask.
  *
- * @return a pointer to the generic obejct ::AManagedTaskEx if success,
+ * @return a pointer to the generic object ::AManagedTaskEx if success,
  * or NULL if out of memory error occurs.
  */
 AManagedTaskEx *UtilTaskAlloc();
@@ -64,7 +67,7 @@ uint32_t UtilTaskGetTimeStamp(UtilTask *_this);
 
 /**
  * The same as UtilTaskGetTimeStamp() but without a task object. It implicitly uses the only
- * the only instance of ::UtilTask.
+ * instance of ::UtilTask.
  *
  * @return the system time stamp in tick.
  */

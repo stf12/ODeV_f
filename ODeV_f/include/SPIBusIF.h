@@ -29,9 +29,7 @@
 extern "C" {
 #endif
 
-#include "systp.h"
-#include "systypes.h"
-#include "syserror.h"
+#include "ABusIF.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
 
@@ -42,50 +40,6 @@ extern "C" {
 typedef struct _SPIBusIF SPIBusIF;
 
 /**
- * Create a type name for the function to write in the SPI bus.
- *
- * @param pxSensor [IN] specifies a pointer to a device.
- * @param nRegAddr [IN] specifies a register address.
- * @param pnData [IN] specifies a buffer with the data to write.
- * @param nSize [IN] specifies the size in byte of the data to write.
- * @return 0 if success, an error code otherwise.
- */
-typedef int32_t (*SPIBusWriteF)(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData, uint16_t nSize);
-
-/**
- * Create a type name for the function to read in the SPI bus.
- *
- * @param pxSensor [IN] specifies a pointer to a device.
- * @param nRegAddr [IN] specifies a register address.
- * @param pnData [OUT] specifies a buffer for the data to read.
- * @param nSize [IN] specifies the size in byte of the data to read.
- * @return 0 if success, an error code otherwise.
- */
-typedef int32_t (*SPIBusReadF) (void *pxSensor, uint8_t nRegAddr, uint8_t* pnData, uint16_t nSize);
-
-/**
- * This struct is a clone of ST stmdev_ctx_t that is defined in each sensor header file.
- * But in the bus there can be connected other devices than the ST sensors.
- */
-typedef struct _SPIBusConnector {
-  /**
-   * Function to write in the bus. It is a component mandatory fields.
-   */
-  SPIBusWriteF  pfWriteReg;
-
-  /**
-   * Function to read from the bus. It is a component mandatory fields.
-   */
-  SPIBusReadF   pfReadReg;
-
-  /**
-   * Customizable optional pointer.
-   */
-  void *pxHandle;
-} SPIBusConnector;
-
-
-/**
  * Specifies the SPI interface for a generic sensor.
  */
 struct _SPIBusIF {
@@ -93,7 +47,7 @@ struct _SPIBusIF {
    * The bus connector encapsulates the function pointer to read and write in the bus,
    * and it is compatible with the the ST universal sensor driver.
    */
-  SPIBusConnector m_xConnector;
+  ABusIF super;
 
   /**
    * Sensor ID.
@@ -134,32 +88,12 @@ sys_error_code_t SPIBusIFInit(SPIBusIF *_this, uint8_t nWhoAmI, GPIO_TypeDef* px
 sys_error_code_t SPIBusIFWaitIOComplete(SPIBusIF *_this);
 sys_error_code_t SPIBusIFNotifyIOComplete(SPIBusIF *_this);
 
-inline sys_error_code_t SPIBusIFSetHandle(SPIBusIF *_this, void *pxHandle);
-inline void *SPIBusIFGetHandle(const SPIBusIF *_this);
-
 inline sys_error_code_t SPIBusIFSetWhoAmI(SPIBusIF *_this, uint8_t nWhoAmI);
 inline uint8_t SPIBusIFGetWhoAmI(const SPIBusIF *_this);
 
-int32_t SPIBusNullRW(void *pxSensor, uint8_t nRegAddr, uint8_t* pnData, uint16_t nSize);
 
 // Inline function definition
 // **************************
-
-SYS_DEFINE_INLINE
-sys_error_code_t SPIBusIFSetHandle(SPIBusIF *_this, void *pxHandle) {
-  assert_param(_this);
-
-  _this->m_xConnector.pxHandle = pxHandle;
-
-  return SYS_NO_ERROR_CODE;
-}
-
-SYS_DEFINE_INLINE
-void *SPIBusIFGetHandle(const SPIBusIF *_this) {
-  assert_param(_this);
-
-  return _this->m_xConnector.pxHandle;
-}
 
 SYS_DEFINE_INLINE
 inline sys_error_code_t SPIBusIFSetWhoAmI(SPIBusIF *_this, uint8_t nWhoAmI) {
