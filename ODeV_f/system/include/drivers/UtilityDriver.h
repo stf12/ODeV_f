@@ -38,6 +38,7 @@ extern "C" {
 
 #include "IDriver.h"
 #include "IDriver_vtbl.h"
+#include "mx.h"
 
 
 /**
@@ -84,6 +85,15 @@ IDriver *UtilityDriverAlloc();
 
 inline uint32_t UtilityDrvGetTimeStamp(UtilityDriver *_this);
 
+/**
+ * Enable or disable the push button.
+ *
+ * @param _this [IN] specifies a pointer to an ::UtilityDriver object
+ * @param bEnable [IN] TRUE to enable the push button, FALSE to disable it.
+ * @return SYS_NO_ERROR_CODE
+ */
+inline sys_error_code_t UtilityDrvEnablePushButton(UtilityDriver *_this, boolean_t bEnable);
+
 
 // Inline functions definition
 // ***************************
@@ -93,6 +103,20 @@ inline uint32_t UtilityDrvGetTimeStamp(UtilityDriver *_this) {
   assert_param(_this);
 
   return _this->m_xTimer.Instance->CNT;
+}
+
+SYS_DEFINE_INLINE
+sys_error_code_t UtilityDrvEnablePushButton(UtilityDriver *_this, boolean_t bEnable) {
+  UNUSED(_this);
+
+  if (bEnable) {
+    HAL_NVIC_EnableIRQ(USER_BUTTON_EXTI_IRQn);
+  }
+  else {
+    HAL_NVIC_DisableIRQ(USER_BUTTON_EXTI_IRQn);
+  }
+
+  return SYS_NO_ERROR_CODE;
 }
 
 #ifdef __cplusplus

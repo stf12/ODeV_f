@@ -169,7 +169,6 @@ sys_error_code_t UtilTask_vtblHardwareInit(AManagedTask *_this, void *pParams) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   UtilTask *pObj = (UtilTask*)_this;
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   pObj->m_pxDriver = UtilityDriverAlloc();
   if (pObj->m_pxDriver == NULL) {
@@ -182,17 +181,6 @@ sys_error_code_t UtilTask_vtblHardwareInit(AManagedTask *_this, void *pParams) {
       SYS_DEBUGF(SYS_DBG_LEVEL_SEVERE, ("UTIL task: error during driver initialization\r\n"));
     }
   }
-
-  //TODO: STF -  Need to move into UtilityDriver
-  __HAL_RCC_GPIOE_CLK_ENABLE();
-
-  // Initialize PE0 (USER_BUTTON)
-  GPIO_InitStruct.Pin = USER_BUTTON_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(USER_BUTTON_GPIO_Port, &GPIO_InitStruct);
-
-  HAL_NVIC_SetPriority(USER_BUTTON_EXTI_IRQn, 15, 0);
 
   return xRes;
 }
@@ -253,6 +241,12 @@ sys_error_code_t UtilTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPower
     }
   }
   else if (eNewPowerMode == E_POWER_MODE_DATALOG) {
+    if (pdPASS != xTimerStop(pObj->m_xAutoLowPowerTimer, pdMS_TO_TICKS(100))) {
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_UTIL_TASK_LP_TIMER_ERROR_CODE);
+      xRes = SYS_UTIL_TASK_LP_TIMER_ERROR_CODE;
+    }
+  }
+  else if (eNewPowerMode == E_POWER_MODE_SLEEP_1) {
     if (pdPASS != xTimerStop(pObj->m_xAutoLowPowerTimer, pdMS_TO_TICKS(100))) {
       SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_UTIL_TASK_LP_TIMER_ERROR_CODE);
       xRes = SYS_UTIL_TASK_LP_TIMER_ERROR_CODE;
@@ -321,7 +315,7 @@ static void UtilTaskRun(void *pParams) {
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("UTIL: start.\r\n"));
 
-  HAL_NVIC_EnableIRQ(USER_BUTTON_EXTI_IRQn);
+  UtilityDrvEnablePushButton(NULL, TRUE);
 
   for (;;) {
 

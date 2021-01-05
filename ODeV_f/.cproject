@@ -251,7 +251,6 @@
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="ODeV_f.null.1442992955" name="ODeV_f"/>
 	</storageModule>
@@ -269,13 +268,31 @@
 			<path value=""/>
 		</doc-comment-owner>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
+		<buildTargets>
+			<target name="assets" path="gui/target/gcc" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>make</buildCommand>
+				<buildArguments/>
+				<buildTarget>assets</buildTarget>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>true</useDefaultCommand>
+				<runAllBuilders>true</runAllBuilders>
+			</target>
+		</buildTargets>
+	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.release.432393970;com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.release.432393970.;com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.1472600066;com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.1045823704">
-			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="com.atollic.truestudio.configuration.release.1683439469.864214478;com.atollic.truestudio.configuration.release.1683439469.864214478.;com.atollic.truestudio.exe.release.toolchain.gcc.55001740;com.atollic.truestudio.gcc.input.119625809">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.atollic.truestudio.mbs.ARMToolsPerProjectProfileC"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.348870285;com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.348870285.;com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.44223294;com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.1820768887">
-			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="com.atollic.truestudio.exe.debug.1791647559.1073279283.1140767606;com.atollic.truestudio.exe.debug.1791647559.1073279283.1140767606.;com.atollic.truestudio.exe.debug.toolchain.gcc.1351138919;com.atollic.truestudio.gcc.input.376225185">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.atollic.truestudio.mbs.ARMToolsPerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.atollic.truestudio.exe.debug.1791647559;com.atollic.truestudio.exe.debug.1791647559.;com.atollic.truestudio.exe.debug.toolchain.gcc.1637060342;com.atollic.truestudio.gcc.input.277578509">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.atollic.truestudio.mbs.ARMToolsPerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="com.atollic.truestudio.configuration.release.1683439469;com.atollic.truestudio.configuration.release.1683439469.;com.atollic.truestudio.exe.release.toolchain.gcc.389221789;com.atollic.truestudio.gcc.input.2025451073">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.atollic.truestudio.mbs.ARMToolsPerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 	</storageModule>
 </cproject>

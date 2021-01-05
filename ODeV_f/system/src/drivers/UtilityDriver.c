@@ -113,6 +113,17 @@ sys_error_code_t UtilityDriver_vtblInit(IDriver *_this, void *pParams) {
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LED2_GPIO_Port, &GPIO_InitStruct);
 
+  // configure the push button
+  __HAL_RCC_GPIOE_CLK_ENABLE();
+
+  // Initialize PE0 (USER_BUTTON)
+  GPIO_InitStruct.Pin = USER_BUTTON_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(USER_BUTTON_GPIO_Port, &GPIO_InitStruct);
+
+  HAL_NVIC_SetPriority(USER_BUTTON_EXTI_IRQn, 15, 0);
+
   return xRes;
 }
 
