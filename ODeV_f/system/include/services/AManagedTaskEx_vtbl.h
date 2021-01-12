@@ -54,6 +54,7 @@ struct _AManagedTaskEx_vtbl {
   sys_error_code_t (*DoEnterPowerMode)(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
   sys_error_code_t (*HandleError)(AManagedTask *_this, SysEvent xError);
   sys_error_code_t (*ForceExecuteStep)(AManagedTaskEx *_this, EPowerMode eActivePowerMode);
+  sys_error_code_t (*OnEnterPowerMode)(AManagedTaskEx *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
 };
 
 /**
@@ -62,8 +63,9 @@ struct _AManagedTaskEx_vtbl {
  */
 typedef struct _AMTStatusEx {
   uint8_t nIsWaitingNoTimeout : 1;
+  uint8_t nPowerModeClass: 2;
 
-  uint8_t nUnused: 6;
+  uint8_t nUnused: 4;
   uint8_t nReserved : 1;
 } AMTStatusEx;
 
@@ -109,6 +111,11 @@ sys_error_code_t AMTExForceExecuteStep(AManagedTaskEx *_this, EPowerMode eActive
 }
 
 SYS_DEFINE_INLINE
+sys_error_code_t AMTExOnEnterPowerMode(AManagedTaskEx *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
+  return _this->vptr->OnEnterPowerMode(_this, eActivePowerMode, eNewPowerMode);
+}
+
+SYS_DEFINE_INLINE
 sys_error_code_t AMTInitEx(AManagedTaskEx *_this) {
   AManagedTaskEx *pObj = (AManagedTaskEx*)_this;
 
@@ -121,6 +128,7 @@ sys_error_code_t AMTInitEx(AManagedTaskEx *_this) {
   _this->m_xStatus.nErrorCount = 0;
   _this->m_xStatus.nReserved = 1; // this identifies the task as an AManagedTaskEx.
   pObj->m_xStatusEx.nIsWaitingNoTimeout = 0;
+  pObj->m_xStatusEx.nPowerModeClass = E_PM_CLASS_0;
   pObj->m_xStatusEx.nUnused = 0;
   pObj->m_xStatusEx.nReserved = 0;
 
@@ -141,6 +149,22 @@ boolean_t AMTExIsTaskInactive(AManagedTaskEx *_this){
   assert_param(_this);
 
   return (boolean_t)_this->m_xStatusEx.nIsWaitingNoTimeout;
+}
+
+SYS_DEFINE_INLINE
+sys_error_code_t AMTExIsTaskSetPMClass(AManagedTaskEx *_this, EPMClass eNewPMClass) {
+  assert_param(_this);
+
+  _this->m_xStatusEx.nPowerModeClass = eNewPMClass;
+
+  return SYS_NO_ERROR_CODE;
+}
+
+SYS_DEFINE_INLINE
+EPMClass AMTExIsTaskGetPMClass(AManagedTaskEx *_this) {
+  assert_param(_this);
+
+  return _this->m_xStatusEx.nPowerModeClass;
 }
 
 

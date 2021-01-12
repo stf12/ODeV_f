@@ -65,7 +65,8 @@ static const AManagedTaskEx_vtbl s_xSPIBusTask_vtbl = {
     SPIBusTask_vtblOnCreateTask,
     SPIBusTask_vtblDoEnterPowerMode,
     SPIBusTask_vtblHandleError,
-    SPIBusTask_vtblForceExecuteStep
+    SPIBusTask_vtblForceExecuteStep,
+    SPIBusTask_vtblOnEnterPowerMode
 };
 
 typedef struct _SPIBusTaskIBus {
@@ -211,9 +212,13 @@ sys_error_code_t SPIBusTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t
 sys_error_code_t SPIBusTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  SPIBusTask *pObj = (SPIBusTask*)_this;
+  SPIBusTask *pObj = (SPIBusTask*)_this;
 
-//  xQueueReset(pObj->m_xInQueue);
+  IDrvDoEnterPowerMode((IDriver*)pObj->m_pxDriver, eActivePowerMode, eNewPowerMode);
+
+  if (eNewPowerMode == E_POWER_MODE_SLEEP_1) {
+    xQueueReset(pObj->m_xInQueue);
+  }
 
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("SPIBUS: -> %d\r\n", eNewPowerMode));
 
@@ -248,6 +253,21 @@ sys_error_code_t SPIBusTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMo
   }
   else {
     vTaskResume(_this->m_xThaskHandle);
+  }
+
+  return xRes;
+}
+
+sys_error_code_t SPIBusTask_vtblOnEnterPowerMode(AManagedTaskEx *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+//  SPIBusTask *pObj = (SPIBusTask*)_this;
+
+  if ((eActivePowerMode == E_POWER_MODE_RUN) && (eNewPowerMode == E_POWER_MODE_SLEEP_1)) {
+    AMTExIsTaskSetPMClass(_this, E_PM_CLASS_1);
+  }
+  else {
+    AMTExIsTaskSetPMClass(_this, E_PM_CLASS_0);
   }
 
   return xRes;

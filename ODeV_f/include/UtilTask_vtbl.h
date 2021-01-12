@@ -36,6 +36,8 @@ sys_error_code_t UtilTask_vtblOnCreateTask(AManagedTask *_this, TaskFunction_t *
 sys_error_code_t UtilTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode); ///< @sa AMTDoEnterPowerMode
 sys_error_code_t UtilTask_vtblHandleError(AManagedTask *_this, SysEvent xError); ///< @sa AMTHandleError
 sys_error_code_t UtilTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMode eActivePowerMode); ///< @sa AMTExForceExecuteStep
+sys_error_code_t UtilTask_vtblOnEnterPowerMode(AManagedTaskEx *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode); ///< @sa AMTExOnEnterPowerMode
+
 
 #ifdef __cplusplus
 }

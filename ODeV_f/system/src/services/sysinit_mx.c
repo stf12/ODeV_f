@@ -185,9 +185,9 @@ void SysPowerConfig() {
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PBPin PBPin PB7 PBPin
-                           PBPin */
+                           PB2 PBPin */
   GPIO_InitStruct.Pin = PB9_Pin|PB8_Pin|GPIO_PIN_7|PB14_Pin
-                          |CHRGB0_Pin;
+                          |CHRGB0_Pin|GPIO_PIN_2;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PC7 */
@@ -202,8 +202,8 @@ void SysPowerConfig() {
   GPIO_InitStruct.Pin = PE12_Pin;
   HAL_GPIO_Init(PE12_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PF11 */
-  GPIO_InitStruct.Pin = GPIO_PIN_11;
+  /*Configure GPIO pin : PF4 PF11 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_11;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PG13 PGPin PGPin PGPin */

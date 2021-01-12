@@ -66,7 +66,8 @@ static const AManagedTaskEx_vtbl s_xUtilTask_vtbl = {
     UtilTask_vtblOnCreateTask,
     UtilTask_vtblDoEnterPowerMode,
     UtilTask_vtblHandleError,
-    UtilTask_vtblForceExecuteStep
+    UtilTask_vtblForceExecuteStep,
+    UtilTask_vtblOnEnterPowerMode
 };
 
 /**
@@ -162,8 +163,8 @@ uint32_t UtilGetTimeStamp() {
   return UtilityDrvGetTimeStamp((UtilityDriver*)s_xTaskObj.m_pxDriver);
 }
 
-// AManagedTask virtual functions definition
-// ***********************************************
+// AManagedTaskEx virtual functions definition
+// *******************************************
 
 sys_error_code_t UtilTask_vtblHardwareInit(AManagedTask *_this, void *pParams) {
   assert_param(_this);
@@ -278,6 +279,14 @@ sys_error_code_t UtilTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMode
   else {
     vTaskResume(_this->m_xThaskHandle);
   }
+
+  return xRes;
+}
+
+sys_error_code_t UtilTask_vtblOnEnterPowerMode(AManagedTaskEx *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+//  UtilTask *pObj = (UtilTask*)_this;
 
   return xRes;
 }

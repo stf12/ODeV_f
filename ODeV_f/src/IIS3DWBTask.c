@@ -60,6 +60,12 @@
 #define IIS3DWB_INT1_EXTI_IRQn                    EXTI15_10_IRQn
 #define IIS3DWB_INT1_EXTI_LINE                    EXTI_LINE_14
 
+#define IIS3DWB_INT2_Pin                          GPIO_PIN_2
+#define IIS3DWB_INT2_GPIO_Port                    GPIOB
+#define IIS3DWB_INT2_GPIO_CLK_ENABLE()            __HAL_RCC_GPIOB_CLK_ENABLE()
+#define IIS3DWB_INT2_EXTI_IRQn                    EXTI2_IRQn
+#define IIS3DWB_INT2_EXTI_LINE                    EXTI_LINE_2
+
 #define IIS3DWB_WRITE_BUFFER_SIZE                 (uint32_t)(32000)
 
 #define SYS_DEBUGF(level, message)                SYS_DEBUGF3(SYS_DBG_IIS3DWB, level, message)
@@ -73,7 +79,8 @@ static const AManagedTaskEx_vtbl s_xIIS3DWBTask_vtbl = {
     IIS3DWBTask_vtblOnCreateTask,
     IIS3DWBTask_vtblDoEnterPowerMode,
     IIS3DWBTask_vtblHandleError,
-    IIS3DWBTask_vtblForceExecuteStep
+    IIS3DWBTask_vtblForceExecuteStep,
+    IIS3DWBTask_vtblOnEnterPowerMode
 };
 
 /**
@@ -197,6 +204,10 @@ static sys_error_code_t IIS3DWBTaskSensorRegisterInDB(IIS3DWBTask *_this);
  */
 static boolean_t IIS3DWBTaskSensorIsActive(const IIS3DWBTask *_this);
 
+static sys_error_code_t IIS3DWBTaskEnterLowPowerMode(const IIS3DWBTask *_this);
+
+static sys_error_code_t IIS3DWBTaskConfigureIrqPin(const IIS3DWBTask *_this, boolean_t bLowPower);
+
 /**
  * SPI CS Pin interrupt callback
  */
@@ -254,34 +265,9 @@ IEventSrc *IIS3DWBTaskGetEventSrcIF(IIS3DWBTask *_this) {
 sys_error_code_t IIS3DWBTask_vtblHardwareInit(AManagedTask *_this, void *pParams) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  IIS3DWBTask *pObj = (IIS3DWBTask*)_this;
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  IIS3DWBTask *pObj = (IIS3DWBTask*)_this;
 
-  /* GPIO Ports Clock Enable */
-  IIS3DWB_SPI_CS_GPIO_CLK_ENABLE();
-  IIS3DWB_INT1_GPIO_CLK_ENABLE();
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(IIS3DWB_SPI_CS_GPIO_Port, IIS3DWB_SPI_CS_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pin : IIS3DWB_SPI_CS_Pin */
-  GPIO_InitStruct.Pin = IIS3DWB_SPI_CS_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(IIS3DWB_SPI_CS_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : STTS751_INT_Pin IIS3DWB_INT1_Pin */
-  GPIO_InitStruct.Pin =  IIS3DWB_INT1_Pin ;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
-//  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
-//  HAL_EXTI_GetHandle(&iis3dwb_exti, EXTI_LINE_14);
-//  HAL_EXTI_RegisterCallback(&iis3dwb_exti,  HAL_EXTI_COMMON_CB_ID, IIS3DWB_Int_Callback);
+  IIS3DWBTaskConfigureIrqPin(pObj, FALSE);
 
   return xRes;
 }
@@ -363,8 +349,6 @@ sys_error_code_t IIS3DWBTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPo
     SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("IIS3DWB: -> DATALOG\r\n"));
   }
   else if (eNewPowerMode == E_POWER_MODE_RUN) {
-    //TODO: STF - power down
-
     HIDReport xReport = {
         .sensorReport.reportId = HID_REPORT_ID_SENSOR_CMD,
         .sensorReport.nCmdID = SENSOR_CMD_ID_STOP
@@ -376,6 +360,21 @@ sys_error_code_t IIS3DWBTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPo
     }
 
     SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("IIS3DWB: -> RUN\r\n"));
+  }
+  else if (eNewPowerMode == E_POWER_MODE_SLEEP_1) {
+    // the MCU is going in stop so I put the sensor in low power
+    // from the INIT task
+    xRes = IIS3DWBTaskEnterLowPowerMode(pObj);
+    if (SYS_IS_ERROR_CODE(xRes)) {
+      sys_error_handler();
+    }
+    IIS3DWBTaskConfigureIrqPin(pObj, TRUE);
+    // notify the bus
+    if (pObj->m_xSensorIF.super.m_pfBusCtrl != NULL) {
+      pObj->m_xSensorIF.super.m_pfBusCtrl(&pObj->m_xSensorIF.super, E_BUS_CTRL_DEV_NOTIFY_POWER_MODE, 0);
+    }
+
+    SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("IIS3DWB: -> SLEEP_1\r\n"));
   }
 
   return xRes;
@@ -401,23 +400,6 @@ sys_error_code_t IIS3DWBTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerM
   };
 
   if ((eActivePowerMode == E_POWER_MODE_RUN) || (eActivePowerMode == E_POWER_MODE_DATALOG)) {
-//    uint8_t nCount = 3;
-//    while(nCount) {
-//      xRes = IIS3DWBTaskPostReportToFront(pObj, (HIDReport*)&xReport);
-//      if (SYS_IS_ERROR_CODE(xRes)) {
-//        // we are in a power mode switch but we can't resume the task because the in queue is full!
-//        // try to reset the queue
-//        nCount--;
-//        xQueueReset(pObj->m_xInQueue);
-//      }
-//      else {
-//        nCount = 0;
-//      }
-//    }
-//    if (uxQueueMessagesWaiting(pObj->m_xSensorIF.m_xSyncObj)) {
-//      SPIBusIFNotifyIOComplete(&pObj->m_xSensorIF);
-//    }
-//    _this->m_xStatus.nDelayPowerModeSwitch = 0;
     if (AMTExIsTaskInactive(_this)) {
       xRes = IIS3DWBTaskPostReportToFront(pObj, (HIDReport*)&xReport);
     }
@@ -428,6 +410,14 @@ sys_error_code_t IIS3DWBTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerM
   else {
     vTaskResume(_this->m_xThaskHandle);
   }
+
+  return xRes;
+}
+
+sys_error_code_t IIS3DWBTask_vtblOnEnterPowerMode(AManagedTaskEx *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+//  IIS3DWBTask *pObj = (ISM330DHCXTask*)_this;
 
   return xRes;
 }
@@ -493,7 +483,7 @@ static sys_error_code_t IIS3DWBTaskExecuteStepDatalog(IIS3DWBTask *_this) {
       break;
 
     case HID_REPORT_ID_IIS3DWB:
-      SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("IIS3DWB: new data.\r\n"));
+//      SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("IIS3DWB: new data.\r\n"));
       xRes = IIS3DWBTaskSensorReadData(_this);
       if (!SYS_IS_ERROR_CODE(xRes)) {
         // update the time stamp
@@ -806,6 +796,67 @@ static boolean_t IIS3DWBTaskSensorIsActive(const IIS3DWBTask *_this) {
   }
 
   return bRes;
+}
+
+static sys_error_code_t IIS3DWBTaskEnterLowPowerMode(const IIS3DWBTask *_this) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.super.m_xConnector;
+
+
+
+  return xRes;
+}
+
+static sys_error_code_t IIS3DWBTaskConfigureIrqPin(const IIS3DWBTask *_this, boolean_t bLowPower) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  if (!bLowPower) {
+
+    /* GPIO Ports Clock Enable */
+    IIS3DWB_SPI_CS_GPIO_CLK_ENABLE();
+    IIS3DWB_INT1_GPIO_CLK_ENABLE();
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(IIS3DWB_SPI_CS_GPIO_Port, IIS3DWB_SPI_CS_Pin, GPIO_PIN_SET);
+
+    /*Configure GPIO pin : IIS3DWB_SPI_CS_Pin */
+    GPIO_InitStruct.Pin = IIS3DWB_SPI_CS_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(IIS3DWB_SPI_CS_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : STTS751_INT_Pin IIS3DWB_INT1_Pin */
+    GPIO_InitStruct.Pin =  IIS3DWB_INT1_Pin ;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+    /* EXTI interrupt init*/
+    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
+  //  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+  //  HAL_EXTI_GetHandle(&iis3dwb_exti, EXTI_LINE_14);
+  //  HAL_EXTI_RegisterCallback(&iis3dwb_exti,  HAL_EXTI_COMMON_CB_ID, IIS3DWB_Int_Callback);
+  }
+  else {
+    GPIO_InitStruct.Pin =  IIS3DWB_INT1_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(IIS3DWB_INT1_GPIO_Port, &GPIO_InitStruct);
+    HAL_NVIC_DisableIRQ(IIS3DWB_INT1_EXTI_IRQn);
+    HAL_NVIC_ClearPendingIRQ(IIS3DWB_INT1_EXTI_IRQn);
+
+    IIS3DWB_INT2_GPIO_CLK_ENABLE();
+    GPIO_InitStruct.Pin =  IIS3DWB_INT2_Pin;
+    HAL_GPIO_Init(IIS3DWB_INT2_GPIO_Port, &GPIO_InitStruct);
+    HAL_NVIC_DisableIRQ(IIS3DWB_INT2_EXTI_IRQn);
+    HAL_NVIC_ClearPendingIRQ(IIS3DWB_INT2_EXTI_IRQn);  }
+
+  return xRes;
 }
 
 

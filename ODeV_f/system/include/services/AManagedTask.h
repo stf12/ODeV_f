@@ -90,9 +90,13 @@ inline sys_error_code_t AMTHardwareInit(AManagedTask *_this, void *pParams);
 inline sys_error_code_t AMTOnCreateTask(AManagedTask *_this, TaskFunction_t *pvTaskCode, const char **pcName, unsigned short *pnStackDepth, void **pParams, UBaseType_t *pxPriority);
 
 /**
- * Task specific function called by the framework when the system is entering a specific power mode.
+ * Task specific function called by the framework when the system is entering a specific power mode, in order to
+ * implement the transaction in the power mode state machine.
  * This function is executed in the INIT task execution flow.
- * A managed task should ... TBC
+ * A managed task should modify its internal state to be ready to execute steps in the new power mode.
+ * The implementation of the managed task control loop, provided with the framework template, suspend the task
+ * after this function is called. The INIT task is in charge to resume the task when all the tasks are ready
+ * and the new power mode become actual.
  *
  * @param _this [IN] specifies a task object pointer.
  * @param eActivePowerMode [IN] specifies the current power mode of the system.

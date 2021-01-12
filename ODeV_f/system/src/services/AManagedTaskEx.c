@@ -41,5 +41,8 @@ extern sys_error_code_t AMTExForceExecuteStep(AManagedTaskEx *this, EPowerMode e
 extern sys_error_code_t AMTExSetInactiveState(AManagedTaskEx *this, boolean_t bBlockedSuspended);
 extern sys_error_code_t AMTInitEx(AManagedTaskEx *this);
 extern boolean_t AMTExIsTaskInactive(AManagedTaskEx *this);
+extern sys_error_code_t AMTExOnEnterPowerMode(AManagedTaskEx *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
+extern sys_error_code_t AMTExIsTaskSetPMClass(AManagedTaskEx *_this, EPMClass eNewPMClass);
+extern EPMClass AMTExIsTaskGetPMClass(AManagedTaskEx *_this);
 #endif
 

@@ -48,6 +48,7 @@ sys_error_code_t ISM330DHCXTask_vtblOnCreateTask(AManagedTask *_this, TaskFuncti
 sys_error_code_t ISM330DHCXTask_vtblDoEnterPowerMode(AManagedTask *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode); ///< @sa AMTDoEnterPowerMode
 sys_error_code_t ISM330DHCXTask_vtblHandleError(AManagedTask *_this, SysEvent xError); ///< @sa AMTHandleError
 sys_error_code_t ISM330DHCXTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPowerMode eActivePowerMode); ///< @sa AMTExForceExecuteStep
+sys_error_code_t ISM330DHCXTask_vtblOnEnterPowerMode(AManagedTaskEx *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode); ///< @sa AMTExOnEnterPowerMode
 
 
 #ifdef __cplusplus

@@ -60,6 +60,12 @@
 #define ISM330DHCX_INT1_EXTI_IRQn                    EXTI9_5_IRQn
 #define ISM330DHCX_INT1_EXTI_LINE                    EXTI_LINE_8
 
+#define ISM330DHCX_INT2_Pin                          GPIO_PIN_4
+#define ISM330DHCX_INT2_GPIO_Port                    GPIOF
+#define ISM330DHCX_INT2_GPIO_CLK_ENABLE()            __HAL_RCC_GPIOF_CLK_ENABLE()
+#define ISM330DHCX_INT2_EXTI_IRQn                    EXTI4_IRQn
+#define ISM330DHCX_INT2_EXTI_LINE                    EXTI_LINE_4
+
 #define ISM330DHCX_WRITE_BUFFER_SIZE                 (uint32_t)(16000)
 
 #define SYS_DEBUGF(level, message)                   SYS_DEBUGF3(SYS_DBG_ISM330DHCX, level, message)
@@ -73,7 +79,8 @@ static const AManagedTaskEx_vtbl s_xISM330DHCXTask_vtbl = {
     ISM330DHCXTask_vtblOnCreateTask,
     ISM330DHCXTask_vtblDoEnterPowerMode,
     ISM330DHCXTask_vtblHandleError,
-    ISM330DHCXTask_vtblForceExecuteStep
+    ISM330DHCXTask_vtblForceExecuteStep,
+    ISM330DHCXTask_vtblOnEnterPowerMode
 };
 
 /**
@@ -197,6 +204,10 @@ static sys_error_code_t ISM330DHCXTaskSensorRegisterInDB(ISM330DHCXTask *_this);
  */
 static boolean_t ISM330DHCXTaskSensorIsActive(const ISM330DHCXTask *_this);
 
+static sys_error_code_t ISM330DHCXTaskEnterLowPowerMode(const ISM330DHCXTask *_this);
+
+static sys_error_code_t ISM330DHCXTaskConfigureIrqPin(const ISM330DHCXTask *_this, boolean_t bLowPower);
+
 /**
  * SPI CS Pin interrupt callback
  */
@@ -250,40 +261,15 @@ IEventSrc *ISM330DHCXTaskGetEventSrcIF(ISM330DHCXTask *_this) {
 }
 
 
-// AManagedTask virtual functions definition
-// *****************************************
+// AManagedTaskEx virtual functions definition
+// *******************************************
 
 sys_error_code_t ISM330DHCXTask_vtblHardwareInit(AManagedTask *_this, void *pParams) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
-//  ISM330DHCXTask *pObj = (ISM330DHCXTask*)_this;
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  ISM330DHCXTask *pObj = (ISM330DHCXTask*)_this;
 
-  /* GPIO Ports Clock Enable */
-  ISM330DHCX_SPI_CS_GPIO_CLK_ENABLE();
-  ISM330DHCX_INT1_GPIO_CLK_ENABLE();
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(ISM330DHCX_SPI_CS_GPIO_Port, ISM330DHCX_SPI_CS_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pin : IIS3DWB_SPI_CS_Pin */
-  GPIO_InitStruct.Pin = ISM330DHCX_SPI_CS_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(ISM330DHCX_SPI_CS_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : STTS751_INT_Pin IIS3DWB_INT1_Pin */
-  GPIO_InitStruct.Pin =  ISM330DHCX_INT1_Pin ;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(ISM330DHCX_INT1_GPIO_Port, &GPIO_InitStruct);
-
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(ISM330DHCX_INT1_EXTI_IRQn, 5, 0);
-//  HAL_NVIC_EnableIRQ(ISM330DHCX_INT1_EXTI_IRQn); //TODO: STF - I want to listen the IRQ only after the initialization when the user tasks run
-//  HAL_EXTI_GetHandle(&g_ism330dhcx_exti, ISM330DHCX_INT1_EXTI_LINE);
-//  HAL_EXTI_RegisterCallback(&g_ism330dhcx_exti,  HAL_EXTI_COMMON_CB_ID, ISM330DHCXTask_EXTI_Callback);
+  ISM330DHCXTaskConfigureIrqPin(pObj, FALSE);
 
   return xRes;
 }
@@ -365,8 +351,6 @@ sys_error_code_t ISM330DHCXTask_vtblDoEnterPowerMode(AManagedTask *_this, const 
     SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("ISM330DHCX: -> DATALOG\r\n"));
   }
   else if (eNewPowerMode == E_POWER_MODE_RUN) {
-    // TODO: STF - power down
-
     HIDReport xReport = {
         .sensorReport.reportId = HID_REPORT_ID_SENSOR_CMD,
         .sensorReport.nCmdID = SENSOR_CMD_ID_STOP
@@ -379,7 +363,21 @@ sys_error_code_t ISM330DHCXTask_vtblDoEnterPowerMode(AManagedTask *_this, const 
 
     SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("ISM330DHCX: -> RUN\r\n"));
   }
+  else if (eNewPowerMode == E_POWER_MODE_SLEEP_1) {
+    // the MCU is going in stop so I put the sensor in low power
+    // from the INIT task
+    xRes = ISM330DHCXTaskEnterLowPowerMode(pObj);
+    if (SYS_IS_ERROR_CODE(xRes)) {
+      sys_error_handler();
+    }
+    ISM330DHCXTaskConfigureIrqPin(pObj, TRUE);
+    // notify the bus
+    if (pObj->m_xSensorIF.super.m_pfBusCtrl != NULL) {
+      pObj->m_xSensorIF.super.m_pfBusCtrl(&pObj->m_xSensorIF.super, E_BUS_CTRL_DEV_NOTIFY_POWER_MODE, 0);
+    }
 
+    SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("ISM330DHCX: -> SLEEP_1\r\n"));
+  }
 
   return xRes;
 }
@@ -418,6 +416,15 @@ sys_error_code_t ISM330DHCXTask_vtblForceExecuteStep(AManagedTaskEx *_this, EPow
   return xRes;
 }
 
+sys_error_code_t ISM330DHCXTask_vtblOnEnterPowerMode(AManagedTaskEx *_this, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+//  ISM330DHCXTask *pObj = (ISM330DHCXTask*)_this;
+
+  return xRes;
+}
+
+
 
 // Private function definition
 // ***************************
@@ -448,6 +455,11 @@ static sys_error_code_t ISM330DHCXTaskExecuteStepRun(ISM330DHCXTask *_this) {
       break;
 
     default:
+      // unwanted report
+      xRes = SYS_APP_TASK_UNKNOWN_REPORT_ERROR_CODE;
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_UNKNOWN_REPORT_ERROR_CODE);
+
+      SYS_DEBUGF(SYS_DBG_LEVEL_WARNING, ("ISM330DHCX: unexpected report in Run: %i\r\n", xReport.reportID));
       break;
     }
   }
@@ -497,6 +509,7 @@ static sys_error_code_t ISM330DHCXTaskExecuteStepDatalog(ISM330DHCXTask *_this) 
 
     case HID_REPORT_ID_SENSOR_CMD:
       if (xReport.sensorReport.nCmdID == SENSOR_CMD_ID_START) {
+//        ISM330DHCXTaskConfigureIrqPin(_this, FALSE);
         xRes = ISM330DHCXTaskSensorInit(_this);
         if (!SYS_IS_ERROR_CODE(xRes)) {
           // enable the IRQs
@@ -509,6 +522,8 @@ static sys_error_code_t ISM330DHCXTaskExecuteStepDatalog(ISM330DHCXTask *_this) 
       // unwanted report
       xRes = SYS_APP_TASK_UNKNOWN_REPORT_ERROR_CODE;
       SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_APP_TASK_UNKNOWN_REPORT_ERROR_CODE);
+
+      SYS_DEBUGF(SYS_DBG_LEVEL_WARNING, ("ISM330DHCX: unexpected report in Datalog: %i\r\n", xReport.reportID));
     }
   }
 
@@ -900,6 +915,79 @@ static boolean_t ISM330DHCXTaskSensorIsActive(const ISM330DHCXTask *_this) {
   }
 
   return bRes;
+}
+
+static sys_error_code_t ISM330DHCXTaskEnterLowPowerMode(const ISM330DHCXTask *_this) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+  stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.super.m_xConnector;
+
+  ism330dhcx_odr_xl_t ism330dhcx_odr_xl = ISM330DHCX_XL_ODR_OFF;
+  ism330dhcx_bdr_xl_t ism330dhcx_bdr_xl = ISM330DHCX_XL_NOT_BATCHED;
+  ism330dhcx_odr_g_t ism330dhcx_odr_g = ISM330DHCX_GY_ODR_OFF;
+  ism330dhcx_bdr_gy_t ism330dhcx_bdr_gy = ISM330DHCX_GY_NOT_BATCHED;
+
+  ism330dhcx_xl_data_rate_set(pxSensorDrv, ism330dhcx_odr_xl);
+  ism330dhcx_fifo_xl_batch_set(pxSensorDrv, ism330dhcx_bdr_xl);
+  ism330dhcx_gy_data_rate_set(pxSensorDrv, ism330dhcx_odr_g);
+  ism330dhcx_fifo_gy_batch_set(pxSensorDrv, ism330dhcx_bdr_gy);
+
+  return xRes;
+}
+
+static sys_error_code_t ISM330DHCXTaskConfigureIrqPin(const ISM330DHCXTask *_this, boolean_t bLowPower) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  if (!bLowPower) {
+
+    /* GPIO Ports Clock Enable */
+    ISM330DHCX_SPI_CS_GPIO_CLK_ENABLE();
+    ISM330DHCX_INT1_GPIO_CLK_ENABLE();
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(ISM330DHCX_SPI_CS_GPIO_Port, ISM330DHCX_SPI_CS_Pin, GPIO_PIN_SET);
+
+    /*Configure GPIO pin : ISM330DHCX_SPI_CS_Pin */
+    GPIO_InitStruct.Pin = ISM330DHCX_SPI_CS_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(ISM330DHCX_SPI_CS_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : ISM330DHCX_INT_Pin  */
+    GPIO_InitStruct.Pin =  ISM330DHCX_INT1_Pin ;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(ISM330DHCX_INT1_GPIO_Port, &GPIO_InitStruct);
+
+    /* EXTI interrupt init*/
+    HAL_NVIC_SetPriority(ISM330DHCX_INT1_EXTI_IRQn, 5, 0);
+//  HAL_NVIC_EnableIRQ(ISM330DHCX_INT1_EXTI_IRQn); //TODO: STF - I want to listen the IRQ only after the initialization when the user tasks run
+//  HAL_EXTI_GetHandle(&g_ism330dhcx_exti, ISM330DHCX_INT1_EXTI_LINE);
+//  HAL_EXTI_RegisterCallback(&g_ism330dhcx_exti,  HAL_EXTI_COMMON_CB_ID, ISM330DHCXTask_EXTI_Callback);
+  }
+  else {
+    // configure the INT PIN in analog high impedance
+//    ISM330DHCX_INT1_GPIO_CLK_ENABLE();
+
+    GPIO_InitStruct.Pin =  ISM330DHCX_INT1_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(ISM330DHCX_INT1_GPIO_Port, &GPIO_InitStruct);
+    HAL_NVIC_DisableIRQ(ISM330DHCX_INT1_EXTI_IRQn);
+    HAL_NVIC_ClearPendingIRQ(ISM330DHCX_INT1_EXTI_IRQn);
+
+    ISM330DHCX_INT2_GPIO_CLK_ENABLE();
+    GPIO_InitStruct.Pin =  ISM330DHCX_INT2_Pin;
+    HAL_GPIO_Init(ISM330DHCX_INT2_GPIO_Port, &GPIO_InitStruct);
+    HAL_NVIC_DisableIRQ(ISM330DHCX_INT2_EXTI_IRQn);
+    HAL_NVIC_ClearPendingIRQ(ISM330DHCX_INT2_EXTI_IRQn);
+  }
+
+  return xRes;
 }
 
 

@@ -51,6 +51,8 @@
 #define INIT_TASK_CFG_ENABLE_BOOT_IF           0
 #endif
 
+#define INIT_IS_KIND_OF_AMTEX(pTask)            ((pTask)->m_xStatus.nReserved == 1)
+
 #define SYS_DEBUGF(level, message) 			        SYS_DEBUGF3(SYS_DBG_INIT, level, message)
 
 /**
@@ -131,6 +133,16 @@ extern void SysPowerConfig();
  * @param pParams not used.
  */
 static void InitTaskRun(void *pParams);
+
+/**
+ * Execute the power mode transaction for all managed tasks belonging to a given PMClass.
+ *
+ * @param pxContext [IN] specifies the Application Context.
+ * @param ePowerModeClass [IN] specifies the a power mode class.
+ * @param eActivePowerMode [IN] specifies the current power mode of the system.
+ * @param eNewPowerMode [IN] specifies the new power mode that is to be activated by the system.
+ */
+static void InitTaskDoEnterPowerModeForPMClass(ApplicationContext *pxContext, EPMClass ePowerModeClass, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode);
 
 
 // Public API definition
@@ -374,15 +386,15 @@ static void InitTaskRun(void *pParams) {
   // Initialize the hardware resource for all tasks
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("INIT: task hardware initialization.\r\n"));
 
-  AManagedTask *pTask = ACGetFirstTask(&xContext);
-  while (pTask != NULL && !SYS_IS_ERROR_CODE(xRes)) {
-    xRes = AMTHardwareInit(pTask, NULL);
+  AManagedTask *pxTask = ACGetFirstTask(&xContext);
+  while (pxTask != NULL && !SYS_IS_ERROR_CODE(xRes)) {
+    xRes = AMTHardwareInit(pxTask, NULL);
     if (SYS_IS_ERROR_CODE(xRes)) {
        SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INIT_TASK_FAILURE_ERROR_CODE);
        SYS_DEBUGF(SYS_DBG_LEVEL_SEVERE, ("\r\nINIT: system failure.\r\n"));
     }
     else {
-      pTask = ACGetNextTask(&xContext, pTask);
+      pxTask = ACGetNextTask(&xContext, pxTask);
 
       SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("...\r\n"));
     }
@@ -397,20 +409,20 @@ static void InitTaskRun(void *pParams) {
   void *pTaskParams;
   UBaseType_t xPriority;
 
-  pTask = ACGetFirstTask(&xContext);
-  while (pTask != NULL && !SYS_IS_ERROR_CODE(xRes)) {
-    xRes = AMTOnCreateTask(pTask, &pvTaskCode, &pcName, &nStackDepth, &pTaskParams, &xPriority);
+  pxTask = ACGetFirstTask(&xContext);
+  while (pxTask != NULL && !SYS_IS_ERROR_CODE(xRes)) {
+    xRes = AMTOnCreateTask(pxTask, &pvTaskCode, &pcName, &nStackDepth, &pTaskParams, &xPriority);
     if (SYS_IS_ERROR_CODE(xRes)) {
       SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INIT_TASK_FAILURE_ERROR_CODE);
       SYS_DEBUGF(SYS_DBG_LEVEL_SEVERE, ("INIT: system failure.\r\n"));
     } else {
-      xRtosRes = xTaskCreate(pvTaskCode, pcName, nStackDepth, pTaskParams, xPriority, &pTask->m_xThaskHandle);
+      xRtosRes = xTaskCreate(pvTaskCode, pcName, nStackDepth, pTaskParams, xPriority, &pxTask->m_xThaskHandle);
       if(xRtosRes != pdPASS) {
         SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_INIT_TASK_FAILURE_ERROR_CODE);
         SYS_DEBUGF(SYS_DBG_LEVEL_SEVERE, ("INIT: unable to create task %s.\r\n", pcName));
       }
     }
-    pTask = ACGetNextTask(&xContext, pTask);
+    pxTask = ACGetNextTask(&xContext, pxTask);
   }
 
   SysOnStartApplication(&xContext);
@@ -456,46 +468,31 @@ static void InitTaskRun(void *pParams) {
 
           SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("INIT: evt:src=%x evt:param=%x\r\n", xEvent.xEvent.nSource, xEvent.xEvent.nParam));
 
-          // Forward the request to all managed tasks
-          boolean_t bDelayPowerModeSwitch;
-          do {
-            bDelayPowerModeSwitch = FALSE;
-            pTask = ACGetFirstTask(&xContext);
-            for (; pTask!=NULL; pTask=ACGetNextTask(&xContext, pTask)) {
-              // notify the task that the power mode is changing,
-              // so the task will suspend.
-              pTask->m_xStatus.nPowerModeSwitchPending = 1;
-              if (pTask->m_xStatus.nPowerModeSwitchDone == 0) {
-                if ((pTask->m_xStatus.nDelayPowerModeSwitch == 0)) {
-                  AMTDoEnterPowerMode(pTask, eActivePowerMode, ePowerMode);
-                  pTask->m_xStatus.nPowerModeSwitchDone = 1;
-                  pTask->m_xStatus.nIsTaskStillRunning = 1;
-                }
-                else {
-                  // check if it is an Extended Managed Task
-                  if (pTask->m_xStatus.nReserved == 1) {
-                    // force the step execution to prepare the task for the power mode switch.
-                    AMTExForceExecuteStep((AManagedTaskEx*)pTask, eActivePowerMode);
-                  }
-                  bDelayPowerModeSwitch = TRUE;
-                }
+          // first inform the AmanagedTaskEx that a transaction in the power mode state machine
+          // is going to begin.
+          pxTask = ACGetFirstTask(&xContext);
+          for (; pxTask!=NULL; pxTask=ACGetNextTask(&xContext, pxTask)) {
+            if (INIT_IS_KIND_OF_AMTEX(pxTask)) {
+              xRes = AMTExOnEnterPowerMode((AManagedTaskEx*)pxTask, eActivePowerMode, ePowerMode);
+              if (SYS_IS_ERROR_CODE(xRes)) {
+                sys_error_handler();
               }
             }
+          }
 
-            if (bDelayPowerModeSwitch == TRUE) {
-              vTaskDelay(pdMS_TO_TICKS(INIT_TASK_CFG_PM_SWITCH_DELAY_MS));
-            }
-
-          } while (bDelayPowerModeSwitch == TRUE);
+          // then we do the power mode transaction for the task belonging to CLASS_0
+          InitTaskDoEnterPowerModeForPMClass(&xContext, E_PM_CLASS_0, eActivePowerMode, ePowerMode);
+          // then we do the power mode transaction for the task belonging to CLASS_1
+          InitTaskDoEnterPowerModeForPMClass(&xContext, E_PM_CLASS_1, eActivePowerMode, ePowerMode);
 
           // Enter the specified power mode
           IapmhDidEnterPowerMode(s_xTheSystem.m_pxAppPowerModeHelper, ePowerMode);
 
-          pTask = ACGetFirstTask(&xContext);
-          for (; pTask!=NULL; pTask=ACGetNextTask(&xContext, pTask)) {
-            pTask->m_xStatus.nPowerModeSwitchDone = 0;
-            pTask->m_xStatus.nPowerModeSwitchPending = 0;
-            vTaskResume(pTask->m_xThaskHandle);
+          pxTask = ACGetFirstTask(&xContext);
+          for (; pxTask!=NULL; pxTask=ACGetNextTask(&xContext, pxTask)) {
+            pxTask->m_xStatus.nPowerModeSwitchDone = 0;
+            pxTask->m_xStatus.nPowerModeSwitchPending = 0;
+            vTaskResume(pxTask->m_xThaskHandle);
           }
         }
         else {
@@ -510,4 +507,42 @@ static void InitTaskRun(void *pParams) {
   }
 }
 
+static void InitTaskDoEnterPowerModeForPMClass(ApplicationContext *pxContext, EPMClass ePowerModeClass, const EPowerMode eActivePowerMode, const EPowerMode eNewPowerMode) {
+  // Forward the request to all managed tasks
+  AManagedTask *pTask = NULL;
+  EPMClass eTaskPMClass;
+  boolean_t bDelayPowerModeSwitch;
+  do {
+    bDelayPowerModeSwitch = FALSE;
+    pTask = ACGetFirstTask(pxContext);
+    for (; pTask!=NULL; pTask=ACGetNextTask(pxContext, pTask)) {
+      // check if the task is a AMTEx and, in case, if its power mode class is equal to ePowerModeClass
+      eTaskPMClass = INIT_IS_KIND_OF_AMTEX(pTask) ? AMTExIsTaskGetPMClass((AManagedTaskEx*)pTask) : E_PM_CLASS_0;
+      if (eTaskPMClass == ePowerModeClass) {
+        // notify the task that the power mode is changing,
+        // so the task will suspend.
+        pTask->m_xStatus.nPowerModeSwitchPending = 1;
+        if (pTask->m_xStatus.nPowerModeSwitchDone == 0) {
+          if ((pTask->m_xStatus.nDelayPowerModeSwitch == 0)) {
+            AMTDoEnterPowerMode(pTask, eActivePowerMode, eNewPowerMode);
+            pTask->m_xStatus.nPowerModeSwitchDone = 1;
+            pTask->m_xStatus.nIsTaskStillRunning = 1;
+          }
+          else {
+            // check if it is an Extended Managed Task
+            if (pTask->m_xStatus.nReserved == 1) {
+              // force the step execution to prepare the task for the power mode switch.
+              AMTExForceExecuteStep((AManagedTaskEx*)pTask, eActivePowerMode);
+            }
+            bDelayPowerModeSwitch = TRUE;
+          }
+        }
+      }
+    }
 
+    if (bDelayPowerModeSwitch == TRUE) {
+      vTaskDelay(pdMS_TO_TICKS(INIT_TASK_CFG_PM_SWITCH_DELAY_MS));
+    }
+
+  } while (bDelayPowerModeSwitch == TRUE);
+}

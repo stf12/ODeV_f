@@ -83,7 +83,7 @@ IIODriver *SPIMasterDriverAlloc();
 /**
  * Make a bidirectional communication in teh SPI bus.
  *
- * @param _this [IN] specifies a pointer to a SPIMasterDriver object.
+ * @param _this [IN] specifies a pointer to a ::SPIMasterDriver object.
  * @param pnTxDataBuffer [OUT] specifies the buffer with the data to send.
  * @param pnRxDataBuffer [IN] specifies the buffer used to store the received data.
  * @param nDataSize [IN] specified the size in byte of the buffer.
