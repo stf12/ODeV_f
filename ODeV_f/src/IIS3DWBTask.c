@@ -447,7 +447,7 @@ static sys_error_code_t IIS3DWBTaskExecuteStepRun(IIS3DWBTask *_this) {
         // disabe the fifo
         iis3dwb_fifo_xl_batch_set(pxSensorDrv, IIS3DWB_XL_NOT_BATCHED);
         // disable the IRQs
-        HAL_NVIC_DisableIRQ(IIS3DWB_INT1_EXTI_IRQn);
+        IIS3DWBTaskConfigureIrqPin(_this, TRUE);
       }
       break;
 
@@ -467,6 +467,7 @@ static sys_error_code_t IIS3DWBTaskExecuteStepRun(IIS3DWBTask *_this) {
   return xRes;
 }
 
+static uint32_t s_nDataCount = 0; //TODO: STF.Debug
 static sys_error_code_t IIS3DWBTaskExecuteStepDatalog(IIS3DWBTask *_this) {
   assert_param(_this);
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
@@ -483,7 +484,10 @@ static sys_error_code_t IIS3DWBTaskExecuteStepDatalog(IIS3DWBTask *_this) {
       break;
 
     case HID_REPORT_ID_IIS3DWB:
-//      SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("IIS3DWB: new data.\r\n"));
+      if (++s_nDataCount > 2*270) {
+        SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("IIS3DWB: new data.\r\n"));
+        s_nDataCount = 0;
+      }
       xRes = IIS3DWBTaskSensorReadData(_this);
       if (!SYS_IS_ERROR_CODE(xRes)) {
         // update the time stamp
@@ -510,6 +514,7 @@ static sys_error_code_t IIS3DWBTaskExecuteStepDatalog(IIS3DWBTask *_this) {
         xRes = IIS3DWBTaskSensorInit(_this);
         if (!SYS_IS_ERROR_CODE(xRes)) {
           // enable the IRQs
+          IIS3DWBTaskConfigureIrqPin(_this, FALSE);
           HAL_NVIC_EnableIRQ(IIS3DWB_INT1_EXTI_IRQn);
         }
       }
@@ -843,18 +848,21 @@ static sys_error_code_t IIS3DWBTaskConfigureIrqPin(const IIS3DWBTask *_this, boo
   //  HAL_EXTI_RegisterCallback(&iis3dwb_exti,  HAL_EXTI_COMMON_CB_ID, IIS3DWB_Int_Callback);
   }
   else {
+    // first disable the IRQ to avoid spurious interrupt to wake the MCU up.
+    HAL_NVIC_DisableIRQ(IIS3DWB_INT1_EXTI_IRQn);
+    HAL_NVIC_ClearPendingIRQ(IIS3DWB_INT1_EXTI_IRQn);
+    // then reconfigure the PIN in analog high impedance to reduce the power consumption.
     GPIO_InitStruct.Pin =  IIS3DWB_INT1_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(IIS3DWB_INT1_GPIO_Port, &GPIO_InitStruct);
-    HAL_NVIC_DisableIRQ(IIS3DWB_INT1_EXTI_IRQn);
-    HAL_NVIC_ClearPendingIRQ(IIS3DWB_INT1_EXTI_IRQn);
 
-    IIS3DWB_INT2_GPIO_CLK_ENABLE();
-    GPIO_InitStruct.Pin =  IIS3DWB_INT2_Pin;
-    HAL_GPIO_Init(IIS3DWB_INT2_GPIO_Port, &GPIO_InitStruct);
-    HAL_NVIC_DisableIRQ(IIS3DWB_INT2_EXTI_IRQn);
-    HAL_NVIC_ClearPendingIRQ(IIS3DWB_INT2_EXTI_IRQn);  }
+//    IIS3DWB_INT2_GPIO_CLK_ENABLE();
+//    GPIO_InitStruct.Pin =  IIS3DWB_INT2_Pin;
+//    HAL_GPIO_Init(IIS3DWB_INT2_GPIO_Port, &GPIO_InitStruct);
+//    HAL_NVIC_DisableIRQ(IIS3DWB_INT2_EXTI_IRQn);
+//    HAL_NVIC_ClearPendingIRQ(IIS3DWB_INT2_EXTI_IRQn);
+  }
 
   return xRes;
 }

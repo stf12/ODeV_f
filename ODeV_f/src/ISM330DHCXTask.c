@@ -450,7 +450,7 @@ static sys_error_code_t ISM330DHCXTaskExecuteStepRun(ISM330DHCXTask *_this) {
         // disable the fifo
         ism330dhcx_fifo_gy_batch_set(pxSensorDrv, ISM330DHCX_GY_NOT_BATCHED);
         // disable the IRQs
-        HAL_NVIC_DisableIRQ(ISM330DHCX_INT1_EXTI_IRQn);
+        ISM330DHCXTaskConfigureIrqPin(_this, TRUE);
       }
       break;
 
@@ -509,9 +509,9 @@ static sys_error_code_t ISM330DHCXTaskExecuteStepDatalog(ISM330DHCXTask *_this) 
 
     case HID_REPORT_ID_SENSOR_CMD:
       if (xReport.sensorReport.nCmdID == SENSOR_CMD_ID_START) {
-//        ISM330DHCXTaskConfigureIrqPin(_this, FALSE);
         xRes = ISM330DHCXTaskSensorInit(_this);
         if (!SYS_IS_ERROR_CODE(xRes)) {
+          ISM330DHCXTaskConfigureIrqPin(_this, FALSE);
           // enable the IRQs
           HAL_NVIC_EnableIRQ(ISM330DHCX_INT1_EXTI_IRQn);
         }
@@ -970,21 +970,20 @@ static sys_error_code_t ISM330DHCXTaskConfigureIrqPin(const ISM330DHCXTask *_thi
 //  HAL_EXTI_RegisterCallback(&g_ism330dhcx_exti,  HAL_EXTI_COMMON_CB_ID, ISM330DHCXTask_EXTI_Callback);
   }
   else {
-    // configure the INT PIN in analog high impedance
-//    ISM330DHCX_INT1_GPIO_CLK_ENABLE();
-
+    // first disable the IRQ to avoid spurious interrupt to wake the MCU up.
+    HAL_NVIC_DisableIRQ(ISM330DHCX_INT1_EXTI_IRQn);
+    HAL_NVIC_ClearPendingIRQ(ISM330DHCX_INT1_EXTI_IRQn);
+    // then reconfigure the PIN in analog high impedance to reduce the power consumption.
     GPIO_InitStruct.Pin =  ISM330DHCX_INT1_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(ISM330DHCX_INT1_GPIO_Port, &GPIO_InitStruct);
-    HAL_NVIC_DisableIRQ(ISM330DHCX_INT1_EXTI_IRQn);
-    HAL_NVIC_ClearPendingIRQ(ISM330DHCX_INT1_EXTI_IRQn);
 
-    ISM330DHCX_INT2_GPIO_CLK_ENABLE();
-    GPIO_InitStruct.Pin =  ISM330DHCX_INT2_Pin;
-    HAL_GPIO_Init(ISM330DHCX_INT2_GPIO_Port, &GPIO_InitStruct);
-    HAL_NVIC_DisableIRQ(ISM330DHCX_INT2_EXTI_IRQn);
-    HAL_NVIC_ClearPendingIRQ(ISM330DHCX_INT2_EXTI_IRQn);
+//    ISM330DHCX_INT2_GPIO_CLK_ENABLE();
+//    GPIO_InitStruct.Pin =  ISM330DHCX_INT2_Pin;
+//    HAL_GPIO_Init(ISM330DHCX_INT2_GPIO_Port, &GPIO_InitStruct);
+//    HAL_NVIC_DisableIRQ(ISM330DHCX_INT2_EXTI_IRQn);
+//    HAL_NVIC_ClearPendingIRQ(ISM330DHCX_INT2_EXTI_IRQn);
   }
 
   return xRes;
