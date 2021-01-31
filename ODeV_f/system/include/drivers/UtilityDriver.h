@@ -83,6 +83,12 @@ typedef struct _UtilityDriverParams {
  */
 IDriver *UtilityDriverAlloc();
 
+/**
+ * Get the time stamp. It is implemented as the counter of a 16-bit timer.
+ *
+ * @param _this [IN] specifies a pointer to an ::UtilityDriver object
+ * @return the time stamp.
+ */
 inline uint32_t UtilityDrvGetTimeStamp(UtilityDriver *_this);
 
 /**
@@ -93,6 +99,23 @@ inline uint32_t UtilityDrvGetTimeStamp(UtilityDriver *_this);
  * @return SYS_NO_ERROR_CODE
  */
 inline sys_error_code_t UtilityDrvEnablePushButton(UtilityDriver *_this, boolean_t bEnable);
+
+/**
+ *  Toggle the user led LED1.
+ *
+ * @param _this [IN] specifies a pointer to an ::UtilityDriver object
+ * @return SYS_NO_ERROR_CODE
+ */
+inline sys_error_code_t UtilityDrvToggleLED(UtilityDriver *_this);
+
+/**
+ * Set the user LED1 value to on or off.
+ *
+ * @param _this  [IN] specifies a pointer to an ::UtilityDriver object
+ * @param bOn specifies the value of the user LED LED1.
+ * @return SYS_NO_ERROR_CODE
+ */
+inline sys_error_code_t UtilityDrvSetLED(UtilityDriver *_this, boolean_t bOn);
 
 
 // Inline functions definition
@@ -118,6 +141,32 @@ sys_error_code_t UtilityDrvEnablePushButton(UtilityDriver *_this, boolean_t bEna
 
   return SYS_NO_ERROR_CODE;
 }
+
+SYS_DEFINE_INLINE
+sys_error_code_t UtilityDrvToggleLED(UtilityDriver *_this) {
+  UNUSED(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+
+  LED1_GPIO_Port->ODR ^= LED1_Pin;
+
+  return xRes;
+}
+
+SYS_DEFINE_INLINE
+sys_error_code_t UtilityDrvSetLED(UtilityDriver *_this, boolean_t bOn) {
+  UNUSED(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+
+  if (bOn) {
+    LED1_GPIO_Port->BSRR = LED1_Pin;
+  }
+  else {
+    LED1_GPIO_Port->BRR = LED1_Pin;
+  }
+
+  return xRes;
+}
+
 
 #ifdef __cplusplus
 }

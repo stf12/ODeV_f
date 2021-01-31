@@ -32,7 +32,6 @@
 #include "UtilityDriver.h"
 #include "UtilityDriver_vtbl.h"
 #include "FreeRTOS.h"
-#include "mx.h"
 #include "sysdebug.h"
 
 #define UTL_TIMx                        TIM5
@@ -105,13 +104,18 @@ sys_error_code_t UtilityDriver_vtblInit(IDriver *_this, void *pParams) {
 
   // configure LED2
   __HAL_RCC_GPIOD_CLK_ENABLE();
-//  HAL_PWREx_EnableVddIO2();
-  HAL_GPIO_WritePin(GPIOD, LED2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, GPIO_PIN_RESET);
   GPIO_InitStruct.Pin = LED2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LED2_GPIO_Port, &GPIO_InitStruct);
+
+  // configure LED1
+  __HAL_RCC_GPIOE_CLK_ENABLE();
+  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+  GPIO_InitStruct.Pin = LED1_Pin;
+  HAL_GPIO_Init(LED1_GPIO_Port, &GPIO_InitStruct);
 
   // configure the push button
   __HAL_RCC_GPIOE_CLK_ENABLE();
@@ -166,6 +170,13 @@ sys_error_code_t UtilityDriver_vtblDoEnterPowerMode(IDriver *_this, const EPower
   }
   else {
     UtilityDriver_vtblStop(_this);
+  }
+
+  if (eNewPowerMode == E_POWER_MODE_RUN) {
+    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+  }
+  else if (eNewPowerMode == E_POWER_MODE_SLEEP_1) {
+    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
   }
 
   return xRes;

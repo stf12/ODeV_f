@@ -116,6 +116,15 @@ static UtilTask s_xTaskObj;
 static sys_error_code_t UtilTaskExecuteStepRun(UtilTask *_this);
 
 /**
+ * Execute one step of the task control loop while the system is in RUN mode.
+ * Blink the led with a period of 2 seconds.
+ *
+ * @param _this _this [IN] specifies a pointer to a task object.
+ * @return SYS_NO_EROR_CODE if success, a task specific error code otherwise.
+ */
+static sys_error_code_t UtilTaskExecuteStepDatalog(UtilTask *_this);
+
+/**
  * Task control function.
  *
  * @param pParams .
@@ -318,6 +327,18 @@ static sys_error_code_t UtilTaskExecuteStepRun(UtilTask *_this) {
   return xRes;
 }
 
+static sys_error_code_t UtilTaskExecuteStepDatalog(UtilTask *_this) {
+  assert_param(_this);
+  sys_error_code_t xRes = SYS_NO_ERROR_CODE;
+
+  AMTExSetInactiveState((AManagedTaskEx*)_this, TRUE);
+  vTaskDelay(pdMS_TO_TICKS(1000));
+  AMTExSetInactiveState((AManagedTaskEx*)_this, FALSE);
+  UtilityDrvToggleLED((UtilityDriver*)_this->m_pxDriver);
+
+  return xRes;
+}
+
 static void UtilTaskRun(void *pParams) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   UtilTask *_this = (UtilTask*)pParams;
@@ -325,6 +346,7 @@ static void UtilTaskRun(void *pParams) {
   SYS_DEBUGF(SYS_DBG_LEVEL_VERBOSE, ("UTIL: start.\r\n"));
 
   UtilityDrvEnablePushButton(NULL, TRUE);
+  UtilityDrvSetLED(NULL, TRUE);
 
   for (;;) {
 
@@ -349,6 +371,15 @@ static void UtilTaskRun(void *pParams) {
         break;
 
       case E_POWER_MODE_DATALOG:
+        taskENTER_CRITICAL();
+          _this->super.m_xStatus.nDelayPowerModeSwitch = 1;
+        taskEXIT_CRITICAL();
+        xRes = UtilTaskExecuteStepDatalog(_this);
+        taskENTER_CRITICAL();
+          _this->super.m_xStatus.nDelayPowerModeSwitch = 0;
+        taskEXIT_CRITICAL();
+        break;
+
       case E_POWER_MODE_AI:
       case E_POWER_MODE_DATALOG_AI:
       case E_POWER_MODE_SLEEP_1:
