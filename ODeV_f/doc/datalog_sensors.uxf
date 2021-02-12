@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <diagram program="umlet" version="14.3.0">
-  <zoom_level>10</zoom_level>
+  <zoom_level>8</zoom_level>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>120</x>
+      <x>80</x>
       <y>0</y>
-      <w>1370</w>
-      <h>430</h>
+      <w>1096</w>
+      <h>344</h>
     </coordinates>
     <panel_attributes>*Application Layer*
 --
@@ -19,10 +19,10 @@ layer=-1</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>120</x>
-      <y>450</y>
-      <w>1370</w>
-      <h>820</h>
+      <x>80</x>
+      <y>360</y>
+      <w>1096</w>
+      <h>656</h>
     </coordinates>
     <panel_attributes>*Hardware Abstraction Layer - ODeV*
 --
@@ -35,10 +35,10 @@ fg=red</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>180</x>
-      <y>630</y>
-      <w>150</w>
-      <h>40</h>
+      <x>128</x>
+      <y>504</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>&lt;&lt;IF&gt;&gt;
 Event Listener
@@ -50,10 +50,10 @@ halign=center</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>350</x>
-      <y>550</y>
-      <w>150</w>
-      <h>40</h>
+      <x>264</x>
+      <y>440</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>&lt;&lt;IF&gt;&gt;
 Listener
@@ -65,10 +65,10 @@ halign=center</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>130</x>
-      <y>500</y>
-      <w>390</w>
-      <h>640</h>
+      <x>88</x>
+      <y>400</y>
+      <w>312</w>
+      <h>512</h>
     </coordinates>
     <panel_attributes>*Event*
 --
@@ -80,10 +80,10 @@ layer=-1</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>240</x>
-      <y>580</y>
-      <w>210</w>
-      <h>70</h>
+      <x>176</x>
+      <y>464</y>
+      <w>168</w>
+      <h>56</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
     <additional_attributes>190.0;10.0;190.0;30.0;10.0;30.0;10.0;50.0</additional_attributes>
@@ -91,10 +91,10 @@ layer=-1</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>140</x>
-      <y>640</y>
-      <w>90</w>
-      <h>220</h>
+      <x>96</x>
+      <y>512</y>
+      <w>72</w>
+      <h>176</h>
     </coordinates>
     <panel_attributes>lt=-
 
@@ -108,10 +108,10 @@ send to ^</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>180</x>
-      <y>710</y>
-      <w>150</w>
-      <h>40</h>
+      <x>128</x>
+      <y>568</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>ISensorEventListener
 valign=center
@@ -122,10 +122,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>240</x>
-      <y>660</y>
-      <w>30</w>
-      <h>70</h>
+      <x>176</x>
+      <y>528</y>
+      <w>24</w>
+      <h>56</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;50.0</additional_attributes>
@@ -133,10 +133,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>180</x>
-      <y>820</y>
-      <w>150</w>
-      <h>40</h>
+      <x>128</x>
+      <y>656</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>&lt;&lt;IF&gt;&gt;
 Event Source
@@ -148,10 +148,10 @@ halign=center</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>200</x>
-      <y>850</y>
-      <w>30</w>
-      <h>140</h>
+      <x>144</x>
+      <y>680</y>
+      <w>24</w>
+      <h>112</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;120.0</additional_attributes>
@@ -159,10 +159,10 @@ halign=center</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>240</x>
-      <y>850</y>
-      <w>130</w>
-      <h>80</h>
+      <x>176</x>
+      <y>680</y>
+      <w>104</w>
+      <h>64</h>
     </coordinates>
     <panel_attributes>lt=-
 genetare &gt;</panel_attributes>
@@ -171,10 +171,10 @@ genetare &gt;</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>350</x>
-      <y>890</y>
-      <w>150</w>
-      <h>40</h>
+      <x>264</x>
+      <y>712</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>&lt;&lt;IF&gt;&gt;
 Event
@@ -186,10 +186,10 @@ halign=center</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>350</x>
-      <y>970</y>
-      <w>150</w>
-      <h>40</h>
+      <x>264</x>
+      <y>776</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>SensorEvt
 valign=center
@@ -200,10 +200,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>170</x>
-      <y>1050</y>
-      <w>150</w>
-      <h>40</h>
+      <x>120</x>
+      <y>840</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>SensorEvtSrc
 valign=center
@@ -214,10 +214,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>230</x>
-      <y>1000</y>
-      <w>30</w>
-      <h>70</h>
+      <x>168</x>
+      <y>800</y>
+      <w>24</w>
+      <h>56</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;50.0</additional_attributes>
@@ -225,10 +225,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>530</x>
-      <y>900</y>
-      <w>610</w>
-      <h>240</h>
+      <x>408</x>
+      <y>720</y>
+      <w>488</w>
+      <h>192</h>
     </coordinates>
     <panel_attributes>*Low Level API*
 --
@@ -240,10 +240,10 @@ layer=-1</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>750</x>
-      <y>920</y>
-      <w>150</w>
-      <h>40</h>
+      <x>584</x>
+      <y>736</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>&lt;&lt;IF&gt;&gt;
 Driver
@@ -255,10 +255,10 @@ halign=center</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>750</x>
-      <y>990</y>
-      <w>150</w>
-      <h>40</h>
+      <x>584</x>
+      <y>792</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>&lt;&lt;IF&gt;&gt;
 IODriver
@@ -270,10 +270,10 @@ halign=center</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>940</x>
-      <y>920</y>
-      <w>130</w>
-      <h>50</h>
+      <x>736</x>
+      <y>736</y>
+      <w>104</w>
+      <h>40</h>
     </coordinates>
     <panel_attributes>MX
 generated drv
@@ -283,10 +283,10 @@ bg=#E0FFFF</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>810</x>
-      <y>950</y>
-      <w>30</w>
-      <h>60</h>
+      <x>632</x>
+      <y>760</y>
+      <w>24</w>
+      <h>48</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;40.0</additional_attributes>
@@ -294,10 +294,10 @@ bg=#E0FFFF</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>750</x>
-      <y>1060</y>
-      <w>150</w>
-      <h>40</h>
+      <x>584</x>
+      <y>848</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>SPIMasterDriver
 valign=center
@@ -308,10 +308,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>810</x>
-      <y>1020</y>
-      <w>30</w>
-      <h>60</h>
+      <x>632</x>
+      <y>816</y>
+      <w>24</w>
+      <h>48</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;40.0</additional_attributes>
@@ -319,10 +319,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>580</x>
-      <y>1190</y>
-      <w>150</w>
-      <h>40</h>
+      <x>448</x>
+      <y>952</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>FreeRTOS
 valign=center
@@ -333,10 +333,10 @@ bg=green</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>750</x>
-      <y>1190</y>
-      <w>150</w>
-      <h>40</h>
+      <x>584</x>
+      <y>952</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>CMSIS
 valign=center
@@ -347,10 +347,10 @@ fg=#00978a</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>920</x>
-      <y>1190</y>
-      <w>150</w>
-      <h>40</h>
+      <x>720</x>
+      <y>952</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>STM32xxx HAL
 bg=#06a1ce
@@ -361,10 +361,10 @@ halign=center</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>130</x>
-      <y>1150</y>
-      <w>1350</w>
-      <h>110</h>
+      <x>88</x>
+      <y>920</y>
+      <w>1080</w>
+      <h>88</h>
     </coordinates>
     <panel_attributes>*Kernel*
 --
@@ -376,10 +376,10 @@ layer=-1</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>540</x>
-      <y>550</y>
-      <w>150</w>
-      <h>40</h>
+      <x>416</x>
+      <y>440</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>&lt;&lt;IF&gt;&gt;
 ManagedTaskEx
@@ -391,10 +391,10 @@ halign=center</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>680</x>
-      <y>560</y>
-      <w>60</w>
-      <h>30</h>
+      <x>528</x>
+      <y>448</y>
+      <w>48</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
     <additional_attributes>40.0;10.0;10.0;10.0</additional_attributes>
@@ -402,10 +402,10 @@ halign=center</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>720</x>
-      <y>550</y>
-      <w>150</w>
-      <h>40</h>
+      <x>560</x>
+      <y>440</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>&lt;&lt;IF&gt;&gt;
 ManagedTask
@@ -417,10 +417,10 @@ halign=center</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>730</x>
-      <y>770</y>
-      <w>150</w>
-      <h>40</h>
+      <x>568</x>
+      <y>616</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>Application Context
 bg=#b4bcde
@@ -431,10 +431,10 @@ halign=center</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>790</x>
-      <y>580</y>
-      <w>30</w>
-      <h>210</h>
+      <x>616</x>
+      <y>464</y>
+      <w>24</w>
+      <h>168</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
     <additional_attributes>10.0;190.0;10.0;10.0</additional_attributes>
@@ -442,10 +442,10 @@ halign=center</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>910</x>
-      <y>770</y>
-      <w>150</w>
-      <h>40</h>
+      <x>712</x>
+      <y>616</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>&lt;&lt;instance&gt;&gt;
 INIT Task
@@ -457,10 +457,10 @@ halign=center</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>910</x>
-      <y>840</y>
-      <w>150</w>
-      <h>40</h>
+      <x>712</x>
+      <y>672</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>&lt;&lt;IF&gt;&gt;
 Boot
@@ -472,10 +472,10 @@ halign=center</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>980</x>
-      <y>800</y>
-      <w>50</w>
-      <h>60</h>
+      <x>768</x>
+      <y>640</y>
+      <w>40</w>
+      <h>48</h>
     </coordinates>
     <panel_attributes>lt=-
 m2=0..1</panel_attributes>
@@ -484,10 +484,10 @@ m2=0..1</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>980</x>
-      <y>680</y>
-      <w>30</w>
-      <h>110</h>
+      <x>768</x>
+      <y>544</y>
+      <w>24</w>
+      <h>88</h>
     </coordinates>
     <panel_attributes>lt=-</panel_attributes>
     <additional_attributes>10.0;90.0;10.0;10.0</additional_attributes>
@@ -495,10 +495,10 @@ m2=0..1</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>1160</x>
-      <y>770</y>
-      <w>150</w>
-      <h>40</h>
+      <x>912</x>
+      <y>616</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>&lt;&lt;IF&gt;&gt;
 AppErrorDelegate
@@ -511,10 +511,10 @@ layer=1</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>530</x>
-      <y>500</y>
-      <w>610</w>
-      <h>390</h>
+      <x>408</x>
+      <y>400</y>
+      <w>488</w>
+      <h>312</h>
     </coordinates>
     <panel_attributes>*Services Layer*
 --
@@ -526,10 +526,10 @@ layer=-1</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1050</x>
-      <y>770</y>
-      <w>130</w>
-      <h>50</h>
+      <x>824</x>
+      <y>616</y>
+      <w>104</w>
+      <h>40</h>
     </coordinates>
     <panel_attributes>lt=-
 m1=
@@ -540,10 +540,10 @@ delegate &gt;</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>1150</x>
-      <y>500</y>
-      <w>170</w>
-      <h>640</h>
+      <x>904</x>
+      <y>400</y>
+      <w>136</w>
+      <h>512</h>
     </coordinates>
     <panel_attributes>*Error*
 --
@@ -555,10 +555,10 @@ layer=-1</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>1160</x>
-      <y>890</y>
-      <w>150</w>
-      <h>40</h>
+      <x>912</x>
+      <y>712</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>&lt;&lt;IF&gt;&gt;
 ErrFirstResponder
@@ -571,10 +571,10 @@ layer=1</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1200</x>
-      <y>800</y>
-      <w>120</w>
-      <h>110</h>
+      <x>944</x>
+      <y>640</y>
+      <w>96</w>
+      <h>88</h>
     </coordinates>
     <panel_attributes>lt=-
 m1=1
@@ -585,10 +585,10 @@ instant notify v</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>870</x>
-      <y>780</y>
-      <w>60</w>
-      <h>30</h>
+      <x>680</x>
+      <y>624</y>
+      <w>48</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
     <additional_attributes>40.0;10.0;10.0;10.0</additional_attributes>
@@ -596,10 +596,10 @@ instant notify v</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>920</x>
-      <y>530</y>
-      <w>130</w>
-      <h>60</h>
+      <x>720</x>
+      <y>424</y>
+      <w>104</w>
+      <h>48</h>
     </coordinates>
     <panel_attributes>SensorsProtocols
 (iis3dwb_reg)
@@ -610,10 +610,10 @@ bg=#E0FFFF</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>760</x>
-      <y>200</y>
-      <w>150</w>
-      <h>40</h>
+      <x>592</x>
+      <y>160</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>ISM330DHCXTask
 valign=center
@@ -625,10 +625,10 @@ group=1</panel_attributes>
   <element>
     <id>UMLInterface</id>
     <coordinates>
-      <x>910</x>
-      <y>160</y>
-      <w>160</w>
-      <h>150</h>
+      <x>712</x>
+      <y>128</y>
+      <w>128</w>
+      <h>120</h>
     </coordinates>
     <panel_attributes>IEventSrc
 --
@@ -643,10 +643,10 @@ group=1</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>650</x>
-      <y>230</y>
-      <w>200</w>
-      <h>340</h>
+      <x>504</x>
+      <y>184</y>
+      <w>160</w>
+      <h>272</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
     <additional_attributes>10.0;320.0;10.0;150.0;180.0;150.0;180.0;10.0</additional_attributes>
@@ -654,10 +654,10 @@ group=1</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>1330</x>
-      <y>500</y>
-      <w>70</w>
-      <h>640</h>
+      <x>1048</x>
+      <y>400</y>
+      <w>56</w>
+      <h>512</h>
     </coordinates>
     <panel_attributes>Debug
 bg=#b4bcde
@@ -668,10 +668,10 @@ halign=center</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>1410</x>
-      <y>500</y>
-      <w>70</w>
-      <h>640</h>
+      <x>1112</x>
+      <y>400</y>
+      <w>56</w>
+      <h>512</h>
     </coordinates>
     <panel_attributes>Trace
 bg=#b4bcde
@@ -682,10 +682,10 @@ halign=center</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>910</x>
-      <y>650</y>
-      <w>150</w>
-      <h>40</h>
+      <x>712</x>
+      <y>520</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>&lt;&lt;IF&gt;&gt;
 AppPowerModeHelper
@@ -697,10 +697,10 @@ halign=center</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>440</x>
-      <y>200</y>
-      <w>150</w>
-      <h>40</h>
+      <x>336</x>
+      <y>160</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>SPIBusTask
 valign=center
@@ -711,10 +711,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>590</x>
-      <y>290</y>
-      <w>150</w>
-      <h>40</h>
+      <x>456</x>
+      <y>232</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>SPIBusIF
 valign=center
@@ -725,10 +725,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>510</x>
-      <y>230</y>
-      <w>170</w>
-      <h>340</h>
+      <x>392</x>
+      <y>184</y>
+      <w>136</w>
+      <h>272</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
     <additional_attributes>150.0;320.0;150.0;150.0;10.0;150.0;10.0;10.0</additional_attributes>
@@ -736,10 +736,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>580</x>
-      <y>200</y>
-      <w>200</w>
-      <h>40</h>
+      <x>448</x>
+      <y>160</y>
+      <w>160</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>lt=-
 &lt; connect to</panel_attributes>
@@ -748,10 +748,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>650</x>
-      <y>210</y>
-      <w>30</w>
-      <h>100</h>
+      <x>504</x>
+      <y>168</y>
+      <w>24</w>
+      <h>80</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
@@ -759,10 +759,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>170</x>
-      <y>970</y>
-      <w>150</w>
-      <h>40</h>
+      <x>120</x>
+      <y>776</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>/AEventSrc/
 valign=center
@@ -773,10 +773,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>410</x>
-      <y>920</y>
-      <w>30</w>
-      <h>70</h>
+      <x>312</x>
+      <y>736</y>
+      <w>24</w>
+      <h>56</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;50.0</additional_attributes>
@@ -784,10 +784,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>190</x>
-      <y>2050</y>
-      <w>1130</w>
-      <h>240</h>
+      <x>136</x>
+      <y>1640</y>
+      <w>904</w>
+      <h>192</h>
     </coordinates>
     <panel_attributes>*Low Level API*
 --
@@ -799,10 +799,10 @@ layer=-1</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>190</x>
-      <y>1470</y>
-      <w>1130</w>
-      <h>320</h>
+      <x>136</x>
+      <y>1176</y>
+      <w>904</w>
+      <h>256</h>
     </coordinates>
     <panel_attributes>*Applicatoin Layer*
 --
@@ -814,10 +814,10 @@ layer=-1</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>190</x>
-      <y>1800</y>
-      <w>1130</w>
-      <h>240</h>
+      <x>136</x>
+      <y>1440</y>
+      <w>904</w>
+      <h>192</h>
     </coordinates>
     <panel_attributes>*Service Layer*
 --
@@ -829,10 +829,10 @@ layer=-1</panel_attributes>
   <element>
     <id>UMLInterface</id>
     <coordinates>
-      <x>980</x>
-      <y>1490</y>
-      <w>160</w>
-      <h>150</h>
+      <x>768</x>
+      <y>1192</y>
+      <w>128</w>
+      <h>120</h>
     </coordinates>
     <panel_attributes>IEventSrc
 --
@@ -847,10 +847,10 @@ group=2</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>830</x>
-      <y>1530</y>
-      <w>150</w>
-      <h>40</h>
+      <x>648</x>
+      <y>1224</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>ISM330DHCXTask
 valign=center
@@ -862,10 +862,10 @@ group=2</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>270</x>
-      <y>1530</y>
-      <w>150</w>
-      <h>40</h>
+      <x>200</x>
+      <y>1224</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>SPIBusTask
 valign=center
@@ -876,10 +876,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>410</x>
-      <y>1530</y>
-      <w>440</w>
-      <h>40</h>
+      <x>312</x>
+      <y>1224</y>
+      <w>352</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>lt=-
 &lt; connect to</panel_attributes>
@@ -888,10 +888,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>720</x>
-      <y>1540</y>
-      <w>30</w>
-      <h>100</h>
+      <x>560</x>
+      <y>1232</y>
+      <w>24</w>
+      <h>80</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
@@ -899,10 +899,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>850</x>
-      <y>1890</y>
-      <w>130</w>
-      <h>60</h>
+      <x>664</x>
+      <y>1512</y>
+      <w>104</w>
+      <h>48</h>
     </coordinates>
     <panel_attributes>&lt;&lt;SensorsProtocol&gt;&gt;
 
@@ -913,10 +913,10 @@ bg=#E0FFFF</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>270</x>
-      <y>2140</y>
-      <w>150</w>
-      <h>40</h>
+      <x>200</x>
+      <y>1712</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>SPIMasterDriver
 valign=center
@@ -927,10 +927,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>850</x>
-      <y>2140</y>
-      <w>130</w>
-      <h>50</h>
+      <x>664</x>
+      <y>1712</y>
+      <w>104</w>
+      <h>40</h>
     </coordinates>
     <panel_attributes>MX
 generated drv
@@ -940,10 +940,10 @@ bg=#E0FFFF</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>900</x>
-      <y>1560</y>
-      <w>30</w>
-      <h>350</h>
+      <x>704</x>
+      <y>1248</y>
+      <w>24</w>
+      <h>280</h>
     </coordinates>
     <panel_attributes>lt=&lt;-</panel_attributes>
     <additional_attributes>10.0;330.0;10.0;10.0</additional_attributes>
@@ -951,10 +951,10 @@ bg=#E0FFFF</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>590</x>
-      <y>1660</y>
-      <w>90</w>
-      <h>30</h>
+      <x>456</x>
+      <y>1328</y>
+      <w>72</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
     <additional_attributes>70.0;10.0;10.0;10.0</additional_attributes>
@@ -962,10 +962,10 @@ bg=#E0FFFF</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>350</x>
-      <y>1560</y>
-      <w>30</w>
-      <h>600</h>
+      <x>264</x>
+      <y>1248</y>
+      <w>24</w>
+      <h>480</h>
     </coordinates>
     <panel_attributes>lt=&lt;-</panel_attributes>
     <additional_attributes>10.0;580.0;10.0;10.0</additional_attributes>
@@ -973,10 +973,10 @@ bg=#E0FFFF</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>410</x>
-      <y>2150</y>
-      <w>460</w>
-      <h>30</h>
+      <x>312</x>
+      <y>1720</y>
+      <w>368</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=&lt;-</panel_attributes>
     <additional_attributes>440.0;10.0;10.0;10.0</additional_attributes>
@@ -984,10 +984,10 @@ bg=#E0FFFF</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>660</x>
-      <y>1620</y>
-      <w>150</w>
-      <h>80</h>
+      <x>512</x>
+      <y>1296</y>
+      <w>120</w>
+      <h>64</h>
     </coordinates>
     <panel_attributes>SPIBusIF
 --
@@ -1001,10 +1001,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>450</x>
-      <y>1630</y>
-      <w>150</w>
-      <h>70</h>
+      <x>344</x>
+      <y>1304</y>
+      <w>120</w>
+      <h>56</h>
     </coordinates>
     <panel_attributes>SPIBusConnector
 --
@@ -1017,10 +1017,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>510</x>
-      <y>1690</y>
-      <w>360</w>
-      <h>250</h>
+      <x>392</x>
+      <y>1352</y>
+      <w>288</w>
+      <h>200</h>
     </coordinates>
     <panel_attributes>lt=&lt;-</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;230.0;340.0;230.0</additional_attributes>
@@ -1028,10 +1028,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>50</x>
-      <y>1380</y>
-      <w>1540</w>
-      <h>30</h>
+      <x>24</x>
+      <y>1104</y>
+      <w>1232</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=.
 fg=light_gray</panel_attributes>
@@ -1040,10 +1040,10 @@ fg=light_gray</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>190</x>
-      <y>2970</y>
-      <w>1130</w>
-      <h>240</h>
+      <x>136</x>
+      <y>2376</y>
+      <w>904</w>
+      <h>192</h>
     </coordinates>
     <panel_attributes>*Low Level API*
 --
@@ -1055,10 +1055,10 @@ layer=-1</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>190</x>
-      <y>2720</y>
-      <w>1130</w>
-      <h>240</h>
+      <x>136</x>
+      <y>2176</y>
+      <w>904</w>
+      <h>192</h>
     </coordinates>
     <panel_attributes>*Service Layer*
 --
@@ -1070,10 +1070,10 @@ layer=-1</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>830</x>
-      <y>2450</y>
-      <w>150</w>
-      <h>40</h>
+      <x>648</x>
+      <y>1960</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>ISM330DHCXTask
 valign=center
@@ -1085,10 +1085,10 @@ group=3</panel_attributes>
   <element>
     <id>UMLInterface</id>
     <coordinates>
-      <x>980</x>
-      <y>2410</y>
-      <w>160</w>
-      <h>150</h>
+      <x>768</x>
+      <y>1928</y>
+      <w>128</w>
+      <h>120</h>
     </coordinates>
     <panel_attributes>IEventSrc
 --
@@ -1103,10 +1103,10 @@ group=3</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>850</x>
-      <y>2810</y>
-      <w>130</w>
-      <h>60</h>
+      <x>664</x>
+      <y>2248</y>
+      <w>104</w>
+      <h>48</h>
     </coordinates>
     <panel_attributes>&lt;&lt;SensorsProtocol&gt;&gt;
 
@@ -1117,10 +1117,10 @@ bg=#E0FFFF</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>600</x>
-      <y>3060</y>
-      <w>150</w>
-      <h>40</h>
+      <x>464</x>
+      <y>2448</y>
+      <w>120</w>
+      <h>32</h>
     </coordinates>
     <panel_attributes>SPIMasterDriver
 valign=center
@@ -1131,10 +1131,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>390</x>
-      <y>3060</y>
-      <w>130</w>
-      <h>50</h>
+      <x>296</x>
+      <y>2448</y>
+      <w>104</w>
+      <h>40</h>
     </coordinates>
     <panel_attributes>MX
 generated drv
@@ -1144,10 +1144,10 @@ bg=#E0FFFF</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>900</x>
-      <y>2480</y>
-      <w>30</w>
-      <h>350</h>
+      <x>704</x>
+      <y>1984</y>
+      <w>24</w>
+      <h>280</h>
     </coordinates>
     <panel_attributes>lt=&lt;-</panel_attributes>
     <additional_attributes>10.0;330.0;10.0;10.0</additional_attributes>
@@ -1155,10 +1155,10 @@ bg=#E0FFFF</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>980</x>
-      <y>3070</y>
-      <w>90</w>
-      <h>30</h>
+      <x>768</x>
+      <y>2456</y>
+      <w>72</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
     <additional_attributes>70.0;10.0;10.0;10.0</additional_attributes>
@@ -1166,10 +1166,10 @@ bg=#E0FFFF</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>510</x>
-      <y>3070</y>
-      <w>110</w>
-      <h>30</h>
+      <x>392</x>
+      <y>2456</y>
+      <w>88</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=&lt;-</panel_attributes>
     <additional_attributes>10.0;10.0;90.0;10.0</additional_attributes>
@@ -1177,10 +1177,10 @@ bg=#E0FFFF</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1050</x>
-      <y>3030</y>
-      <w>150</w>
-      <h>80</h>
+      <x>824</x>
+      <y>2424</y>
+      <w>120</w>
+      <h>64</h>
     </coordinates>
     <panel_attributes>SPIBusIF
 --
@@ -1194,10 +1194,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>840</x>
-      <y>3040</y>
-      <w>150</w>
-      <h>70</h>
+      <x>656</x>
+      <y>2432</y>
+      <w>120</w>
+      <h>56</h>
     </coordinates>
     <panel_attributes>SPIBusConnector
 --
@@ -1210,10 +1210,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>900</x>
-      <y>2860</y>
-      <w>30</w>
-      <h>200</h>
+      <x>704</x>
+      <y>2288</y>
+      <w>24</w>
+      <h>160</h>
     </coordinates>
     <panel_attributes>lt=&lt;-</panel_attributes>
     <additional_attributes>10.0;180.0;10.0;10.0</additional_attributes>
@@ -1221,10 +1221,10 @@ bg=yellow</panel_attributes>
   <element>
     <id>UMLFrame</id>
     <coordinates>
-      <x>190</x>
-      <y>2390</y>
-      <w>1130</w>
-      <h>320</h>
+      <x>136</x>
+      <y>1912</y>
+      <w>904</w>
+      <h>256</h>
     </coordinates>
     <panel_attributes>*Applicatoin Layer*
 --
@@ -1236,10 +1236,10 @@ layer=-1</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>20</x>
-      <y>2330</y>
-      <w>1540</w>
-      <h>30</h>
+      <x>0</x>
+      <y>1864</y>
+      <w>1232</w>
+      <h>24</h>
     </coordinates>
     <panel_attributes>lt=.
 fg=light_gray</panel_attributes>
@@ -1248,10 +1248,10 @@ fg=light_gray</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>1410</x>
-      <y>1410</y>
-      <w>140</w>
-      <h>90</h>
+      <x>1112</x>
+      <y>1128</y>
+      <w>112</w>
+      <h>72</h>
     </coordinates>
     <panel_attributes>Scenario 2:
 
@@ -1265,10 +1265,10 @@ fg=blue</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>1390</x>
-      <y>2360</y>
-      <w>140</w>
-      <h>90</h>
+      <x>1096</x>
+      <y>1888</y>
+      <w>112</w>
+      <h>72</h>
     </coordinates>
     <panel_attributes>Scenario 1:
 
@@ -1280,12 +1280,237 @@ fg=blue</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>670</x>
-      <y>3090</y>
-      <w>470</w>
-      <h>90</h>
+      <x>520</x>
+      <y>2472</y>
+      <w>376</w>
+      <h>72</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
     <additional_attributes>10.0;10.0;10.0;70.0;450.0;70.0;450.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>0</x>
+      <y>2600</y>
+      <w>1232</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>lt=.
+fg=light_gray</panel_attributes>
+    <additional_attributes>10.0;10.0;1520.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>112</x>
+      <y>2712</y>
+      <w>360</w>
+      <h>128</h>
+    </coordinates>
+    <panel_attributes>/IBus/
+--
+/+ Ctrl(eCtrlCmd:EBusCtrlCmd, nParams:uint32_t): sys_error_code_t/
+/+ ConnectDevice(pxBusIF:ABusIF*): sys_error_code_t/
+/+ DisconnectDevice(pxBusIF:ABusIF*): sys_error_code_t/
+--
+Responsibilities
+-- Connect / disconnect a device to the bus through a bus
+    interface
+-- Allow a device to send control messages to the bus</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>712</x>
+      <y>2768</y>
+      <w>80</w>
+      <h>32</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Sensor&gt;&gt;
+Device</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>464</x>
+      <y>2768</y>
+      <w>264</w>
+      <h>32</h>
+    </coordinates>
+    <panel_attributes>lt=-
+&lt; connect to</panel_attributes>
+    <additional_attributes>10.0;20.0;310.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>592</x>
+      <y>2776</y>
+      <w>24</w>
+      <h>128</h>
+    </coordinates>
+    <panel_attributes>lt=.</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>424</x>
+      <y>2888</y>
+      <w>352</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>/ABusIF/
+--
+/+ Ctrl(eCtrlCmd:EBusCtrlCmd, nParams:uint32_t): sys_error_code_t/
+/+ Init(): sys_error_code_t/
+--
+Responsibilities
+-- Allow the device to write / read on the bus
+-- Allow a device to send control messages to the bus</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>824</x>
+      <y>2896</y>
+      <w>448</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>Connector
+--
++ handle: void*
+--
+/+ Write(pxSensor:void*, nRegAddr:uint8_t, pnData:uint8_t*, nSize:uint16_t): uint32_t/
+/+ Read(pxSensor:void*, nRegAddr:uint8_t, pnData:uint8_t*, nSize:uint16_t): uint32_t/
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>768</x>
+      <y>2928</y>
+      <w>72</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;70.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>224</x>
+      <y>3056</y>
+      <w>352</w>
+      <h>152</h>
+    </coordinates>
+    <panel_attributes>SPIBusIF
+--
++ whoAmI: uint8_t
++ SSPin: GPIO
+--
++ Init(whoAmI: uint8_t, SSPin: GPIO): sys_error_code_t
++ WaitIOComplete(): sys_error_code_t
++ NotifyIOComplete(): sys_error_code_t
+--
+Responsibilities
+-- Add Slave Select PIN information to the base abstract class
+-- Allow the device to wait for the completiotion of the I/O operation
+   on the bus.</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>400</x>
+      <y>2976</y>
+      <w>216</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>250.0;10.0;250.0;50.0;10.0;50.0;10.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>624</x>
+      <y>3056</y>
+      <w>352</w>
+      <h>152</h>
+    </coordinates>
+    <panel_attributes>I2CBusIF
+--
++ whoAmI: uint8_t
++ nAddress: uint8_t
+--
++ Init(whoAmI: uint8_t, SSPin: GPIO): sys_error_code_t
++ WaitIOComplete(): sys_error_code_t
++ NotifyIOComplete(): sys_error_code_t
+--
+Responsibilities
+-- Add device adress information to teh base abstract class
+-- Allow the device to wait for the completiotion of the I/O operation
+   on the bus.</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>592</x>
+      <y>2976</y>
+      <w>224</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0;260.0;50.0;260.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>176</x>
+      <y>2880</y>
+      <w>80</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>SPIBusTask</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>328</x>
+      <y>2880</y>
+      <w>80</w>
+      <h>24</h>
+    </coordinates>
+    <panel_attributes>I2CBusTask</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>208</x>
+      <y>2832</y>
+      <w>104</w>
+      <h>64</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>110.0;10.0;110.0;40.0;10.0;40.0;10.0;60.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>288</x>
+      <y>2832</y>
+      <w>96</w>
+      <h>64</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;40.0;100.0;40.0;100.0;60.0</additional_attributes>
   </element>
 </diagram>

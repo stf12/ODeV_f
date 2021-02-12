@@ -109,6 +109,10 @@ extern "C" {
 #define SYS_SD_TASK_FILE_OP_ERROR_CODE                        SYS_SD_TASK_BASE_ERROR_CODE + 5
 #define SYS_SD_TASK_DATA_LOST_ERROR_CODE                      SYS_SD_TASK_BASE_ERROR_CODE + 6
 
+// Sensor task generic error code
+#define SYS_SENSOR_TASK_BASE_ERROR_CODE                       SYS_SD_TASK_BASE_ERROR_CODE + SYS_GROUP_ERROR_COUNT
+#define SYS_SENSOR_TASK_OP_ERROR_CODE                         SYS_SENSOR_TASK_BASE_ERROR_CODE + 1
+
 #ifdef __cplusplus
 }
 #endif

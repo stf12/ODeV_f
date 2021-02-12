@@ -34,7 +34,7 @@ extern "C" {
 
 
 /**
- * Creates a type name for _IDriver.
+ * Creates a type name for _IBus.
  */
 typedef struct _IBus IBus;
 

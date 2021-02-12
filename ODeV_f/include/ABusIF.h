@@ -93,7 +93,7 @@ typedef struct _ABusConnector {
 
 
 /**
- * Specifies the SPI interface for a generic sensor.
+ * Define the bus interface for a generic sensor.
  */
 struct _ABusIF {
   /**
@@ -102,6 +102,9 @@ struct _ABusIF {
    */
   ABusConnector m_xConnector;
 
+  /**
+   * TODO: STF - do I need this ?
+   */
   struct _IBus *m_pxBus;
 
   /**
