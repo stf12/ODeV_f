@@ -808,7 +808,10 @@ static sys_error_code_t IIS3DWBTaskEnterLowPowerMode(const IIS3DWBTask *_this) {
   sys_error_code_t xRes = SYS_NO_ERROR_CODE;
   stmdev_ctx_t *pxSensorDrv = (stmdev_ctx_t*) &_this->m_xSensorIF.super.m_xConnector;
 
-
+  if (iis3dwb_xl_data_rate_set(pxSensorDrv, IIS3DWB_XL_ODR_OFF)) {
+    xRes = SYS_SENSOR_TASK_OP_ERROR_CODE;
+    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SENSOR_TASK_OP_ERROR_CODE);
+  }
 
   return xRes;
 }
