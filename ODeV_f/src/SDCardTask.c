@@ -1065,19 +1065,23 @@ static sys_error_code_t SDTFillBuffer(SDCardTask *_this, uint8_t id, uint8_t *sr
     }
   }
 
+  boolean_t bBufferReady = FALSE;
   if((_this->m_pnSDWriteBufferIdx[id] < (dstSize/2)) && (dstP >= (dstSize/2))) {
     // first half full
     xReport.sdReport.nCmdID = SDT_CMD_ID_FIRST_HALF_DATA_READY;
-
+    bBufferReady = TRUE;
   }
   else if(dstP < _this->m_pnSDWriteBufferIdx[id]) {
     // second half full
     xReport.sdReport.nCmdID = SDT_CMD_ID_SECOND_HALF_DATA_READY;
+    bBufferReady = TRUE;
   }
 
-  if (pdTRUE != xQueueSendToBack(_this->m_xInQueue, &xReport, pdMS_TO_TICKS(50))) {
-    xRes = SYS_SD_TASK_DATA_LOST_ERROR_CODE;
-    SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SD_TASK_DATA_LOST_ERROR_CODE);
+  if (bBufferReady) {
+      if (pdTRUE != xQueueSendToBack(_this->m_xInQueue, &xReport, pdMS_TO_TICKS(50))) {
+      xRes = SYS_SD_TASK_DATA_LOST_ERROR_CODE;
+      SYS_SET_SERVICE_LEVEL_ERROR_CODE(SYS_SD_TASK_DATA_LOST_ERROR_CODE);
+    }
   }
 
   _this->m_pnSDWriteBufferIdx[id] = dstP;
